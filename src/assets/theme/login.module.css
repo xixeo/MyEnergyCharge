@@ -1,5 +1,6 @@
 .login_wrap{
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../img/login_bg.jpg);
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)), url(../img/login_bg2.jpg);
+    /* background: url(../img/login_bg2.jpg); */
     background-position: center;
     background-size: cover;
 }
