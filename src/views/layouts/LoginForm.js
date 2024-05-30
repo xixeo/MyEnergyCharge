@@ -36,14 +36,14 @@ export default function LoginForm({ onLogin }) {
 
     return (
         <div className="w-1/4 min-w-96 h-1/2 min-h-96 rounded-lg bg-white/[.55] shadow-lg flex flex-col justify-center items-center">
-            <p className="text-[#281f31] text-3xl font-bold">
+            <p className="text-[#364f9b] text-3xl font-bold">
                 Sign in to your account
             </p>
-            <form className="w-full px-8 pt-14 space-y-4 md:space-y-6" action="#">
+            <form className="w-full px-8 pt-12 space-y-4 md:space-y-6" action="#">
                 <div>
                     <label
                         htmlFor="email"
-                        className="block mb-2 text-sm font-medisum text-gray-900 dark:text-white"
+                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
                         Your email
                     </label>

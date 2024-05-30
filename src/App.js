@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import "./App.css";
+import "./App.scss";
 import Login from "./views/Login";
 // import Header from "./views/layouts/Header";
 // import Footer from "./views/layouts/Footer";
@@ -10,14 +10,14 @@ import Home from "./views/Layout";
 function App() {
     return (
         // <RecoilRoot>
-        <BrowserRouter>
-            <div className="App flex flex-col w-full h-screen overflow-y-auto ">
+        <div className="App flex flex-col w-full h-screen overflow-y-auto ">
+            <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={  <Login />}/>              
-                    <Route path="/Home" element={<Home />} />
+                    <Route path="/" element={<Login />} />
+                    <Route path="/Home/*" element={<Home />} />
                 </Routes>
-            </div>
-        </BrowserRouter>
+            </BrowserRouter>
+        </div>
         // </RecoilRoot>
     );
 }
