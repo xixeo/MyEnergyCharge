@@ -1,24 +1,27 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.scss";
 import Login from "./views/Login";
+import Menu1 from "./views/Menu1";
+import Menu2 from "./views/Menu2";
 // import Header from "./views/layouts/Header";
 // import Footer from "./views/layouts/Footer";
-import Home from "./views/Layout";
+import Layout from "./views/Layout";
+import Home from "./views/Home";
 // import { useRecoilValue, useRecoilState } from "recoil";
 // import { AtomN } from "./views/layouts/AtomN";
 
 function App() {
     return (
-        // <RecoilRoot>
-        <div className="App flex flex-col w-full h-screen overflow-y-auto ">
-            <BrowserRouter>
-                <Routes>
-                    <Route path="/Login" element={<Login />} />
-                    <Route path="/*" element={<Home />} />
-                </Routes>
-            </BrowserRouter>
-        </div>
-        // </RecoilRoot>
+        <BrowserRouter>
+            <Routes>
+                <Route path="/Login" element={<Login />} />
+                <Route path="/" element={<Layout />}>
+                    <Route index element={<Home />} />
+                    <Route path="Menu1" element={<Menu1 />} />
+                    <Route path="Menu2" element={<Menu2 />} />
+                </Route>
+            </Routes>
+        </BrowserRouter>
     );
 }
 

@@ -2,7 +2,7 @@ import { useNavigate, NavLink } from "react-router-dom";
 import { MdOutlineLogout } from "react-icons/md";
 import { useRecoilState } from "recoil";
 import { AtomN } from "./AtomN";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import data from "../menu/Menu";
 
 export default function Header() {
@@ -13,7 +13,6 @@ export default function Header() {
     //메일 앞 부분에서 사용자 이름 추출
     const userName = user ? user.split("@")[0] : "";
 
-    // console.log(user, "useer");
     const onLogout = (e) => {
         e.preventDefault();
         if (window.confirm("로그아웃 하시겠습니까?")) {
@@ -24,11 +23,12 @@ export default function Header() {
     };
 
     // 로그인이 되어있지 않으면 로그인 페이지로 이동
-    useEffect(() => {
-        if (!user) {
-            navigate("/Login");
-        }
-    }, [user, navigate]);
+    // 로그인이 안되면 메인화면, 메뉴화면으로 이동 불가해서 주석처리
+    // useEffect(() => {
+    //     if (!user) {
+    //         navigate("/");
+    //     }
+    // }, [user, navigate]);
 
     return (
         <header className="flex justify-between items-center text-2xl font-bold min-h-10 bg-[#2e236d] text-teal-50 p-5">

@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useCookies } from "react-cookie";
 
 export default function LoginForm({ onLogin }) {
     const [username, setUsername] = useState();
     const [pw, setPw] = useState();
-    const [cookies, setCookie, removeCookie] = useCookies(["rememberOK"]);
+    const [setCookie, removeCookie] = useCookies(["rememberOK"]);
     const [isRemember, setIsRemember] = useState(false);
 
     const handleLogin = (e) => {
@@ -16,23 +16,6 @@ export default function LoginForm({ onLogin }) {
             alert("로그인에 실패하였습니다.");
         }
     };
-
-
-    // useEffect(() => {
-    //     if (cookies.rememberOK !== undefined) {
-    //         setUsername(cookies.rememberOK);
-    //         setIsRemember(true);
-    //     }
-    // }, []);
-
-    // const handleOnChange = (e) => {
-    //     setIsRemember(e.target.check);
-    //     if (e.target.check) {
-    //         setCookie("rememberOK", username, { maxAge: 2000 });
-    //     } else {
-    //         removeCookie("rememberOK");
-    //     }
-    // };
 
     const handleOnChange = (e) => {
         const { checked } = e.target;

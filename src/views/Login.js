@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import styles from "../assets/theme/login.module.css";
 import LoginForm from "./layouts/LoginForm";
-import { useRecoilValue, useRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import { AtomN } from "./layouts/AtomN";
 
 import { useNavigate } from "react-router-dom";
@@ -26,10 +26,6 @@ export default function Login() {
             navigate("/"); // 이미 로그인된 경우 홈 페이지로 이동
         }
     }, [setUser, navigate]);
-    // useEffect(() => {
-    //     const lsUser = localStorage.getItem("user");
-    //     if (lsUser) setUser(lsUser);
-    // }, []);
 
     return (
         <div
