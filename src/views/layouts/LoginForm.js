@@ -4,10 +4,12 @@ import { useCookies } from "react-cookie";
 export default function LoginForm({ onLogin }) {
     const [username, setUsername] = useState();
     const [pw, setPw] = useState();
+    const [cookies, setCookie, removeCookie] = useCookies(["rememberOK"]);
+    const [isRemember, setIsRemember] = useState(false);
 
     const handleLogin = (e) => {
         e.preventDefault();
-        
+        //추후 서버와의 인증 과정 추가
         if ((username === "user@naver.com") && (pw === "1234")) {
             onLogin(username);
         } else {
@@ -15,20 +17,28 @@ export default function LoginForm({ onLogin }) {
         }
     };
 
-    const [cookies, setCookie, removeCookie] = useCookies(["rememberOK"]);
-    const [isRemember, setIsRemember] = useState(false);
 
-    useEffect(() => {
-        if (cookies.rememberOK !== undefined) {
-            setUsername(cookies.rememberOK);
-            setIsRemember(true);
-        }
-    }, []);
+    // useEffect(() => {
+    //     if (cookies.rememberOK !== undefined) {
+    //         setUsername(cookies.rememberOK);
+    //         setIsRemember(true);
+    //     }
+    // }, []);
+
+    // const handleOnChange = (e) => {
+    //     setIsRemember(e.target.check);
+    //     if (e.target.check) {
+    //         setCookie("rememberOK", username, { maxAge: 2000 });
+    //     } else {
+    //         removeCookie("rememberOK");
+    //     }
+    // };
 
     const handleOnChange = (e) => {
-        setIsRemember(e.target.check);
-        if (e.target.check) {
-            setCookie("rememberOK", username, { maxAge: 2000 });
+        const { checked } = e.target;
+        setIsRemember(checked);
+        if (checked) {
+            setCookie("rememberOK", username, { maxAge: 7 * 24 * 60 * 60 });
         } else {
             removeCookie("rememberOK");
         }

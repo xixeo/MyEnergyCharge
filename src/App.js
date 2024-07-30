@@ -13,8 +13,8 @@ function App() {
         <div className="App flex flex-col w-full h-screen overflow-y-auto ">
             <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<Login />} />
-                    <Route path="/Home/*" element={<Home />} />
+                    <Route path="/Login" element={<Login />} />
+                    <Route path="/*" element={<Home />} />
                 </Routes>
             </BrowserRouter>
         </div>

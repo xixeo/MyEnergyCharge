@@ -1,13 +1,16 @@
 const data = [
     {
-      title: 'menu1',
-      link: '/Home/menu1',
+        title: "Home",
+        link: "/",
     },
     {
-      title: 'menu2',
-      link: '/Home/menu2',
+        title: "menu1",
+        link: "/menu1",
     },
+    {
+        title: "menu2",
+        link: "/menu2",
+    },
+];
 
-  ];
-  
-  export default data;
+export default data;
