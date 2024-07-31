@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import styles from "../assets/theme/login.module.css";
+import styles from "../assets/theme/login.module.scss";
 import LoginForm from "./layouts/LoginForm";
 import { useRecoilState } from "recoil";
 import { AtomN } from "./layouts/AtomN";
