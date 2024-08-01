@@ -29,8 +29,8 @@ export default function LoginForm({ onLogin }) {
 
     return (
         <div className="w-1/4 min-w-96 h-1/2 min-h-96 rounded-lg bg-white/[.55] shadow-lg flex flex-col justify-center items-center">
-            <p className="text-[#364f9b] text-3xl font-bold">
-                Sign in to your account
+            <p className="text-[#364f9b] text-3xl font-bold w-full px-8">
+                Login
             </p>
             <form className="w-full px-8 pt-12 space-y-4 md:space-y-6" action="#">
                 <div>

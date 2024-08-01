@@ -1,47 +1,53 @@
-/// 기 저장된 좌표값을 지도에 표현하기
-import React, { useState } from 'react';
-import { Map, MapMarker, useMap } from 'react-kakao-maps-sdk';
-import { markerdata } from './data/markerData';
+// maker 클릭 시 주소 가져오기
+import React, { useState } from "react";
+import { Map } from "react-kakao-maps-sdk";
 
-const KakaoMap = () => {
-  const EventMarkerContainer = ({ position, content }) => {
-    const map = useMap()
-    const [isVisible, setIsVisible] = useState(false)
+export default function KakaoMap() {
+    const { kakao } = window;
+    const [state, setState] = useState({
+        // 지도의 초기 위치
+        center: { lat: 37.49676871972202, lng: 127.02474726969814 },
+        // 지도 위치 변경시 panto를 이용할지(부드럽게 이동)
+        isPanto: true,
+    });
+    const [searchAddress, SetSearchAddress] = useState();
+
+    // 주소 입력후 검색 클릭 시 원하는 주소로 이동
+    const SearchMap = () => {
+        const geocoder = new kakao.maps.services.Geocoder();
+
+        let callback = function (result, status) {
+            if (status === kakao.maps.services.Status.OK) {
+                const newSearch = result[0];
+                setState({
+                    center: { lat: newSearch.y, lng: newSearch.x },
+                });
+            }
+        };
+        geocoder.addressSearch(`${searchAddress}`, callback);
+    };
+
+    const handleSearchAddress = (e) => {
+        SetSearchAddress(e.target.value);
+    };
 
     return (
-      <MapMarker
-        position={position} // 마커를 표시할 위치
-        onClick={(marker) => map.panTo(marker.getPosition())}
-        onMouseOver={() => setIsVisible(true)}
-        onMouseOut={() => setIsVisible(false)}
-      >
-        {isVisible && content}
-      </MapMarker>
-    )
-  }
-    return (
-        <Map
-            center={{ lat: 35.23585691442383, lng: 129.0768975881095 }} // 지도가 표현될때 처음 보여줄 위치 지정 (위도,경도)
-            style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: "4px",
-                overflow: "hidden",
-            }}
-            level={3} //레벨 조정 가능
-        >
+        <>
+            <Map
+                center={state.center}
+                isPanto={state.isPanto}
+                style={{
+                    // 지도의 크기
+                    width: "100%",
+                    height: "450px",
+                }}
+                level={3} // 지도의 확대 레벨
+            ></Map>
 
-            {markerdata.map((item, index) => (
-                <EventMarkerContainer
-                    key={index}
-                    position={{ lat: item.lat, lng: item.lng }}
-                    title={item.title}
-                    style={{ border: "0" }}
-                >
-                </EventMarkerContainer>
-            ))}
-        </Map>
+            <div>
+                <input onChange={handleSearchAddress}></input>
+                <button onClick={SearchMap}>클릭</button>
+            </div>
+        </>
     );
-};
-
-export default KakaoMap;
+}

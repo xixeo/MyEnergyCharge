@@ -1,8 +1,5 @@
-// KakaoMap.js
 import React, { useState, useEffect } from "react";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
-import AddressSearch from "./AddressSearch"; // AddressSearch 컴포넌트 임포트
-import MarkerAddressDisplay from "./MarkerAddressDisplay"; // MarkerAddressDisplay 컴포넌트 임포트
 
 export default function KakaoMap() {
     const { kakao } = window;
@@ -23,7 +20,7 @@ export default function KakaoMap() {
         const { latitude, longitude } = response.coords;
         setLocation({ latitude, longitude });
         setState({
-            center: { lat: latitude, lng: longitude }
+            center: { lat: latitude, lng: longitude },
         });
         setMarkerPosition({ lat: latitude, lng: longitude });
     };
@@ -42,23 +39,33 @@ export default function KakaoMap() {
                 });
                 setMarkerPosition({
                     lat: newSearch.y,
-                    lng: newSearch.x
+                    lng: newSearch.x,
                 });
             }
         };
         geocoder.addressSearch(`${searchAddress}`, callback);
     };
 
+    const handleSearchAddress = (e) => {
+        setSearchAddress(e.target.value);
+    };
+
     const handleMarkerClick = () => {
         if (markerPosition) {
             const geocoder = new kakao.maps.services.Geocoder();
-            const coord = new kakao.maps.LatLng(markerPosition.lat, markerPosition.lng);
+            const coord = new kakao.maps.LatLng(
+                markerPosition.lat,
+                markerPosition.lng
+            );
             const callback = function (result, status) {
                 if (status === kakao.maps.services.Status.OK) {
-                    const address = result[0].address.address_name;
+                    const address = result[0].address;
                     setMarkerAddress(address);
-                    console.log("마커 위치의 주소:", address); // 주소를 콘솔에 출력
+                    console.log("마커 위치의 주소:", result[0].address); // 주소를 콘솔에 출력
                 }
+                // if (status === kakao.maps.services.Status.OK) {
+                //     setMarkerAddress(result[0].address.address_name);
+                // }
             };
             geocoder.coord2Address(coord.getLng(), coord.getLat(), callback);
         }
@@ -66,6 +73,15 @@ export default function KakaoMap() {
 
     return (
         <>
+            {" "}
+            <div className="my-5">
+                <input
+                    value={searchAddress}
+                    onChange={handleSearchAddress}
+                    placeholder="주소를 입력하세요"
+                />
+                <button onClick={SearchMap}>주소 검색</button>
+            </div>
             <Map
                 center={state.center}
                 isPanto={state.isPanto}
@@ -80,14 +96,25 @@ export default function KakaoMap() {
                     />
                 )}
             </Map>
-
-            <AddressSearch 
-                searchAddress={searchAddress} 
-                setSearchAddress={setSearchAddress} 
-                SearchMap={SearchMap} 
-            />
-
-            <MarkerAddressDisplay markerAddress={markerAddress} />
+            {markerAddress && (
+                <div>
+                    <p>마커 위치의 주소: {markerAddress.address_name}</p>
+                    <p>
+                        region_1depth_name: {markerAddress.region_1depth_name}
+                    </p>
+                    <p>
+                        region_2depth_name: {markerAddress.region_2depth_name}
+                    </p>
+                    <p>
+                        region_3depth_name: {markerAddress.region_3depth_name}
+                    </p>
+                    <p>
+                        region_3depth_name: {markerAddress.region_3depth_name}
+                    </p>
+                    <p>현재 기온 : 얼만지</p>
+                    <p>현재 전력량 : 얼만지</p>
+                </div>
+            )}
         </>
     );
 }
