@@ -19,7 +19,7 @@ const MapContainer = ({ setMap }) => {
     });
   }, [setMap]);
 
-  return <div id="map" style={{ width: '100%', height: '800px' }}></div>;
+  return <div id="map" style={{ width: '100%', height: '500px' }}></div>;
 };
 
 export default MapContainer;

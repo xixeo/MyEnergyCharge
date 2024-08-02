@@ -2,10 +2,9 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import MapContainer from './MapContainer';
 import SearchBar from './SearchBar';
 import PlaceList from './PlaceList';
-import Pagination from './Pagination';
 
 const KakaoMap = () => {
-  const { kakao } = window; // 전역 kakao 객체 접근
+  const { kakao } = window;
   const [map, setMap] = useState(null);
   const [places, setPlaces] = useState([]);
   const [pagination, setPagination] = useState(null);
@@ -21,7 +20,7 @@ const KakaoMap = () => {
           const userPosition = new kakao.maps.LatLng(latitude, longitude);
           if (map) {
             map.setCenter(userPosition);
-            map.setLevel(3); // default zoomLevel 설정.
+            map.setLevel(3); 
           }
         },
         () => {
@@ -39,16 +38,11 @@ const KakaoMap = () => {
     }
   }, [map, getUserLocation]);
 
-	// Maker 클릭 이벤트
   const handleMarkerClick = useCallback((place, position, marker) => {
-  
-	  //마커 위에 장소 이름 띄우기
     infowindow.current.setContent(`<span>${place.place_name}</span>`);
     infowindow.current.open(map, marker);
 
     const currentLevel = map.getLevel();
-    
-    //마커에 맞춰 지도 레벨 확대
     const newLevel = currentLevel > 3 ? 3 : currentLevel;
     map.setLevel(newLevel, { anchor: position });
     map.panTo(position);
@@ -60,26 +54,18 @@ const KakaoMap = () => {
     const ps = new kakao.maps.services.Places();
     ps.keywordSearch(keyword, (data, status, pagination) => {
       if (status === kakao.maps.services.Status.OK) {
-	      
-	      // 장소 리스트 만들기
         setPlaces(data);
-        
-        //장소 리스트에 맞춰 page화
         setPagination(pagination);
-        
-        // 새로운 장소 검색 시 infowindow 닫기
-        infowindow.current.close();
 
+        infowindow.current.close();
         const bounds = new kakao.maps.LatLngBounds();
-        markers.forEach(marker => marker.setMap(null)); // 기존 마커 제거
+        markers.forEach(marker => marker.setMap(null));
         setMarkers([]);
 
         data.forEach((place) => {
           const position = new kakao.maps.LatLng(place.y, place.x);
-          // 리스트에 있는 장소들 마커 생성
           const marker = new kakao.maps.Marker({ map, position });
           
-          // 마커 클릭 시 공통 로직 처리
           kakao.maps.event.addListener(marker, 'click', () => handleMarkerClick(place, position, marker));
           
           setMarkers(prevMarkers => [...prevMarkers, marker]);
@@ -97,6 +83,12 @@ const KakaoMap = () => {
     handleMarkerClick(place, position, marker);
   };
 
+  const handlePageChange = (page) => {
+    if (pagination) {
+      pagination.gotoPage(page);
+    }
+  };
+
   return (
     <div className="map_wrap">
       <MapContainer setMap={setMap} />
@@ -110,8 +102,12 @@ const KakaoMap = () => {
               <SearchBar onSearch={handleSearch} />
             </div>
           </div>
-          <PlaceList places={places} onPlaceSelect={handlePlaceSelect} />
-          <Pagination pagination={pagination} />
+          <PlaceList
+            places={places}
+            onPlaceSelect={handlePlaceSelect}
+            pagination={pagination}
+            onPageChange={handlePageChange}
+          />
         </div>
       </div>
     </div>

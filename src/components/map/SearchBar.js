@@ -11,7 +11,7 @@ const SearchBar = ({ onSearch }) => {
   };
 
   return (
-    <div id="form">
+    <form id="form">
       <input
         type="text"
         value={search}
@@ -21,7 +21,7 @@ const SearchBar = ({ onSearch }) => {
       <button ref={searchFormRef} id="submit_btn" type="submit" onClick={handleSearch}>
         검색
       </button>
-    </div>
+    </form>
   );
 };
 
