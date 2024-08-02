@@ -1,9 +1,8 @@
 // KakaoMap.js
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
-const KakaoMap = ({ onMapReady }) => {
+const KakaoMap = ({ onSearchResults, onMapReady }) => {
   const { kakao } = window;
-  const [map, setMap] = useState(null);
   const infowindowRef = useRef(null);
 
   // 지도를 초기화하고 InfoWindow를 설정합니다.
@@ -16,7 +15,6 @@ const KakaoMap = ({ onMapReady }) => {
           level: 3,
         };
         const mapInstance = new kakao.maps.Map(container, options);
-        setMap(mapInstance);
         infowindowRef.current = new kakao.maps.InfoWindow({ zIndex: 1 });
         if (onMapReady) {
           onMapReady(mapInstance);
@@ -28,6 +26,7 @@ const KakaoMap = ({ onMapReady }) => {
   return (
     <div>
       <div id="map" style={{ width: '100%', height: '500px' }}></div>
+     
     </div>
   );
 };
