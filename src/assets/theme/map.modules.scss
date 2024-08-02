@@ -1,10 +1,12 @@
 .map_wrap {
-    // display: flex;
     height: 100%;
+    position: relative;
+    
+    $map-height: 400px;
 
     #map {
         width: 100%;
-        height: 400px;
+        height: $map-height;
     }
 
     #menuDiv {
@@ -31,8 +33,13 @@
         margin-bottom: 15px;
     }
 
-
-
+    // .placeList{
+    //     position: absolute;
+    //     top: 0;
+    //     right: 0;
+    //     z-index: 3;
+    //     height: $map-height;
+    // }
 }
 #form {
     display: flex;
