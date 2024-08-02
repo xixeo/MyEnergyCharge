@@ -14,7 +14,6 @@ const Home = () => {
     setPagination(pagination);
   }, []);
 
-
   // KakaoMap에서 map 객체가 준비되었을 때 호출되는 핸들러
   const handleMapReady = useCallback((mapInstance) => {
     setMap(mapInstance);
@@ -41,7 +40,6 @@ const Home = () => {
 
   // PlaceList에서 페이지가 변경됐을 때의 처리
   const handlePageChange = useCallback((page) => {
-    console.log('Page changed to:', page);
     if (pagination) {
       pagination.gotoPage(page);
     }

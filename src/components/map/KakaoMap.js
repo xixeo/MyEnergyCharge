@@ -1,14 +1,32 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import MapContainer from './MapContainer';
 import SearchBar from './SearchBar';
 
 const KakaoMap = ({ onSearchResults, onMapReady }) => {
   const { kakao } = window;
   const [map, setMap] = useState(null);
   const [markers, setMarkers] = useState([]);
-  const infowindow = useRef(new kakao.maps.InfoWindow({ zIndex: 1 }));
+  const infowindowRef = useRef(null);
 
-  // 사용자 위치를 가져오기
+  // 지도를 초기화하고 InfoWindow를 설정합니다.
+  useEffect(() => {
+    if (kakao && kakao.maps) {
+      kakao.maps.load(() => {
+        const container = document.getElementById("map");
+        const options = {
+          center: new kakao.maps.LatLng(38.2313466, 128.2139293),
+          level: 3,
+        };
+        const mapInstance = new kakao.maps.Map(container, options);
+        setMap(mapInstance);
+        infowindowRef.current = new kakao.maps.InfoWindow({ zIndex: 1 });
+        if (onMapReady) {
+          onMapReady(mapInstance);
+        }
+      });
+    }
+  }, [kakao, onMapReady]);
+
+  // 사용자 위치를 가져오고 지도 중심을 설정합니다.
   const getUserLocation = useCallback(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -17,7 +35,7 @@ const KakaoMap = ({ onSearchResults, onMapReady }) => {
           const userPosition = new kakao.maps.LatLng(latitude, longitude);
           if (map) {
             map.setCenter(userPosition);
-            map.setLevel(3); 
+            map.setLevel(3);
           }
         },
         () => {
@@ -32,22 +50,23 @@ const KakaoMap = ({ onSearchResults, onMapReady }) => {
   useEffect(() => {
     if (map) {
       getUserLocation();
-      if (onMapReady) {
-        onMapReady(map);
-      }
     }
-  }, [map, getUserLocation, onMapReady]);
+  }, [map, getUserLocation]);
 
+  // 마커 클릭 시 InfoWindow를 표시합니다.
   const handleMarkerClick = useCallback((place, position, marker) => {
-    infowindow.current.setContent(`<span>${place.place_name}</span>`);
-    infowindow.current.open(map, marker);
+    if (infowindowRef.current) {
+      infowindowRef.current.setContent(`<span>${place.place_name}</span>`);
+      infowindowRef.current.open(map, marker);
 
-    const currentLevel = map.getLevel();
-    const newLevel = currentLevel > 3 ? 3 : currentLevel;
-    map.setLevel(newLevel, { anchor: position });
-    map.panTo(position);
-  }, [map, infowindow]);
+      const currentLevel = map.getLevel();
+      const newLevel = currentLevel > 3 ? 3 : currentLevel;
+      map.setLevel(newLevel, { anchor: position });
+      map.panTo(position);
+    }
+  }, [map]);
 
+  // 검색 결과를 처리합니다.
   const handleSearch = useCallback((keyword) => {
     if (!map) return;
 
@@ -56,7 +75,7 @@ const KakaoMap = ({ onSearchResults, onMapReady }) => {
       if (status === kakao.maps.services.Status.OK) {
         onSearchResults(data, pagination);
 
-        infowindow.current.close();
+        infowindowRef.current.close();
         const bounds = new kakao.maps.LatLngBounds();
         markers.forEach(marker => marker.setMap(null));
         setMarkers([]);
@@ -78,22 +97,12 @@ const KakaoMap = ({ onSearchResults, onMapReady }) => {
   }, [map, markers, handleMarkerClick, kakao, onSearchResults]);
 
   return (
-    <div className="map_wrap">
-      <MapContainer setMap={setMap} />
-      <div id="menuDiv">
-        <div id="menu_wrap" className="bg-white">
-          <div className="option">
-            <div>
-              <div id="map_title">
-                <div>List</div>
-              </div>
-              <SearchBar onSearch={handleSearch} />
-            </div>
-          </div>
-        </div>
-      </div>
+    <div>
+      <div id="map" style={{ width: '100%', height: '500px' }}></div>
+      <SearchBar onSearch={handleSearch} />
     </div>
   );
 };
 
 export default KakaoMap;
+
