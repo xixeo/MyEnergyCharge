@@ -58,56 +58,57 @@
         }
     }
 
-    #placesList {
-        list-style: none;
-        padding: 0;
-        margin: 0;
 
-        .item {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+}
+#placesList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 
-            &:hover {
-                background-color: #f0f0f0;
-            }
+    .item {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
 
-            .markerbg {
-                display: inline-block;
-                width: 10px;
-                height: 10px;
-                background-color: #ff5722;
-                border-radius: 50%;
-                margin-right: 10px;
-                vertical-align: middle;
-            }
+        &:hover {
+            background-color: #f0f0f0;
+        }
+
+        .markerbg {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #ff5722;
+            border-radius: 50%;
+            margin-right: 10px;
+            vertical-align: middle;
         }
     }
+}
 
-    #pagination {
-        display: flex;
-        justify-content: center;
-        margin-top: 15px;
+#pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
 
-        a {
-            display: inline-block;
-            padding: 5px 10px;
-            margin: 0 2px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            color: #007bff;
-            text-decoration: none;
+    a {
+        display: inline-block;
+        padding: 5px 10px;
+        margin: 0 2px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        color: #007bff;
+        text-decoration: none;
 
-            &.on {
-                background-color: #007bff;
-                color: #fff;
-                border-color: #007bff;
-            }
+        &.on {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+        }
 
-            &:hover {
-                background-color: #f0f0f0;
-            }
+        &:hover {
+            background-color: #f0f0f0;
         }
     }
 }

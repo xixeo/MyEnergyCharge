@@ -1,13 +1,10 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import MapContainer from './MapContainer';
 import SearchBar from './SearchBar';
-import PlaceList from './PlaceList';
 
-const KakaoMap = () => {
+const KakaoMap = ({ onSearchResults, onMapReady }) => {
   const { kakao } = window;
   const [map, setMap] = useState(null);
-  const [places, setPlaces] = useState([]);
-  const [pagination, setPagination] = useState(null);
   const [markers, setMarkers] = useState([]);
   const infowindow = useRef(new kakao.maps.InfoWindow({ zIndex: 1 }));
 
@@ -35,8 +32,11 @@ const KakaoMap = () => {
   useEffect(() => {
     if (map) {
       getUserLocation();
+      if (onMapReady) {
+        onMapReady(map);
+      }
     }
-  }, [map, getUserLocation]);
+  }, [map, getUserLocation, onMapReady]);
 
   const handleMarkerClick = useCallback((place, position, marker) => {
     infowindow.current.setContent(`<span>${place.place_name}</span>`);
@@ -54,8 +54,7 @@ const KakaoMap = () => {
     const ps = new kakao.maps.services.Places();
     ps.keywordSearch(keyword, (data, status, pagination) => {
       if (status === kakao.maps.services.Status.OK) {
-        setPlaces(data);
-        setPagination(pagination);
+        onSearchResults(data, pagination);
 
         infowindow.current.close();
         const bounds = new kakao.maps.LatLngBounds();
@@ -76,18 +75,7 @@ const KakaoMap = () => {
         alert("검색 결과 중 오류가 발생했습니다.");
       }
     });
-  }, [map, markers, handleMarkerClick, kakao]);
-
-  const handlePlaceSelect = (place, marker) => {
-    const position = new kakao.maps.LatLng(place.y, place.x);
-    handleMarkerClick(place, position, marker);
-  };
-
-  const handlePageChange = (page) => {
-    if (pagination) {
-      pagination.gotoPage(page);
-    }
-  };
+  }, [map, markers, handleMarkerClick, kakao, onSearchResults]);
 
   return (
     <div className="map_wrap">
@@ -102,12 +90,6 @@ const KakaoMap = () => {
               <SearchBar onSearch={handleSearch} />
             </div>
           </div>
-          <PlaceList
-            places={places}
-            onPlaceSelect={handlePlaceSelect}
-            pagination={pagination}
-            onPageChange={handlePageChange}
-          />
         </div>
       </div>
     </div>
