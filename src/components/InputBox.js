@@ -1,19 +1,61 @@
-export default function TailInput({ id, type, inRef, customClass }) {
+export default function InputBox({
+    labelText, 
+    labelClass, 
+    id,
+    type,
+    inRef,
+    customClass,
+    ops = [],
+    selRef,
+    initText,
+    handleChange,
+    min,
+    max,
+}) {
     const today = new Date().toISOString().slice(0, 10);
+    const opTags = ops.map((item) => (
+        <option key={item} value={item} >
+            {item}
+        </option>
+    ));
+
     return (
         <div>
-            {type === 'date' ? (
+             {labelText && (
+                <label htmlFor={id}
+                 className={`text-[#222] font-semibold text-sm
+                    ${labelClass}`}
+                >
+                    {labelText}
+                </label>
+            )}
+            {type === "date" ? (
                 <input
-                    type={type}
-                    defaultValue={today}
                     id={id}
+                    type={type}
+                    min={min}
+                    max={max}
+                    defaultValue={today}
                     ref={inRef}
-                    className={customClass}
+                    className={`min-w-40 focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4]
+                        ${customClass}`}
+                    onChange={handleChange}
                 />
+            ) : type === "dropDown" ? (
+                <select
+                    id={id}
+                    ref={selRef}
+                    className={`min-w-40  focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4]
+                        ${customClass}`}
+                    onChange={handleChange}
+                >
+                    <option defaultValue="">{initText}</option>
+                    {opTags}
+                </select>
             ) : (
                 <input
-                    type={type}
                     id={id}
+                    type={type}
                     ref={inRef}
                     className={customClass}
                 />
