@@ -54,8 +54,8 @@ const KakaoMap = ({ onSearchResults, onMapReady }) => {
   }, [mapInstance, kakao]);
 
   return (
-    <div className='bg-[#EEF2F5] p-2 rounded-md border border-b-zinc-200'>
-      <div ref={mapContainerRef} style={{ width: '100%', height: '720px', borderRadius: '10px' }}></div>
+    <div>
+      <div ref={mapContainerRef} style={{ width: '100%', height: '500px' }}></div>
     </div>
   );
 };

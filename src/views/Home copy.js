@@ -1,32 +1,36 @@
+// Home.js
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import KakaoMap from "../components/map/KakaoMap";
 import PlaceList from "../components/map/PlaceList";
 import SearchBar from "../components/map/SearchBar";
-import areas from "../components/data/area.json";
 import InputBox from "../components/InputBox";
-import Btn from "../components/Btn";
 
 const Home = () => {
+    // KakaoMap
     const [places, setPlaces] = useState([]);
     const [pagination, setPagination] = useState(null);
     const [map, setMap] = useState(null);
     const infowindowRef = useRef(null);
     const [searchQuery, setSearchQuery] = useState("");
 
+    // KakaoMap에서 검색 결과를 받아오는 핸들러
     const handleSearchResults = useCallback((places, pagination) => {
         setPlaces(places);
         setPagination(pagination);
     }, []);
 
+    // KakaoMap에서 map 객체가 준비되었을 때 호출되는 핸들러
     const handleMapReady = useCallback((mapInstance) => {
         setMap(mapInstance);
         infowindowRef.current = new window.kakao.maps.InfoWindow({ zIndex: 1 });
     }, []);
 
+    // SearchBar에서 검색어를 받아서 처리하는 핸들러
     const handleSearch = useCallback((query) => {
         setSearchQuery(query);
     }, []);
 
+    // 검색어가 변경되면 KakaoMap에서 검색을 실행
     useEffect(() => {
         if (map && searchQuery) {
             const ps = new window.kakao.maps.services.Places();
@@ -79,9 +83,11 @@ const Home = () => {
         }
     }, [map, searchQuery, handleSearchResults]);
 
+    // PlaceList에서 장소를 선택했을 때의 처리
     const handlePlaceSelect = useCallback(
         (place, marker) => {
             if (map && infowindowRef.current) {
+                // InfoWindow가 열려 있을 경우 닫기
                 infowindowRef.current.close();
 
                 const position = new window.kakao.maps.LatLng(place.y, place.x);
@@ -99,6 +105,7 @@ const Home = () => {
         [map]
     );
 
+    // PlaceList에서 페이지가 변경됐을 때의 처리
     const handlePageChange = useCallback(
         (page) => {
             if (pagination) {
@@ -108,120 +115,79 @@ const Home = () => {
         [pagination]
     );
 
-    // selectBox
-    const [selectedArea, setSelectedArea] = useState("");
-    const [selectedSubArea, setSelectedSubArea] = useState("");
-    const [subAreas, setSubAreas] = useState([]);
+    // 지역 선택 dropDown
+    const [siOps, setSiOps] = useState(); //지역 선택
+    const [guOps, setGuOps] = useState(); //지역 선택
+    const selRef = useRef(); //옵션 선택
 
-    const handleAreaChange = (e) => {
-        const areaName = e.target.value;
-        setSelectedArea(areaName);
-        const selectedAreaObj = areas.find((area) => area.name === areaName);
-        setSubAreas(selectedAreaObj ? selectedAreaObj.subArea : []);
-        setSelectedSubArea(""); // 지역을 바꾸면 시, 군, 구 선택 초기화
-    };
-
-    const handleSubAreaChange = (e) => {
-        setSelectedSubArea(e.target.value);
-    };
-
-    // dateBox
-    const [selectedDate, setSelectedDate] = useState("");
-
-    // Create refs for InputBox components
-    const areaSelectRef = useRef(null);
-    const subAreaSelectRef = useRef(null);
-    const dateInputRef = useRef(null);
-
-    const handleDateChange = (e) => {
-        setSelectedDate(e.target.value);
-    };
-
-    // Utility function to format date as YYYY-MM-DD
-    const formatDate = (date) => {
-        const year = date.getFullYear();
-        const month = `0${date.getMonth() + 1}`.slice(-2);
-        const day = `0${date.getDate()}`.slice(-2);
-        return `${year}-${month}-${day}`;
-    };
-
-    // Get today's date and the date 1 year ago
-    const today = new Date();
-    const oneYearAgo = new Date(today);
-    oneYearAgo.setFullYear(today.getFullYear() - 1);
-
-    // Format the dates
-    const startDate = formatDate(oneYearAgo);
-    const endDate = formatDate(today);
-
-    // Button click handler to log values
-    const handleButtonClick = () => {
-        console.log(
-            "Area:",
-            areaSelectRef.current ? areaSelectRef.current.value : "N/A"
-        );
-        console.log(
-            "Sub Area:",
-            subAreaSelectRef.current ? subAreaSelectRef.current.value : "N/A"
-        );
-        console.log(
-            "Date:",
-            dateInputRef.current ? dateInputRef.current.value : "N/A"
-        );
+    //구선택
+    const handleGuSelect = () => {
+        console.log(selRef.current.value);
+        if (!ops) return;
+        let tm = tdata
+            .filter((item) => item["GUGUN_NM"] === selRef.current.value)
+            .map((item) => (
+                <GalleryCard
+                    key={item.UC_SEQ}
+                    title={item.TITLE}
+                    content={item.SUBTITLE}
+                    imgUrl={item.MAIN_IMG_NORMAL}
+                    spTag={item.MAIN_PLACE}
+                />
+            ));
+        setCards(tm);
     };
 
     return (
-        <div className="max-w-screen-2xl mx-auto px-4">
-            <div className="w-full h-14 px-4 flex items-center justify-between border-b border-[#CDD1E1]">
-                <div className="flex items-center">
-                    <InputBox
-                        id="areaSelect"
-                        type="dropDown"
-                        initText="선택"
-                        ops={areas.map((area) => area.name)}
-                        handleChange={handleAreaChange}
-                        customClass="mr-10"
-                        selRef={areaSelectRef}
-                        labelText="시도"
-                        labelClass="ml-0 mr-4"
-                    />
-
-                    <InputBox
-                        id="subAreaSelect"
-                        type="dropDown"
-                        initText="선택"
-                        ops={subAreas}
-                        handleChange={handleSubAreaChange}
-                        customClass="mr-10"
-                        selRef={subAreaSelectRef}
-                        labelText="시군구"
-                        labelClass="ml-0 mr-4"
-                    />
-
-                    <InputBox
-                        id="dt"
-                        type="date"
-                        min={startDate}
-                        max={endDate}
-                        value={selectedDate}
-                        handleChange={handleDateChange}
-                        customClass="mr-10"
-                        inRef={dateInputRef} 
-                        labelText="날짜"
-                        labelClass="ml-0 mr-4"
-                    />
+        <div>
+            {/* 조회조건 */}
+            <div className="w-full h-10 flex items-center border-b border-b-zinc-200">
+                <div className="sido">
+                    <label
+                        htmlFor="op"
+                        className="text-xl font-bold
+                              inline-flex justify-center items-center mb-5 md:mb-0 mr-5
+                             text-gray-900 dark:text-white"
+                    >
+                        지역
+                    </label>
+                    {ops && (
+                        <InputBox
+                            id="op"
+                            selRef={selRef}
+                            ops={siOps}
+                            initText="시/도 선택"
+                            handleChange={handleSiSelect}
+                            customClass={"border p-2"}
+                        />
+                    )}
                 </div>
-
-                <Btn
-                    caption="조회"
-                    customClass={
-                        "bg-[#0473E9] py-1 rounded-sm text-white text-sm mx-1"
-                    }
-                    handleClick={handleButtonClick}
-                />
+                <div className="gugun">
+                    <label
+                        htmlFor="op"
+                        className="text-xl font-bold
+                              inline-flex justify-center items-center mb-5 md:mb-0 mr-5
+                             text-gray-900 dark:text-white"
+                    >
+                        지역
+                    </label>
+                    {ops && (
+                        <InputBox
+                            id="op"
+                            selRef={selRef}
+                            ops={guOps}
+                            initText="시/도 선택"
+                            handleChange={handleGuSelect}
+                            customClass={"border p-2"}
+                        />
+                    )}
+                </div>
             </div>
 
+            {/* 컨텐츠 */}
+            <SearchBar onSearch={handleSearch} />
             <div className="grid grid-cols-5 gap-4 mt-6">
+                {/* 지도 */}
                 <div className="col-span-3">
                     <KakaoMap
                         onSearchResults={handleSearchResults}
@@ -229,10 +195,11 @@ const Home = () => {
                     />
                 </div>
 
+                {/* 차트 */}
                 <div className="col-span-2">
                     <PlaceList
                         places={places}
-                        onPlaceSelect={handlePlaceSelect}
+                        onPlaceSelect={handlePlaceSelect} // 여기에 onPlaceSelect 전달
                         pagination={pagination}
                         onPageChange={handlePageChange}
                     />
