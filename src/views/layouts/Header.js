@@ -31,13 +31,13 @@ export default function Header() {
     // }, [user, navigate]);
 
     return (
-        <header className="flex justify-between items-center text-2xl font-bold min-h-10 bg-[#2e236d] text-teal-50 p-5">
-            <div className="Logo">logo</div>
+        <header className="flex justify-between items-center text-xl font-bold min-h-10 bg-white p-5">
+            <div className="Logo">나의 전력량</div>
             <div className="MenuList">
                 <ul className="flex justify-center items-center gap-4 text-md">
                     {navs.map((nav, index) => (
                         <li key={index} className="py-2 px-3 rounded-sm hover:bg-[#ffffff10] md:hover:bg-transparent md:border-0 md:hover:text-[#f1edb2] md:p-0">
-                            <NavLink to={nav.link} className={({ isActive }) => (isActive ? 'text-white' : 'text-gray-400')}>
+                            <NavLink to={nav.link} className={({ isActive }) => (isActive ? 'text-[#2e236d]' : 'text-gray-400')}>
                                 {nav.title}
                             </NavLink>
                         </li>
