@@ -32,7 +32,7 @@ const Home = () => {
 
     const handleSubAreaChange = (e) => {
         setSelectedSubArea(e.target.value);
-        console.log("Selected sub area:", selectedSubArea); // selectedSubArea 변수 사용
+        console.log("Selected sub area:", e.target.value); // selectedSubArea 변수 사용
     };
 
     // dateBox
@@ -130,7 +130,6 @@ const Home = () => {
                 </div>
 
                 <div className="col-span-2">
-                    
                     {/* 여기에 다른 컴포넌트나 기능을 추가할 수 있습니다 */}
                 </div>
             </div>
