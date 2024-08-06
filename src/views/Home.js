@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import KakaoMap from "../components/map/KakaoMap";
 import areas from "../components/data/area.json";
 import InputBox from "../components/InputBox";
@@ -13,6 +13,7 @@ const Home = () => {
     const handleMapReady = useCallback((mapInstance) => {
         setMap(mapInstance);
         infowindowRef.current = new window.kakao.maps.InfoWindow({ zIndex: 1 });
+        console.log("Map instance:", map); // map 변수 사용
     }, []);
 
     // selectBox
@@ -26,10 +27,12 @@ const Home = () => {
         const selectedAreaObj = areas.find((area) => area.name === areaName);
         setSubAreas(selectedAreaObj ? selectedAreaObj.subArea : []);
         setSelectedSubArea(""); // 지역을 바꾸면 시, 군, 구 선택 초기화
+        console.log("Selected area:", selectedArea); // selectedArea 변수 사용
     };
 
     const handleSubAreaChange = (e) => {
         setSelectedSubArea(e.target.value);
+        console.log("Selected sub area:", selectedSubArea); // selectedSubArea 변수 사용
     };
 
     // dateBox
@@ -63,23 +66,11 @@ const Home = () => {
 
     //조회 버튼 클릭
     const handleButtonClick = () => {
-        console.log(
-            "Area:",
-            areaSelectRef.current ? areaSelectRef.current.value : "N/A"
-        );
-        console.log(
-            "Sub Area:",
-            subAreaSelectRef.current ? subAreaSelectRef.current.value : "N/A"
-        );
-        console.log(
-            "Date:",
-            dateInputRef.current ? dateInputRef.current.value : "N/A"
-        );
-    
         // 전달된 값을 상태로 업데이트하여 KakaoMap 컴포넌트에 전달
-        setArea(areaSelectRef.current ? areaSelectRef.current.value : "");
+        setArea(areaSelectRef.current ? areaSelectRef.current.value.substring(0, 2) : "");
         setSubArea(subAreaSelectRef.current ? subAreaSelectRef.current.value : "");
     };
+
     return (
         <div className="max-w-screen-2xl mx-auto px-4">
             <div className="w-full h-14 px-4 flex items-center justify-between border-b border-[#CDD1E1]">
@@ -124,9 +115,7 @@ const Home = () => {
 
                 <Btn
                     caption="조회"
-                    customClass={
-                        "bg-[#0473E9] py-1 rounded-sm text-white text-sm mx-1"
-                    }
+                    customClass="bg-[#0473E9] py-1 rounded-sm text-white text-sm mx-1"
                     handleClick={handleButtonClick}
                 />
             </div>
@@ -141,6 +130,7 @@ const Home = () => {
                 </div>
 
                 <div className="col-span-2">
+                    
                     {/* 여기에 다른 컴포넌트나 기능을 추가할 수 있습니다 */}
                 </div>
             </div>
