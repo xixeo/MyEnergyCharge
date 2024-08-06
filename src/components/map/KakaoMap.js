@@ -45,10 +45,6 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
                     geocoder.coord2Address(lng, lat, (result, status) => {
                         if (status === kakao.maps.services.Status.OK) {
                             let address = result[0].address.region_2depth_name;
-                            const spaceIndex = address.indexOf(" ");
-                            if (spaceIndex !== -1) {
-                                address = address.slice(0, spaceIndex);
-                            }
                             console.log(`주소 변환 결과: ${address}`);
 
                             setOverlayPosition(latlng);
@@ -61,32 +57,6 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
             });
         }
     }, [kakao, onMapReady]);
-
-    useEffect(() => {
-        if (mapInstance && area && subArea) {
-            const selectedArea = sidoData.features.find(
-                (feature) => feature.properties.SIDO_NM === area
-            );
-            const selectedSubArea = sigData.features.find(
-                (feature) =>
-                    feature.properties.SIDO_NM ===
-                        selectedArea?.properties.SIG_KOR_NM &&
-                    feature.properties.SIG_KOR_NM === subArea
-            );
-
-            if (selectedSubArea || selectedArea) {
-                const coords = (
-                    selectedSubArea || selectedArea
-                ).geometry.coordinates[0].map(
-                    (coord) => new kakao.maps.LatLng(coord[1], coord[0])
-                );
-
-                const bounds = new kakao.maps.LatLngBounds();
-                coords.forEach((coord) => bounds.extend(coord));
-                mapInstance.setBounds(bounds);
-            }
-        }
-    }, [area, subArea, mapInstance]);
 
     useEffect(() => {
         if (mapInstance && (overlayPosition || subAreaName)) {
@@ -161,8 +131,25 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
         }
     }, [mapInstance, overlayPosition, subAreaName, weather]);
 
+    useEffect(() => {
+        if (mapInstance && area && subArea) {
+            const geocoder = new kakao.maps.services.Geocoder();
+            const address = `${area} ${subArea}`;
+            geocoder.addressSearch(address, (result, status) => {
+                if (status === kakao.maps.services.Status.OK) {
+                    const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                    mapInstance.setCenter(coords);
+                    setOverlayPosition(coords);
+                    setSubAreaName(subArea);
+                } else {
+                    console.error("주소 검색 실패:", status);
+                }
+            });
+        }
+    }, [mapInstance, area, subArea]);
+
     return (
-        <div ref={mapContainerRef} style={{ width: "100%", height: "750px" }} />
+        <div ref={mapContainerRef} style={{ width: "100%", height: "500px" }} />
     );
 };
 
