@@ -29,7 +29,7 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
         const container = mapContainerRef.current; // 지도 컨테이너 참조
         const options = {
           center,
-          level: 8,
+          level: 9,
           disablePan: true, // 지도 이동 비활성화
         };
         const map = new kakao.maps.Map(container, options); // 지도 인스턴스 생성
@@ -56,10 +56,10 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
         kakao.maps.event.addListener(map, 'zoom_changed', () => {
           const level = map.getLevel();
           setCurrentZoomLevel(level);
-          if (level <= 6) {
-            deletePolygon(); // 레벨이 5 이하일 때 폴리곤 삭제
+          if (level <= 8) {
+            deletePolygon(); // 레벨이 8 이하일 때 폴리곤 삭제
           } else {
-            addPolygons(); // 레벨이 6 이상일 때 폴리곤 추가
+            addPolygons(); // 레벨이 8 이상일 때 폴리곤 추가
           }
         });
 
@@ -134,20 +134,28 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
     });
 
     kakao.maps.event.addListener(polygon, "mouseover", () => {
-      polygon.setOptions({ fillColor: "#09f" });
-      overlay.setPosition(centroid(area.path)); // 폴리곤의 중심 위치로 오버레이 위치 설정
-      overlay.setContent(`<div class='overlaybox'>${area.name}</div>`);
-      overlay.setMap(map);
-      console.log('area', area);
-    });
+        polygon.setOptions({ fillColor: "#09f" });
+      });
+  
+      kakao.maps.event.addListener(polygon, "mouseout", () => {
+        polygon.setOptions({ fillColor: "#fff" });
+      });
 
-    kakao.maps.event.addListener(polygon, "mouseout", () => {
-      polygon.setOptions({ fillColor: "#fff" });
-      overlay.setMap(null);
-    });
+    const centroidPosition = centroid(area.path); // 폴리곤의 중심 좌표 계산
 
+    // 폴리곤을 지도에 추가
     polygon.setMap(map);
     polygons.current.push(polygon); // 폴리곤을 현재 폴리곤 배열에 추가
+
+    // 항상 오버레이 설정
+    const content = `<div class='overlaybox'>${area.name}</div>`;
+    const newOverlay = new kakao.maps.CustomOverlay({
+      position: centroidPosition, // 폴리곤의 중심 좌표
+      content: content,
+      xAnchor: 0.5,
+      yAnchor: 0.5,
+    });
+    newOverlay.setMap(map);
   };
 
   // 폴리곤의 중심 좌표 계산 함수
