@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import siguData from "../data/sig.json"; // SIG 데이터 JSON 파일 경로
 // import sidoData from "../data/sido.json"; // 시도 데이터 JSON 파일 경로
 
+///////////polygon생성, 클릭하면 polygon삭제
+
 // 아이콘 파일을 모듈처럼 가져오기
 import w01 from "../../assets/icons/w01.png";
 import w02 from "../../assets/icons/w02.png";
@@ -18,7 +20,6 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
   const [subAreaName, setSubAreaName] = useState(""); // 하위 지역 이름 상태
   const [weather] = useState("맑음"); // 날씨 상태 기본값
   const polygons = useRef([]); // 폴리곤을 저장할 useRef 변수
-  const [currentZoomLevel, setCurrentZoomLevel] = useState(null); // 현재 지도 줌 레벨
 
   // 지도 초기화 및 폴리곤 추가
   useEffect(() => {
@@ -44,24 +45,9 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
         setMapOverlay(overlay);
 
         // SIG 데이터로 폴리곤 추가
-        const addPolygons = () => {
-          deletePolygon(); // 기존 폴리곤 삭제
-          siguData.features.forEach((feature) => {
+        siguData.features.forEach((feature) => {
             getPolycode(feature, map, overlay);
           });
-        };
-        addPolygons(); // 폴리곤 추가
-
-        // 지도 줌 레벨 변경 이벤트 리스너 추가
-        kakao.maps.event.addListener(map, 'zoom_changed', () => {
-          const level = map.getLevel();
-          setCurrentZoomLevel(level);
-          if (level <= 6) {
-            deletePolygon(); // 레벨이 5 이하일 때 폴리곤 삭제
-          } else {
-            addPolygons(); // 레벨이 6 이상일 때 폴리곤 추가
-          }
-        });
 
         // 지도 클릭 이벤트 리스너 추가
         kakao.maps.event.addListener(map, "click", (mouseEvent) => {
@@ -236,7 +222,7 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
     }
   }, [mapInstance, overlayPosition, subAreaName, weather]);
 
-  // 주소에 해당하는 위치로 지도를 이동
+  // 주소 검색 및 지도 위치 설정
   useEffect(() => {
     if (mapInstance && area && subArea) {
       const geocoder = new kakao.maps.services.Geocoder();
