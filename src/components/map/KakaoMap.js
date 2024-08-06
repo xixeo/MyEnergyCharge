@@ -49,6 +49,8 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
 
                             setOverlayPosition(latlng);
                             setSubAreaName(address);
+                            map.setCenter(latlng);  // 클릭한 지점으로 지도 이동
+                            map.setLevel(3)
                         } else {
                             console.error("주소 변환 실패:", status);
                         }
