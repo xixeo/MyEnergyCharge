@@ -21,22 +21,38 @@ const KakaoMap = ({ onMapReady, area, subArea, selectedDate }) => {
     const [currentZoomLevel, setCurrentZoomLevel] = useState(9); // 초기 줌 레벨 상태 설정
     // 색상 배열 정의
     const colorPalette = [
-        "#FFDDC1",
-        "#C1E1C1",
-        "#C1D3E1",
-        "#FAD02E",
-        "#F28D35",
-        "#E56B6F",
-        "#D30C02",
-        "#F6AA55",
-        "#F7F7B6",
-        "#A7D3E4",
-        "#2275B2",
-        "#F769AA",
-        "#F7D592",
-        "#CFF77F",
-        "#6CF2F7",
-        "#95B4F7",
+        // "#FFDDC1",
+        // "#C1E1C1",
+        // "#C1D3E1",
+        // "#FAD02E",
+        // "#F28D35",
+        // "#E56B6F",
+        // "#D30C02",
+        // "#F6AA55",
+        // "#F7F7B6",
+        // "#A7D3E4",
+        // "#2275B2",
+        // "#F769AA",
+        // "#F7D592",
+        // "#CFF77F",
+        // "#6CF2F7",
+        // "#95B4F7",
+        "#76AAAA",
+        "#8ABA75",
+        "#97A291",
+        "#A6D0AC",
+        "#B2B6B7",
+        "#ADACCE",
+        "#8B84AE",
+        "#86C8DE",
+        "#B2D1CB",
+        "#C9BCD3",
+        "#EAA9BD",
+        "#934C89",
+        "#E6E2C5",
+        "#D6EEF0",
+        "#B0CBE9",
+        "#B3A29B",
     ];
 
     // 지도 초기화 및 폴리곤 추가
@@ -143,11 +159,12 @@ const KakaoMap = ({ onMapReady, area, subArea, selectedDate }) => {
     const setPolygon = (area, map) => {
         const polygon = new kakao.maps.Polygon({
             path: area.path,
-            strokeWeight: 2,
-            strokeColor: "#004c80",
+            strokeWeight: 1,
+            // strokeColor: "#004c80",
+            strokeColor: "#fff",
             strokeOpacity: 0.8,
             fillColor: colorPalette[area.featureIndex % colorPalette.length], // 색상 배열에서 색상 선택
-            fillOpacity: 0.7,
+            fillOpacity: 0.8,
         });
 
         kakao.maps.event.addListener(polygon, "mouseover", () => {
@@ -158,7 +175,7 @@ const KakaoMap = ({ onMapReady, area, subArea, selectedDate }) => {
             polygon.setOptions({
                 fillColor:
                     colorPalette[area.featureIndex % colorPalette.length],
-                fillOpacity: 0.7,
+                fillOpacity: 0.8,
             });
         });
 
@@ -207,9 +224,9 @@ const KakaoMap = ({ onMapReady, area, subArea, selectedDate }) => {
     //날짜에 따른 데이터 찾기
     const getDateByData = (date) => {
         const formattedDate = formatDate(date); // 날짜 형식 변환
-        console.log('변환된 날짜:', formattedDate); // 콘솔에 변환된 날짜 출력
-        const data = defaultData.find(item => item.date === formattedDate);
-        console.log('검색된 데이터:', data); // 콘솔에 검색된 데이터 출력
+        console.log("변환된 날짜:", formattedDate); // 콘솔에 변환된 날짜 출력
+        const data = defaultData.find((item) => item.date === formattedDate);
+        console.log("검색된 데이터:", data); // 콘솔에 검색된 데이터 출력
         return data || {};
     };
 
