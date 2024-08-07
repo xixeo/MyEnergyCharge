@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import siguData from "../data/sig.json"; // SIG 데이터 JSON 파일 경로
 import sidoData from "../data/sido.json"; // 시도 데이터 JSON 파일 경로
+import defaultData from "../data/defaultData.json"; // mock up 데이터 연결
 
 // 아이콘 파일을 모듈처럼 가져오기
 import w01 from "../../assets/icons/w01.png";
@@ -8,7 +9,7 @@ import w02 from "../../assets/icons/w02.png";
 import w03 from "../../assets/icons/w03.png";
 import w04 from "../../assets/icons/w04.png";
 
-const KakaoMap = ({ onMapReady, area, subArea }) => {
+const KakaoMap = ({ onMapReady, area, subArea, selectedDate }) => {
     const { kakao } = window;
     const mapContainerRef = useRef(null); // 지도를 렌더링할 DOM 요소 참조
     const [mapInstance, setMapInstance] = useState(null); // 지도 인스턴스 상태
@@ -20,9 +21,22 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
     const [currentZoomLevel, setCurrentZoomLevel] = useState(9); // 초기 줌 레벨 상태 설정
     // 색상 배열 정의
     const colorPalette = [
-        "#FFDDC1", "#C1E1C1", "#C1D3E1", "#FAD02E", "#F28D35", "#E56B6F",
-        '#D30C02', '#F6AA55', '#F7F7B6', '#A7D3E4', '#2275B2', '#F769AA',
-        '#F7D592', '#CFF77F', '#6CF2F7', '#95B4F7',
+        "#FFDDC1",
+        "#C1E1C1",
+        "#C1D3E1",
+        "#FAD02E",
+        "#F28D35",
+        "#E56B6F",
+        "#D30C02",
+        "#F6AA55",
+        "#F7F7B6",
+        "#A7D3E4",
+        "#2275B2",
+        "#F769AA",
+        "#F7D592",
+        "#CFF77F",
+        "#6CF2F7",
+        "#95B4F7",
     ];
 
     // 지도 초기화 및 폴리곤 추가
@@ -141,7 +155,11 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
         });
 
         kakao.maps.event.addListener(polygon, "mouseout", () => {
-            polygon.setOptions({ fillColor: colorPalette[area.featureIndex % colorPalette.length], fillOpacity: 0.7 });
+            polygon.setOptions({
+                fillColor:
+                    colorPalette[area.featureIndex % colorPalette.length],
+                fillOpacity: 0.7,
+            });
         });
 
         const centroidPosition = centroid(area.path); // 폴리곤의 중심 좌표 계산
@@ -178,12 +196,31 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
         }
     }, [mapInstance, currentZoomLevel]);
 
-    // 날씨 정보가 변경될 때 사용자 정의 오버레이 업데이트
+    // 날짜 형식 변환 함수
+    const formatDate = (date) => {
+        // 입력된 날짜가 '2024-08-05' 형식인지 확인
+        // '24-08-05' 형식으로 변환
+        const [year, month, day] = date.split("-");
+        return `${year.slice(-2)}-${month}-${day}`;
+    };
+
+    //날짜에 따른 데이터 찾기
+    const getDateByData = (date) => {
+        const formattedDate = formatDate(date); // 날짜 형식 변환
+        console.log('변환된 날짜:', formattedDate); // 콘솔에 변환된 날짜 출력
+        const data = defaultData.find(item => item.date === formattedDate);
+        console.log('검색된 데이터:', data); // 콘솔에 검색된 데이터 출력
+        return data || {};
+    };
+
+    // mouoseover 오버레이 업데이트
     useEffect(() => {
         if (mapInstance && (overlayPosition || subAreaName)) {
             if (customOverlay) {
                 customOverlay.setMap(null);
             }
+
+            const data = getDateByData(selectedDate);
 
             const getWeatherIcon = (weather) => {
                 switch (weather) {
@@ -214,22 +251,30 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
                         <li class="unit-list">
                             <div class="unit-wrap">
                                <div class="unit">기온</div>
-                               <div class="tem"> 28<span>ºC</span></div>
+                               <div class="tem"> ${
+                                   data.temp || "N/A"
+                               }<span>ºC</span></div>
                             </div>
 
                               <div class="unit-wrap">
                                <div class="unit">습도</div>
-                               <div class="hum"> 5<span>%</span></div>
+                               <div class="hum"> ${
+                                   data.hum || "N/A"
+                               }<span>%</span></div>
                             </div> 
 
                               <div class="unit-wrap">
                                <div class="unit">체감온도</div>
-                               <div class="tem2">29 <span>ºC</span></div>
+                               <div class="tem2">${
+                                   data.temp || "N/A"
+                               } <span>ºC</span></div>
                             </div>
 
                               <div class="unit-wrap">
                                <div class="unit">전력량</div>
-                               <div class="ee">4 <span>kw</span></div>
+                               <div class="ee">${
+                                   data.elec || "N/A"
+                               } <span>kw</span></div>
                             </div>
                         </li>                       
                     </ul>
@@ -250,7 +295,7 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
                 newCustomOverlay.setMap(null);
             };
         }
-    }, [mapInstance, overlayPosition, subAreaName, weather]);
+    }, [mapInstance, overlayPosition, selectedDate, subAreaName, weather]);
 
     // 주소에 해당하는 위치로 지도를 이동
     useEffect(() => {
@@ -274,9 +319,7 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
         }
     }, [mapInstance, area, subArea]);
 
-    return (
-        <div ref={mapContainerRef} className="h-full w-full rounded-md" />
-    );
+    return <div ref={mapContainerRef} className="h-full w-full rounded-md" />;
 };
 
 export default KakaoMap;

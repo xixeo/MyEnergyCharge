@@ -5,9 +5,9 @@ import { Outlet } from "react-router-dom";
 
 export default function Layout({ children }) {
     return (
-        <div className="App flex flex-col min-h-screen">
+        <div className="App flex flex-col h-screen">
             <Header />
-            <main className="flex-1 overflow-y-auto">
+            <main className="flex-1 overflow-y-hidden">
                 <Outlet />
             </main>
             <Footer />

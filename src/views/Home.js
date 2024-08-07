@@ -76,6 +76,12 @@ const Home = () => {
         setSubArea(
             subAreaSelectRef.current ? subAreaSelectRef.current.value : ""
         );
+
+        setSelectedDate(
+            dateInputRef.current ? dateInputRef.current.value : ""
+        )
+
+        console.log(areaSelectRef.current.value, subAreaSelectRef.current.value, dateInputRef.current.value)
     };
 
     return (
@@ -122,22 +128,23 @@ const Home = () => {
 
                 <Btn
                     caption="조회"
-                    customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm mx-1 px-1 md:px-4"
+                    customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm mx-1 px-1"
                     handleClick={handleButtonClick}
                 />
             </div>
 
-            <div className="lg:grid grid-cols-5 gap-4 mt-6 displayWrap">
-                <div className="col-span-3 p-3 bg-[#F2F5FE] rounded-md border border-[#CDD1E1]">
+            <div className="lg:grid grid-cols-5 gap-4 mt-6 displayWrap overflow-y-auto">
+                <div className="h-full col-span-3 p-3 bg-[#F2F5FE] rounded-md border border-[#CDD1E1]">
                     <KakaoMap
                         onMapReady={handleMapReady}
                         area={area}
                         subArea={subArea}
+                        selectedDate={selectedDate}
                     />
                 </div>
 
                 <div className="col-span-2">
-                    <div className="chartWrap mb-4">
+                    <div className="chartWrap my-4 lg:mt-0">
                         <Chart />
                     </div>
                     <div className="chartWrap">

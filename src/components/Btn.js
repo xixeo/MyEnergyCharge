@@ -39,7 +39,7 @@ export default function Btn({
         <button
             onClick={handleClick}
             className={`
-                                    inline-flex px-4 justify-center items-center 
+                                    inline-flex justify-center items-center 
                                     ${bg[btnColor]}
                                     text-${color}
                                     ${bgHover[btnColor]}
