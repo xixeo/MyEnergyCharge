@@ -20,7 +20,7 @@ export default function InputBox({
     ));
 
     return (
-        <div>
+        <div className="w-auto">
              {labelText && (
                 <label htmlFor={id}
                  className={`text-[#222] font-semibold text-sm
@@ -37,7 +37,7 @@ export default function InputBox({
                     max={max}
                     defaultValue={today}
                     ref={inRef}
-                    className={`min-w-40 focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4]
+                    className={`lg:min-w-40 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4]
                         ${customClass}`}
                     onChange={handleChange}
                 />
@@ -45,7 +45,7 @@ export default function InputBox({
                 <select
                     id={id}
                     ref={selRef}
-                    className={`min-w-40  focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4]
+                    className={`min-w-40 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4]
                         ${customClass}`}
                     onChange={handleChange}
                 >

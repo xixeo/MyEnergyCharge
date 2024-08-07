@@ -1,4 +1,5 @@
 $header : 80px;
+$jogun : 55px;
 
 .home_wrap{
   width: 100%;
@@ -8,4 +9,12 @@ $header : 80px;
 .map_wrap{
   width: 100%;
   height: 500px;
+}
+
+.displayWrap{
+  height: calc(100vh - $header - $jogun - 25px);
+}
+
+.chartWrap{
+  height: calc((100vh - $header - $jogun - 25px - 16px)/2);
 }

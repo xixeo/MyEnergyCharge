@@ -275,7 +275,7 @@ const KakaoMap = ({ onMapReady, area, subArea }) => {
     }, [mapInstance, area, subArea]);
 
     return (
-        <div ref={mapContainerRef} style={{ width: "100%", height: "750px" }} />
+        <div ref={mapContainerRef} className="h-full w-full rounded-md" />
     );
 };
 

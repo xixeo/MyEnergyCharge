@@ -3,6 +3,7 @@ import KakaoMap from "../components/map/KakaoMap";
 import areas from "../components/data/area.json";
 import InputBox from "../components/InputBox";
 import Btn from "../components/Btn";
+import Chart from "../components/chart/Chart";
 
 const Home = () => {
     const [map, setMap] = useState(null);
@@ -67,13 +68,19 @@ const Home = () => {
     //조회 버튼 클릭
     const handleButtonClick = () => {
         // 전달된 값을 상태로 업데이트하여 KakaoMap 컴포넌트에 전달
-        setArea(areaSelectRef.current ? areaSelectRef.current.value.substring(0, 2) : "");
-        setSubArea(subAreaSelectRef.current ? subAreaSelectRef.current.value : "");
+        setArea(
+            areaSelectRef.current
+                ? areaSelectRef.current.value.substring(0, 2)
+                : ""
+        );
+        setSubArea(
+            subAreaSelectRef.current ? subAreaSelectRef.current.value : ""
+        );
     };
 
     return (
         <div className="max-w-screen-2xl mx-auto px-4">
-            <div className="w-full h-14 px-4 flex items-center justify-between border-b border-[#CDD1E1]">
+            <div className="w-full h-14 md:px-4 flex pb-1 lg:pb-0 items-end lg:items-center justify-between border-b border-[#CDD1E1]">
                 <div className="flex items-center">
                     <InputBox
                         id="areaSelect"
@@ -81,10 +88,10 @@ const Home = () => {
                         initText="선택"
                         ops={areas.map((area) => area.name)}
                         handleChange={handleAreaChange}
-                        customClass="mr-10"
+                        customClass="xl:mr-10 mr-4"
                         selRef={areaSelectRef}
                         labelText="시도"
-                        labelClass="ml-0 mr-4"
+                        labelClass="ml-0 mr-2 lg:mr-4"
                     />
 
                     <InputBox
@@ -93,10 +100,10 @@ const Home = () => {
                         initText="선택"
                         ops={subAreas}
                         handleChange={handleSubAreaChange}
-                        customClass="mr-10"
+                        customClass="xl:mr-10 mr-4"
                         selRef={subAreaSelectRef}
                         labelText="시군구"
-                        labelClass="ml-0 mr-4"
+                        labelClass="ml-0 mr-2 lg:mr-4"
                     />
 
                     <InputBox
@@ -106,22 +113,22 @@ const Home = () => {
                         max={endDate}
                         value={selectedDate}
                         handleChange={handleDateChange}
-                        customClass="mr-10"
+                        customClass="xl:mr-10 mr-4"
                         inRef={dateInputRef}
                         labelText="날짜"
-                        labelClass="ml-0 mr-4"
+                        labelClass="ml-0 mr-2 lg:mr-4"
                     />
                 </div>
 
                 <Btn
                     caption="조회"
-                    customClass="bg-[#0473E9] py-1 rounded-sm text-white text-sm mx-1"
+                    customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm mx-1 px-1 md:px-4"
                     handleClick={handleButtonClick}
                 />
             </div>
 
-            <div className="grid grid-cols-5 gap-4 mt-6">
-                <div className="col-span-3">
+            <div className="lg:grid grid-cols-5 gap-4 mt-6 displayWrap">
+                <div className="col-span-3 p-3 bg-[#F2F5FE] rounded-md border border-[#CDD1E1]">
                     <KakaoMap
                         onMapReady={handleMapReady}
                         area={area}
@@ -130,7 +137,12 @@ const Home = () => {
                 </div>
 
                 <div className="col-span-2">
-                    {/* 여기에 다른 컴포넌트나 기능을 추가할 수 있습니다 */}
+                    <div className="chartWrap mb-4">
+                        <Chart />
+                    </div>
+                    <div className="chartWrap">
+                        <Chart />
+                    </div>
                 </div>
             </div>
         </div>

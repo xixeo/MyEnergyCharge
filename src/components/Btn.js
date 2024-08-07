@@ -8,7 +8,6 @@ export default function Btn({
     btnBorder,
     borderColor,
     handleClick,
-    height,
     customClass
 }) {
     const bg = {
@@ -47,7 +46,6 @@ export default function Btn({
                                     ${round[btnRound]}
                                     ${borderW[btnBorder]}
                                     border-${borderColor}
-                                    ${height}
                                     ${customClass}
                                     `}
         >
