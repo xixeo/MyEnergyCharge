@@ -1,19 +1,65 @@
 import React, { useState, useEffect } from "react";
 import ECharts from "echarts-for-react";
 import * as echarts from "echarts";
-import rawData from "../data/chartData.json";
 import GroupBtn from "../GroupBtn";
 
-export default function Chart({ selectedDate }) {
-    const colors = ["#15BEB0", "#EE6666"];
+export default function Chart({
+    area: propArea,
+    subArea: propSubArea,
+    selectedDate: propSelectedDate,
+}) {
+    const [rowData, setRowData] = useState([]);
+    const [interval, setInterval] = useState("day");
+    const [startDate, setStartDate] = useState(new Date()); // 기본값: 오늘 날짜
+    const [endDate, setEndDate] = useState(new Date());
+    const [xdata, setXData] = useState([]);
+    const [series, setSeries] = useState([]);
+    const [options, setOptions] = useState({});
 
-    // JSON 데이터를 ECharts 데이터로 변환하는 함수
-    const transformChartData = (data, dates) => {
-        const filteredData = data.filter((item) => dates.includes(item.date));
+    const [area, setArea] = useState("부산광역시");
+    const [subArea, setSubArea] = useState("부산진구");
+    const [selectedDate, setSelectedDate] = useState(
+        new Date().toISOString().split("T")[0]
+    ); // 기본값: 오늘 날짜
+
+    useEffect(() => {
+        if (propArea) setArea(propArea);
+        if (propSubArea) setSubArea(propSubArea);
+        if (propSelectedDate) setSelectedDate(propSelectedDate);
+    }, [propArea, propSubArea, propSelectedDate]);
+
+    useEffect(() => {
+        const url = `http://192.168.0.144:8080/electricity?date=${selectedDate}&city=${area}&county=${subArea}`;
+        getFetchData(url);
+    }, [selectedDate, area, subArea]);
+
+    const getFetchData = (url) => {
+        fetch(url)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("Fetched data:", data);
+                if (Array.isArray(data)) {
+                    setRowData(data);
+                } else {
+                    setRowData([data]);
+                }
+            })
+            .catch((error) => console.error("Fetch error:", error));
+    };
+
+    const transformChartData = (rowData, dates) => {
+        const filteredData = rowData.filter((item) =>
+            dates.includes(item.date)
+        );
 
         const elecData = dates.map((date) => {
             const found = filteredData.find((item) => item.date === date);
-            return found ? found.elec : 0;
+            return found ? found.elec_avg : 0;
         });
         const tempData = dates.map((date) => {
             const found = filteredData.find((item) => item.date === date);
@@ -27,12 +73,10 @@ export default function Chart({ selectedDate }) {
                     type: "bar",
                     showBackground: true,
                     barWidth: 20,
-                    smooth: true,
                     data: elecData,
                     yAxisIndex: 0,
                     itemStyle: {
                         borderRadius: [10, 10, 0, 0],
-                        showBackground: true,
                         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                             { offset: 0, color: "#43DCCF" },
                             { offset: 1, color: "#B0FFFF" },
@@ -45,9 +89,7 @@ export default function Chart({ selectedDate }) {
                     smooth: true,
                     data: tempData,
                     yAxisIndex: 1,
-                    showBackground: true,
                     itemStyle: {
-                        showBackground: true,
                         color: "#EE6666",
                         borderRadius: [10, 10, 0, 0],
                     },
@@ -56,7 +98,6 @@ export default function Chart({ selectedDate }) {
         };
     };
 
-    // 선택된 기간에 대한 x축 data값 생성(일, 주, 월)
     const generateDates = (start, end, interval) => {
         const dates = [];
         const current = new Date(start);
@@ -69,25 +110,26 @@ export default function Chart({ selectedDate }) {
                 current.setDate(current.getDate() + 1);
             }
         } else if (interval === "month") {
-            while (current <= end) {
-                dates.push(current.toISOString().split("T")[0]);
-                current.setMonth(current.getMonth() + 1);
-                current.setDate(1);
+            const monthStart = new Date(
+                start.getFullYear(),
+                start.getMonth(),
+                2
+            );
+            const finalEndDate = new Date(
+                end.getFullYear(),
+                end.getMonth(),
+                end.getDate() + 2 // 마지막날 수정
+            );
+
+            let tempDate = new Date(monthStart);
+            while (tempDate < finalEndDate) {
+                dates.push(tempDate.toISOString().split("T")[0]);
+                tempDate.setDate(tempDate.getDate() + 1);
             }
         }
 
         return dates;
     };
-
-    const today = new Date();
-    const [interval, setInterval] = useState("day");
-    const [startDate, setStartDate] = useState(() => {
-        return selectedDate ? new Date(selectedDate) : today;
-    });
-    const [endDate, setEndDate] = useState(today);
-
-    const [xdata, setXData] = useState(generateDates(startDate, endDate, interval));
-    const [series, setSeries] = useState(transformChartData(rawData, xdata).series);
 
     const handleXDataChange = (e) => {
         const value = e.target.value;
@@ -96,47 +138,41 @@ export default function Chart({ selectedDate }) {
         let newStartDate, newEndDate;
 
         if (value === "day") {
-            newStartDate = selectedDate ? new Date(selectedDate) : today;
-            newEndDate = new Date(newStartDate); // 일 단위에서는 시작 날짜와 끝 날짜가 동일
+            newStartDate = selectedDate ? new Date(selectedDate) : new Date();
+            newEndDate = new Date(newStartDate);
         } else if (value === "week") {
-            newEndDate = selectedDate ? new Date(selectedDate) : today;
-            newStartDate = selectedDate
-                ? new Date(selectedDate)
-                : new Date(today);
-
-            // Week 계산
+            newEndDate = selectedDate ? new Date(selectedDate) : new Date();
+            newStartDate = new Date(newEndDate);
             newStartDate.setDate(newEndDate.getDate() - 6);
         } else if (value === "month") {
-            newStartDate = selectedDate ? new Date(selectedDate) : new Date(today);
-            newStartDate.setDate(1); // 월의 첫날
-            newStartDate.setMonth(today.getMonth() - 1); // 한 달 전
-            newEndDate = new Date(today);
+            newEndDate = selectedDate ? new Date(selectedDate) : new Date();
+            newStartDate = new Date(
+                newEndDate.getFullYear(),
+                newEndDate.getMonth()
+            );
         }
 
         const dates = generateDates(newStartDate, newEndDate, value);
         setStartDate(newStartDate);
         setEndDate(newEndDate);
         setXData(dates);
-        setSeries(transformChartData(rawData, dates).series);
+        setSeries(transformChartData(rowData, dates).series);
     };
-
-    const [options, setOptions] = useState({});
 
     useEffect(() => {
         const dates = generateDates(startDate, endDate, interval);
         setXData(dates);
-        setSeries(transformChartData(rawData, dates).series);
-    }, [startDate, endDate, interval]);
+        setSeries(transformChartData(rowData, dates).series);
+    }, [startDate, endDate, interval, rowData]);
 
-    // Watch for changes in selectedDate and interval
     useEffect(() => {
-        const newStartDate = selectedDate ? new Date(selectedDate) : today;
-        const newEndDate = selectedDate ? new Date(selectedDate) : today;
+        const newStartDate = selectedDate ? new Date(selectedDate) : new Date();
+        const newEndDate = selectedDate ? new Date(selectedDate) : new Date();
         const dates = generateDates(newStartDate, newEndDate, interval);
         setStartDate(newStartDate);
         setEndDate(newEndDate);
         setXData(dates);
-        setSeries(transformChartData(rawData, dates).series);
+        setSeries(transformChartData(rowData, dates).series);
     }, [selectedDate]);
 
     useEffect(() => {
@@ -172,7 +208,7 @@ export default function Chart({ selectedDate }) {
                     axisLine: {
                         show: true,
                         lineStyle: {
-                            color: colors[0],
+                            color: "#15BEB0",
                         },
                     },
                     axisLabel: {
@@ -185,7 +221,7 @@ export default function Chart({ selectedDate }) {
                     axisLine: {
                         show: true,
                         lineStyle: {
-                            color: colors[1],
+                            color: "#EE6666",
                         },
                     },
                     axisLabel: {
@@ -200,8 +236,12 @@ export default function Chart({ selectedDate }) {
     return (
         <div className="p-3 border border-[#CDD1E1] rounded-md h-full">
             <div className="flex justify-between items-start">
-                <div className="text-md font-semibold">전력량 사용 추이</div>
-                <GroupBtn selectedValue={interval} onChange={handleXDataChange} />
+                    <div className="text-md font-semibold">전력량 사용 추이 <span className="text-xs ml-2 text-gray-600 font-normal">{area} {subArea}</span></div>
+                 
+                <GroupBtn
+                    selectedValue={interval}
+                    onChange={handleXDataChange}
+                />
             </div>
             <div>
                 <ECharts option={options} notMerge={true} />

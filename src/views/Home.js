@@ -62,17 +62,22 @@ const Home = () => {
     };
 
     const today = new Date();
-    const oneYearAgo = new Date(today);
-    oneYearAgo.setFullYear(today.getFullYear() - 1);
+    const yearAgo = new Date(today);
+    yearAgo.setFullYear(today.getFullYear() - 3);
 
-    const startDate = formatDate(oneYearAgo);
+    const startDate = formatDate(yearAgo);
     const endDate = formatDate(today);
 
     // 조회 버튼 클릭
     const handleButtonClick = () => {
+        // setQueryArea(
+        //     areaSelectRef.current
+        //         ? areaSelectRef.current.value.substring(0, 2)
+        //         : ""
+        // );
         setQueryArea(
             areaSelectRef.current
-                ? areaSelectRef.current.value.substring(0, 2)
+                ? areaSelectRef.current.value
                 : ""
         );
         setQuerySubArea(
@@ -147,7 +152,11 @@ const Home = () => {
 
                 <div className="col-span-2">
                     <div className="chartWrap my-4 lg:mt-0">
-                        <Chart selectedDate={queryDate} />
+                        <Chart 
+                          area={queryArea}
+                          subArea={querySubArea}
+                          selectedDate={queryDate}
+                        />
                     </div>
                     <div className="chartWrap relative">
                         {user ? (

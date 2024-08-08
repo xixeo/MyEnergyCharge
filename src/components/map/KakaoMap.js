@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import siguData from "../data/sig.json"; // SIG 데이터 JSON 파일 경로
 import sidoData from "../data/sido.json"; // 시도 데이터 JSON 파일 경로
-import defaultData from "../data/defaultData.json"; // mock up 데이터 연결
+// import defaultData from "../data/defaultData.json"; // mock up 데이터 연결
 
 // 아이콘 파일을 모듈처럼 가져오기
 import w01 from "../../assets/icons/w01.png";
@@ -9,7 +9,12 @@ import w02 from "../../assets/icons/w02.png";
 import w03 from "../../assets/icons/w03.png";
 import w04 from "../../assets/icons/w04.png";
 
-const KakaoMap = ({ onMapReady, area, subArea, selectedDate }) => {
+const KakaoMap = ({
+    onMapReady,
+    area: propArea,
+    subArea: propSubArea,
+    selectedDate: propSelectedDate,
+}) => {
     const { kakao } = window;
     const mapContainerRef = useRef(null); // 지도를 렌더링할 DOM 요소 참조
     const [mapInstance, setMapInstance] = useState(null); // 지도 인스턴스 상태
@@ -19,6 +24,12 @@ const KakaoMap = ({ onMapReady, area, subArea, selectedDate }) => {
     const [weather] = useState("맑음"); // 날씨 상태 기본값
     const polygons = useRef([]); // 폴리곤을 저장할 useRef 변수
     const [currentZoomLevel, setCurrentZoomLevel] = useState(9); // 초기 줌 레벨 상태 설정
+    const [rowData, setRowData] = useState([]);
+    const [area, setArea] = useState("부산광역시");
+    const [subArea, setSubArea] = useState("부산진구");
+    const [selectedDate, setSelectedDate] = useState(
+        new Date().toISOString().split("T")[0]
+    ); // 기본값: 오늘 날짜
     // 색상 배열 정의
     const colorPalette = [
         // "#FFDDC1",
@@ -214,18 +225,51 @@ const KakaoMap = ({ onMapReady, area, subArea, selectedDate }) => {
     }, [mapInstance, currentZoomLevel]);
 
     // 날짜 형식 변환 함수
-    const formatDate = (date) => {
-        // 입력된 날짜가 '2024-08-05' 형식인지 확인
-        // '24-08-05' 형식으로 변환
-        const [year, month, day] = date.split("-");
-        return `${year.slice(-2)}-${month}-${day}`;
+    // const formatDate = (date) => {
+    //     // 입력된 날짜가 '2024-08-05' 형식인지 확인
+    //     // '24-08-05' 형식으로 변환
+    //     const [year, month, day] = date.split("-");
+    //     return `${year.slice(-2)}-${month}-${day}`;
+    // };
+
+    useEffect(() => {
+        if (propArea) setArea(propArea);
+        if (propSubArea) setSubArea(propSubArea);
+        if (propSelectedDate) setSelectedDate(propSelectedDate);
+    }, [propArea, propSubArea, propSelectedDate]);
+
+    useEffect(() => {
+        if (selectedDate && area && subArea) {
+            const url = `http://192.168.0.144:8080/electricity?date=${selectedDate}&city=${area}&county=${subArea}`;
+            getFetchData(url);
+        }
+    }, [selectedDate, area, subArea]);
+
+    const getFetchData = (url) => {
+        fetch(url)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("지도 Fetched data:", data);
+                // 데이터가 배열인지 확인하고, 단일 객체인 경우 배열로 래핑
+                if (Array.isArray(data)) {
+                    setRowData(data);
+                } else {
+                    setRowData([data]);
+                }
+            })
+            .catch((error) => console.error("지도 fetch error:", error));
     };
 
     //날짜에 따른 데이터 찾기
     const getDateByData = (date) => {
-        const formattedDate = formatDate(date); // 날짜 형식 변환
-        console.log("변환된 날짜:", formattedDate); // 콘솔에 변환된 날짜 출력
-        const data = defaultData.find((item) => item.date === formattedDate);
+        // const formattedDate = formatDate(date); // 날짜 형식 변환
+        // console.log("변환된 날짜:", formattedDate); // 콘솔에 변환된 날짜 출력
+        const data = rowData.find((item) => item.date === date);
         console.log("검색된 데이터:", data); // 콘솔에 검색된 데이터 출력
         return data || {};
     };
@@ -276,21 +320,15 @@ const KakaoMap = ({ onMapReady, area, subArea, selectedDate }) => {
                               <div class="unit-wrap">
                                <div class="unit">습도</div>
                                <div class="hum"> ${
-                                   data.hum || "N/A"
+                                   data.rh || "N/A"
                                }<span>%</span></div>
                             </div> 
 
-                              <div class="unit-wrap">
-                               <div class="unit">체감온도</div>
-                               <div class="tem2">${
-                                   data.temp || "N/A"
-                               } <span>ºC</span></div>
-                            </div>
 
                               <div class="unit-wrap">
                                <div class="unit">전력량</div>
                                <div class="ee">${
-                                   data.elec || "N/A"
+                                   data.elec_avg || "N/A"
                                } <span>kw</span></div>
                             </div>
                         </li>                       
