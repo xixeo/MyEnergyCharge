@@ -19,7 +19,7 @@ const Home = () => {
     const [selectedArea, setSelectedArea] = useState("");
     const [selectedSubArea, setSelectedSubArea] = useState("");
     const [subAreas, setSubAreas] = useState([]);
-    
+
     // 실제로 KakaoMap에 전달될 상태
     const [queryArea, setQueryArea] = useState("");
     const [querySubArea, setQuerySubArea] = useState("");
@@ -67,10 +67,20 @@ const Home = () => {
 
     // 조회 버튼 클릭
     const handleButtonClick = () => {
-        setQueryArea(areaSelectRef.current ? areaSelectRef.current.value.substring(0, 2) : "");
-        setQuerySubArea(subAreaSelectRef.current ? subAreaSelectRef.current.value : "");
+        setQueryArea(
+            areaSelectRef.current
+                ? areaSelectRef.current.value.substring(0, 2)
+                : ""
+        );
+        setQuerySubArea(
+            subAreaSelectRef.current ? subAreaSelectRef.current.value : ""
+        );
         setQueryDate(dateInputRef.current ? dateInputRef.current.value : "");
-        console.log(areaSelectRef.current.value, subAreaSelectRef.current.value, dateInputRef.current.value)
+        console.log(
+            areaSelectRef.current.value,
+            subAreaSelectRef.current.value,
+            dateInputRef.current.value
+        );
     };
 
     return (
@@ -136,7 +146,8 @@ const Home = () => {
                     <div className="chartWrap my-4 lg:mt-0">
                         <Chart selectedDate={queryDate} />
                     </div>
-                    <div className="chartWrap">
+                    <div className="chartWrap relative">
+                        <div className="logined w-full h-full absolute z-10 rounded-md text-white flex items-center justify-center">로그인 후 확인 가능합니다.</div>
                         <Chart />
                     </div>
                 </div>
