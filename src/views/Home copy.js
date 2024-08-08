@@ -3,11 +3,13 @@ import KakaoMap from "../components/map/KakaoMap";
 import areas from "../components/data/area.json";
 import InputBox from "../components/InputBox";
 import Btn from "../components/Btn";
+import Chart from "../components/chart/Chart";
+import { useRecoilState } from "recoil";
+import { AtomN } from "./layouts/AtomN";
 
 const Home = () => {
+    const [user, setUser] = useRecoilState(AtomN); //로그인 됐는지 안됐는지
     const [map, setMap] = useState(null);
-    const [area, setArea] = useState("");
-    const [subArea, setSubArea] = useState("");
     const infowindowRef = useRef(null);
 
     const handleMapReady = useCallback((mapInstance) => {
@@ -21,6 +23,11 @@ const Home = () => {
     const [selectedSubArea, setSelectedSubArea] = useState("");
     const [subAreas, setSubAreas] = useState([]);
 
+    // 실제로 KakaoMap에 전달될 상태
+    const [queryArea, setQueryArea] = useState("");
+    const [querySubArea, setQuerySubArea] = useState("");
+    const [queryDate, setQueryDate] = useState("");
+
     const handleAreaChange = (e) => {
         const areaName = e.target.value;
         setSelectedArea(areaName);
@@ -32,13 +39,12 @@ const Home = () => {
 
     const handleSubAreaChange = (e) => {
         setSelectedSubArea(e.target.value);
-        console.log("Selected sub area:", selectedSubArea); // selectedSubArea 변수 사용
+        console.log("Selected sub area:", e.target.value); // selectedSubArea 변수 사용
     };
 
     // dateBox
     const [selectedDate, setSelectedDate] = useState("");
 
-    // Create refs for InputBox components
     const areaSelectRef = useRef(null);
     const subAreaSelectRef = useRef(null);
     const dateInputRef = useRef(null);
@@ -47,7 +53,7 @@ const Home = () => {
         setSelectedDate(e.target.value);
     };
 
-    //  YYYY-MM-DD
+    // YYYY-MM-DD 형식으로 날짜 포맷팅
     const formatDate = (date) => {
         const year = date.getFullYear();
         const month = `0${date.getMonth() + 1}`.slice(-2);
@@ -55,25 +61,26 @@ const Home = () => {
         return `${year}-${month}-${day}`;
     };
 
-    // Get today's date and the date 1 year ago
     const today = new Date();
-    const oneYearAgo = new Date(today);
-    oneYearAgo.setFullYear(today.getFullYear() - 1);
+    const yearAgo = new Date(today);
+    yearAgo.setFullYear(today.getFullYear() - 3);
 
-    // 날짜 포맷
-    const startDate = formatDate(oneYearAgo);
+    const startDate = formatDate(yearAgo);
     const endDate = formatDate(today);
 
-    //조회 버튼 클릭
+    // 조회 버튼 클릭
     const handleButtonClick = () => {
-        // 전달된 값을 상태로 업데이트하여 KakaoMap 컴포넌트에 전달
-        setArea(areaSelectRef.current ? areaSelectRef.current.value.substring(0, 2) : "");
-        setSubArea(subAreaSelectRef.current ? subAreaSelectRef.current.value : "");
+        console.log("Selected Area:", areaSelectRef.current.value);
+        console.log("Selected SubArea:", subAreaSelectRef.current.value);
+        console.log("Selected Date:", dateInputRef.current.value);
+        setQueryArea(areaSelectRef.current.value);
+        setQuerySubArea(subAreaSelectRef.current.value);
+        setQueryDate(dateInputRef.current.value);
     };
 
     return (
         <div className="max-w-screen-2xl mx-auto px-4">
-            <div className="w-full h-14 px-4 flex items-center justify-between border-b border-[#CDD1E1]">
+            <div className="w-full h-14 md:px-4 flex pb-1 lg:pb-0 items-end lg:items-center justify-between border-b border-[#CDD1E1]">
                 <div className="flex items-center">
                     <InputBox
                         id="areaSelect"
@@ -81,10 +88,10 @@ const Home = () => {
                         initText="선택"
                         ops={areas.map((area) => area.name)}
                         handleChange={handleAreaChange}
-                        customClass="mr-10"
+                        customClass="xl:mr-10 mr-4"
                         selRef={areaSelectRef}
                         labelText="시도"
-                        labelClass="ml-0 mr-4"
+                        labelClass="ml-0 mr-2 lg:mr-4"
                     />
 
                     <InputBox
@@ -93,10 +100,10 @@ const Home = () => {
                         initText="선택"
                         ops={subAreas}
                         handleChange={handleSubAreaChange}
-                        customClass="mr-10"
+                        customClass="xl:mr-10 mr-4"
                         selRef={subAreaSelectRef}
                         labelText="시군구"
-                        labelClass="ml-0 mr-4"
+                        labelClass="ml-0 mr-2 lg:mr-4"
                     />
 
                     <InputBox
@@ -106,32 +113,49 @@ const Home = () => {
                         max={endDate}
                         value={selectedDate}
                         handleChange={handleDateChange}
-                        customClass="mr-10"
+                        customClass="xl:mr-10 mr-4"
                         inRef={dateInputRef}
                         labelText="날짜"
-                        labelClass="ml-0 mr-4"
+                        labelClass="ml-0 mr-2 lg:mr-4"
                     />
                 </div>
 
                 <Btn
                     caption="조회"
-                    customClass="bg-[#0473E9] py-1 rounded-sm text-white text-sm mx-1"
+                    customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm mx-1 px-1"
                     handleClick={handleButtonClick}
                 />
             </div>
 
-            <div className="grid grid-cols-5 gap-4 mt-6">
-                <div className="col-span-3">
+            <div className="lg:grid grid-cols-5 gap-4 mt-6 displayWrap overflow-y-auto">
+                <div className="h-full col-span-3 p-3 bg-[#F2F5FE] rounded-md border border-[#CDD1E1]">
                     <KakaoMap
                         onMapReady={handleMapReady}
-                        area={area}
-                        subArea={subArea}
+                        area={queryArea}
+                        subArea={querySubArea}
+                        selectedDate={queryDate}
                     />
                 </div>
 
                 <div className="col-span-2">
-                    
-                    {/* 여기에 다른 컴포넌트나 기능을 추가할 수 있습니다 */}
+                    <div className="chartWrap my-4 lg:mt-0">
+                        <Chart
+                            area={queryArea}
+                            subArea={querySubArea}
+                            selectedDate={queryDate}
+                        />
+                    </div>
+                    <div className="chartWrap relative">
+                        {user ? (
+                            <></>
+                        ) : (
+                            <div className="logined w-full h-full absolute z-10 rounded-md text-white flex items-center justify-center">
+                                로그인 후 확인 가능합니다.
+                            </div>
+                        )}
+
+                        <Chart />
+                    </div>
                 </div>
             </div>
         </div>
