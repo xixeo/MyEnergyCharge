@@ -81,7 +81,6 @@ export default function Chart({ selectedDate }) {
 
     const today = new Date();
     const [interval, setInterval] = useState("day");
-
     const [startDate, setStartDate] = useState(() => {
         return selectedDate ? new Date(selectedDate) : today;
     });
@@ -107,11 +106,6 @@ export default function Chart({ selectedDate }) {
 
             // Week 계산
             newStartDate.setDate(newEndDate.getDate() - 6);
-            // newEndDate.setDate(newStartDate.getDate() + 6);
-            
-            // newStartDate = selectedDate ? new Date(selectedDate) : new Date(today);
-            // newStartDate.setDate(today.getDate() - 6); // 주의 시작일(월요일)
-            // newEndDate = new Date(today);
         } else if (value === "month") {
             newStartDate = selectedDate ? new Date(selectedDate) : new Date(today);
             newStartDate.setDate(1); // 월의 첫날
@@ -127,6 +121,23 @@ export default function Chart({ selectedDate }) {
     };
 
     const [options, setOptions] = useState({});
+
+    useEffect(() => {
+        const dates = generateDates(startDate, endDate, interval);
+        setXData(dates);
+        setSeries(transformChartData(rawData, dates).series);
+    }, [startDate, endDate, interval]);
+
+    // Watch for changes in selectedDate and interval
+    useEffect(() => {
+        const newStartDate = selectedDate ? new Date(selectedDate) : today;
+        const newEndDate = selectedDate ? new Date(selectedDate) : today;
+        const dates = generateDates(newStartDate, newEndDate, interval);
+        setStartDate(newStartDate);
+        setEndDate(newEndDate);
+        setXData(dates);
+        setSeries(transformChartData(rawData, dates).series);
+    }, [selectedDate]);
 
     useEffect(() => {
         setOptions({
