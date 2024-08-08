@@ -12,9 +12,9 @@ $jogun : 55px;
 }
 
 .displayWrap{
-  height: calc(100vh - $header - $jogun - 25px);
+  height: calc(100vh - $header - $jogun - 25px - 16px);
 }
-
+// height: calc(100vh - $header - $jogun - 25px (mt) - 16px(mb);
 .chartWrap{
-  height: calc((100vh - $header - $jogun - 25px - 16px)/2);
+  height: calc((100vh - $header - $jogun - 25px - 16px - 16px)/2);
 }

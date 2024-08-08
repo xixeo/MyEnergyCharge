@@ -7,8 +7,6 @@ import Chart from "../components/chart/Chart";
 
 const Home = () => {
     const [map, setMap] = useState(null);
-    const [area, setArea] = useState("");
-    const [subArea, setSubArea] = useState("");
     const infowindowRef = useRef(null);
 
     const handleMapReady = useCallback((mapInstance) => {
@@ -21,6 +19,11 @@ const Home = () => {
     const [selectedArea, setSelectedArea] = useState("");
     const [selectedSubArea, setSelectedSubArea] = useState("");
     const [subAreas, setSubAreas] = useState([]);
+    
+    // 실제로 KakaoMap에 전달될 상태
+    const [queryArea, setQueryArea] = useState("");
+    const [querySubArea, setQuerySubArea] = useState("");
+    const [queryDate, setQueryDate] = useState("");
 
     const handleAreaChange = (e) => {
         const areaName = e.target.value;
@@ -39,7 +42,6 @@ const Home = () => {
     // dateBox
     const [selectedDate, setSelectedDate] = useState("");
 
-    // Create refs for InputBox components
     const areaSelectRef = useRef(null);
     const subAreaSelectRef = useRef(null);
     const dateInputRef = useRef(null);
@@ -48,7 +50,7 @@ const Home = () => {
         setSelectedDate(e.target.value);
     };
 
-    //  YYYY-MM-DD
+    // YYYY-MM-DD 형식으로 날짜 포맷팅
     const formatDate = (date) => {
         const year = date.getFullYear();
         const month = `0${date.getMonth() + 1}`.slice(-2);
@@ -56,31 +58,18 @@ const Home = () => {
         return `${year}-${month}-${day}`;
     };
 
-    // Get today's date and the date 1 year ago
     const today = new Date();
     const oneYearAgo = new Date(today);
     oneYearAgo.setFullYear(today.getFullYear() - 1);
 
-    // 날짜 포맷
     const startDate = formatDate(oneYearAgo);
     const endDate = formatDate(today);
 
-    //조회 버튼 클릭
+    // 조회 버튼 클릭
     const handleButtonClick = () => {
-        // 전달된 값을 상태로 업데이트하여 KakaoMap 컴포넌트에 전달
-        setArea(
-            areaSelectRef.current
-                ? areaSelectRef.current.value.substring(0, 2)
-                : ""
-        );
-        setSubArea(
-            subAreaSelectRef.current ? subAreaSelectRef.current.value : ""
-        );
-
-        setSelectedDate(
-            dateInputRef.current ? dateInputRef.current.value : ""
-        )
-
+        setQueryArea(areaSelectRef.current ? areaSelectRef.current.value.substring(0, 2) : "");
+        setQuerySubArea(subAreaSelectRef.current ? subAreaSelectRef.current.value : "");
+        setQueryDate(dateInputRef.current ? dateInputRef.current.value : "");
         console.log(areaSelectRef.current.value, subAreaSelectRef.current.value, dateInputRef.current.value)
     };
 
@@ -137,15 +126,15 @@ const Home = () => {
                 <div className="h-full col-span-3 p-3 bg-[#F2F5FE] rounded-md border border-[#CDD1E1]">
                     <KakaoMap
                         onMapReady={handleMapReady}
-                        area={area}
-                        subArea={subArea}
-                        selectedDate={selectedDate}
+                        area={queryArea}
+                        subArea={querySubArea}
+                        selectedDate={queryDate}
                     />
                 </div>
 
                 <div className="col-span-2">
                     <div className="chartWrap my-4 lg:mt-0">
-                        <Chart />
+                        <Chart selectedDate={queryDate} />
                     </div>
                     <div className="chartWrap">
                         <Chart />

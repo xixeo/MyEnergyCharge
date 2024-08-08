@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import ECharts from "echarts-for-react";
 import * as echarts from "echarts";
-import rawData from "../data/chartData.json"; // JSON 데이터 import
+import rawData from "../data/chartData.json";
 import GroupBtn from "../GroupBtn";
 
-export default function Chart() {
-    const colors = ["#5470C6", "#EE6666"]; // colors 변수를 정의
+export default function Chart({ selectedDate }) {
+    const colors = ["#15BEB0", "#EE6666"];
+
     // JSON 데이터를 ECharts 데이터로 변환하는 함수
     const transformChartData = (data, dates) => {
         const filteredData = data.filter((item) => dates.includes(item.date));
@@ -60,41 +61,34 @@ export default function Chart() {
         const dates = [];
         const current = new Date(start);
 
-        while (current <= end) {
-            dates.push(current.toISOString().split("T")[0]); // 날짜 형식을 "YYYY-MM-DD"로 설정
-            if (interval === "day") {
-                break; // 일 단위에서는 시작 날짜만 포함
-            } else if (interval === "week") {
-                current.setDate(current.getDate() + 1);
-                if (current.getDay() === 0) {
-                    // 주 단위의 끝인 일요일에만 추가
-                    dates.push(current.toISOString().split("T")[0]);
-                }
-            } else if (interval === "month") {
-                current.setMonth(current.getMonth() + 1);
-                current.setDate(1); // 월 단위에서는 매월 1일만 추가
+        if (interval === "day") {
+            dates.push(current.toISOString().split("T")[0]);
+        } else if (interval === "week") {
+            while (current <= end) {
                 dates.push(current.toISOString().split("T")[0]);
+                current.setDate(current.getDate() + 1);
+            }
+        } else if (interval === "month") {
+            while (current <= end) {
+                dates.push(current.toISOString().split("T")[0]);
+                current.setMonth(current.getMonth() + 1);
+                current.setDate(1);
             }
         }
 
         return dates;
     };
 
-    // 날짜 설정
     const today = new Date();
     const [interval, setInterval] = useState("day");
+
     const [startDate, setStartDate] = useState(() => {
-        const date = new Date();
-        return new Date(date.setDate(today.getDate())); // 초기값: 오늘로부터 7일 전
+        return selectedDate ? new Date(selectedDate) : today;
     });
     const [endDate, setEndDate] = useState(today);
 
-    const [xdata, setXData] = useState(
-        generateDates(startDate, endDate, interval)
-    );
-    const [series, setSeries] = useState(
-        transformChartData(rawData, xdata).series
-    );
+    const [xdata, setXData] = useState(generateDates(startDate, endDate, interval));
+    const [series, setSeries] = useState(transformChartData(rawData, xdata).series);
 
     const handleXDataChange = (e) => {
         const value = e.target.value;
@@ -103,16 +97,26 @@ export default function Chart() {
         let newStartDate, newEndDate;
 
         if (value === "day") {
-            newStartDate = today;
-            newEndDate = today;
+            newStartDate = selectedDate ? new Date(selectedDate) : today;
+            newEndDate = new Date(newStartDate); // 일 단위에서는 시작 날짜와 끝 날짜가 동일
         } else if (value === "week") {
-            newEndDate = today;
-            newStartDate = new Date(today);
-            newStartDate.setDate(today.getDate() - 5); // 7일 전
+            newEndDate = selectedDate ? new Date(selectedDate) : today;
+            newStartDate = selectedDate
+                ? new Date(selectedDate)
+                : new Date(today);
+
+            // Week 계산
+            newStartDate.setDate(newEndDate.getDate() - 6);
+            // newEndDate.setDate(newStartDate.getDate() + 6);
+            
+            // newStartDate = selectedDate ? new Date(selectedDate) : new Date(today);
+            // newStartDate.setDate(today.getDate() - 6); // 주의 시작일(월요일)
+            // newEndDate = new Date(today);
         } else if (value === "month") {
-            newEndDate = today;
-            newStartDate = new Date(today);
+            newStartDate = selectedDate ? new Date(selectedDate) : new Date(today);
+            newStartDate.setDate(1); // 월의 첫날
             newStartDate.setMonth(today.getMonth() - 1); // 한 달 전
+            newEndDate = new Date(today);
         }
 
         const dates = generateDates(newStartDate, newEndDate, value);
@@ -133,7 +137,7 @@ export default function Chart() {
                 },
             },
             grid: {
-                left: 45,
+                left: 48,
                 right: 45,
                 top: 40,
                 bottom: 40,
@@ -186,10 +190,7 @@ export default function Chart() {
         <div className="p-3 border border-[#CDD1E1] rounded-md h-full">
             <div className="flex justify-between items-start">
                 <div className="text-md font-semibold">전력량 사용 추이</div>
-                <GroupBtn
-                    selectedValue={interval}
-                    onChange={handleXDataChange}
-                />
+                <GroupBtn selectedValue={interval} onChange={handleXDataChange} />
             </div>
             <div>
                 <ECharts option={options} notMerge={true} />
