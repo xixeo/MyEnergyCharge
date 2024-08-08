@@ -70,11 +70,6 @@ const Home = () => {
 
     // 조회 버튼 클릭
     const handleButtonClick = () => {
-        // setQueryArea(
-        //     areaSelectRef.current
-        //         ? areaSelectRef.current.value.substring(0, 2)
-        //         : ""
-        // );
         setQueryArea(
             areaSelectRef.current
                 ? areaSelectRef.current.value

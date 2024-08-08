@@ -224,7 +224,7 @@ export default function Chart({
         <div className="p-3 border border-[#CDD1E1] rounded-md h-full">
             <div className="flex justify-between items-start">
                 <div className="text-md font-semibold">
-                    전력량 사용 추이{" "}
+                    가구별 평균 전력사용량 추이
                     <span className="text-xs ml-2 text-gray-600 font-normal">
                         {area} {subArea}
                     </span>

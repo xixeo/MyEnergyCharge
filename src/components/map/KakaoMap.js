@@ -80,53 +80,63 @@ const KakaoMap = ({
                 };
                 const map = new kakao.maps.Map(container, options); // 지도 인스턴스 생성
                 setMapInstance(map);
-
+    
                 if (onMapReady) {
                     onMapReady(map); // 지도 준비 완료 시 콜백 호출
                 }
-
+    
                 // 지도 줌 컨트롤을 생성
                 const zoomControl = new kakao.maps.ZoomControl();
                 map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
                 // 마우스로 지도 줌 하는거 막기
                 map.setZoomable(false);
-
+    
                 // 지도 클릭 이벤트 리스너 추가
                 kakao.maps.event.addListener(map, "click", (mouseEvent) => {
                     const latlng = mouseEvent.latLng;
                     const lat = latlng.getLat();
                     const lng = latlng.getLng();
                     console.log(`지도 클릭 위치: 위도 ${lat}, 경도 ${lng}`);
-
+    
                     deletePolygon(); // 기존 폴리곤 삭제
-
+    
                     const geocoder = new kakao.maps.services.Geocoder();
                     geocoder.coord2Address(lng, lat, (result, status) => {
                         if (status === kakao.maps.services.Status.OK) {
-                            let address = result[0].address.region_2depth_name;
+                            const address = result[0].address.region_2depth_name;
                             console.log(`주소 변환 결과: ${address}`);
-
+    
                             setOverlayPosition(latlng); // 오버레이 위치 설정
                             setSubAreaName(address); // 하위 지역 이름 설정
                             map.setCenter(latlng); // 클릭한 지점으로 지도 이동
                             map.setLevel(7);
+    
+                            // 날짜 및 지역 정보를 업데이트하여 데이터 가져오기
+                            const url = `http://192.168.0.144:8080/electricity?date=${selectedDate}&city=${area}&county=${address}`;
+                            getFetchData(url);
                         } else {
                             console.error("주소 변환 실패:", status);
                         }
                     });
                 });
-
+    
                 // 지도 줌 레벨 변경 이벤트 리스너 추가
                 kakao.maps.event.addListener(map, "zoom_changed", () => {
                     const level = map.getLevel();
                     setCurrentZoomLevel(level);
                 });
-
+    
                 // 초기 줌 레벨 상태 설정
                 setCurrentZoomLevel(map.getLevel());
+    
+                // 현재 위치와 오늘 날짜를 기준으로 데이터 가져오기
+                const today = new Date().toISOString().split("T")[0]; // 오늘 날짜를 ISO 문자열로 설정
+                const url = `http://192.168.0.144:8080/electricity?date=${today}&city=${area}&county=${subArea}`;
+                getFetchData(url);
             });
         }
-    }, [kakao, onMapReady]);
+    }, [kakao, onMapReady, area, subArea, selectedDate]);
+    
 
     // 폴리곤 삭제 함수
     const deletePolygon = () => {
@@ -262,27 +272,27 @@ const KakaoMap = ({
                     setRowData([data]);
                 }
             })
-            .catch((error) => console.error("지도 fetch error:", error));
+            .catch((error) => console.error("Data fetch error:", error));
     };
 
     //날짜에 따른 데이터 찾기
     const getDateByData = (date) => {
-        // const formattedDate = formatDate(date); // 날짜 형식 변환
-        // console.log("변환된 날짜:", formattedDate); // 콘솔에 변환된 날짜 출력
         const data = rowData.find((item) => item.date === date);
         console.log("검색된 데이터:", data); // 콘솔에 검색된 데이터 출력
         return data || {};
     };
 
-    // mouoseover 오버레이 업데이트
+    // 오버레이 업데이트
     useEffect(() => {
-        if (mapInstance && (overlayPosition || subAreaName)) {
+        if (mapInstance) {
+            // 기존 오버레이 삭제
             if (customOverlay) {
                 customOverlay.setMap(null);
             }
-
+    
+            // 새 오버레이 생성
             const data = getDateByData(selectedDate);
-
+    
             const getWeatherIcon = (weather) => {
                 switch (weather) {
                     case "맑음":
@@ -297,60 +307,70 @@ const KakaoMap = ({
                         return w01;
                 }
             };
-
+    
+            const Odate = new Date(data.date);
+            const Omonth = Odate.getMonth() + 1; // 월은 0부터 시작하므로 +1 해줌
+    
             const content = `
                 <div class="overlaybox">
-                   <div class="weather">
-                      <div class="areatitle">${subAreaName}</div>
+                    <div class="weather">
+                        <div class="areatitle">${subAreaName}</div>
                         <div class="weather-icon">
-                            <img src="${getWeatherIcon(
-                                weather
-                            )}" alt="날씨 아이콘"/>
+                            <img src="${getWeatherIcon(weather)}" alt="날씨 아이콘"/>
                         </div>
                     </div>
                     <ul>
                         <li class="unit-list">
                             <div class="unit-wrap">
-                               <div class="unit">기온</div>
-                               <div class="tem"> ${
-                                   data.temp || "N/A"
-                               }<span>ºC</span></div>
+                                ${
+                                    Omonth === 6 || Omonth === 7 || Omonth === 8
+                                        ? `<div class="unit">최고기온</div>`
+                                        : Omonth === 12 || Omonth === 1 || Omonth === 2
+                                        ? `<div class="unit">최저기온</div>`
+                                        : `<div class="unit">기온</div>`
+                                }
+                                <div class="tem">${data.temp || "N/A"}<span>ºC</span></div>
                             </div>
-
-                              <div class="unit-wrap">
-                               <div class="unit">습도</div>
-                               <div class="hum"> ${
-                                   data.rh || "N/A"
-                               }<span>%</span></div>
-                            </div> 
-
-
-                              <div class="unit-wrap">
-                               <div class="unit">전력량</div>
-                               <div class="ee">${
-                                   data.elec_avg || "N/A"
-                               } <span>kw</span></div>
+                            <div class="unit-wrap">
+                                <div class="unit">습도</div>
+                                <div class="hum">${data.rh || "N/A"}<span>%</span></div>
+                            </div>
+                            ${data.di !== 0
+                                ? `
+                                <div class="unit-wrap">
+                                    <div class="unit">불쾌지수</div>
+                                    <div class="tem2">${data.di}</div>
+                                </div>
+                            `
+                                : ""
+                            }
+                            <div class="unit-wrap">
+                                <div class="unit">전력량</div>
+                                <div class="ee">${data.elec_avg || "N/A"}<span>kw</span></div>
                             </div>
                         </li>                       
                     </ul>
                 </div>
             `;
-
+    
             const newCustomOverlay = new kakao.maps.CustomOverlay({
                 position: overlayPosition,
                 content: content,
                 xAnchor: 0.3,
                 yAnchor: 0.91,
             });
-
+    
+            // 새 오버레이를 지도에 추가
             newCustomOverlay.setMap(mapInstance);
             setCustomOverlay(newCustomOverlay);
-
+    
+            // 함수 반환: 컴포넌트 언마운트 시 오버레이 삭제
             return () => {
                 newCustomOverlay.setMap(null);
             };
         }
     }, [mapInstance, overlayPosition, selectedDate, subAreaName, weather]);
+    
 
     // 주소에 해당하는 위치로 지도를 이동
     useEffect(() => {
