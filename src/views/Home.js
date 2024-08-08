@@ -4,8 +4,11 @@ import areas from "../components/data/area.json";
 import InputBox from "../components/InputBox";
 import Btn from "../components/Btn";
 import Chart from "../components/chart/Chart";
+import { useRecoilState } from "recoil";
+import { AtomN } from "./layouts/AtomN";
 
 const Home = () => {
+    const [user, setUser] = useRecoilState(AtomN); //로그인 됐는지 안됐는지
     const [map, setMap] = useState(null);
     const infowindowRef = useRef(null);
 
@@ -147,7 +150,14 @@ const Home = () => {
                         <Chart selectedDate={queryDate} />
                     </div>
                     <div className="chartWrap relative">
-                        <div className="logined w-full h-full absolute z-10 rounded-md text-white flex items-center justify-center">로그인 후 확인 가능합니다.</div>
+                        {user ? (
+                            <></>
+                        ) : (
+                            <div className="logined w-full h-full absolute z-10 rounded-md text-white flex items-center justify-center">
+                                로그인 후 확인 가능합니다.
+                            </div>
+                        )}
+
                         <Chart />
                     </div>
                 </div>
