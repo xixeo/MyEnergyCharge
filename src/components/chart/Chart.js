@@ -101,7 +101,7 @@ export default function Chart({
     const generateDates = (start, end, interval) => {
         const dates = [];
         const current = new Date(start);
-
+    
         if (interval === "day") {
             dates.push(current.toISOString().split("T")[0]);
         } else if (interval === "week") {
@@ -110,33 +110,22 @@ export default function Chart({
                 current.setDate(current.getDate() + 1);
             }
         } else if (interval === "month") {
-            const monthStart = new Date(
-                start.getFullYear(),
-                start.getMonth(),
-                2
-            );
-            const finalEndDate = new Date(
-                end.getFullYear(),
-                end.getMonth(),
-                end.getDate() + 2 // 마지막날 수정
-            );
-
-            let tempDate = new Date(monthStart);
-            while (tempDate < finalEndDate) {
+            let tempDate = new Date(start);
+            while (tempDate <= end) {
                 dates.push(tempDate.toISOString().split("T")[0]);
                 tempDate.setDate(tempDate.getDate() + 1);
             }
         }
-
+    
         return dates;
     };
-
+    
     const handleXDataChange = (e) => {
         const value = e.target.value;
         setInterval(value);
-
+    
         let newStartDate, newEndDate;
-
+    
         if (value === "day") {
             newStartDate = selectedDate ? new Date(selectedDate) : new Date();
             newEndDate = new Date(newStartDate);
@@ -146,25 +135,23 @@ export default function Chart({
             newStartDate.setDate(newEndDate.getDate() - 6);
         } else if (value === "month") {
             newEndDate = selectedDate ? new Date(selectedDate) : new Date();
-            newStartDate = new Date(
-                newEndDate.getFullYear(),
-                newEndDate.getMonth()
-            );
+            newStartDate = new Date(newEndDate);
+            newStartDate.setDate(newEndDate.getDate() - 29);  // 30일 전
         }
-
+    
         const dates = generateDates(newStartDate, newEndDate, value);
         setStartDate(newStartDate);
         setEndDate(newEndDate);
         setXData(dates);
         setSeries(transformChartData(rowData, dates).series);
     };
-
+    
     useEffect(() => {
         const dates = generateDates(startDate, endDate, interval);
         setXData(dates);
         setSeries(transformChartData(rowData, dates).series);
     }, [startDate, endDate, interval, rowData]);
-
+    
     useEffect(() => {
         const newStartDate = selectedDate ? new Date(selectedDate) : new Date();
         const newEndDate = selectedDate ? new Date(selectedDate) : new Date();
@@ -236,8 +223,13 @@ export default function Chart({
     return (
         <div className="p-3 border border-[#CDD1E1] rounded-md h-full">
             <div className="flex justify-between items-start">
-                    <div className="text-md font-semibold">전력량 사용 추이 <span className="text-xs ml-2 text-gray-600 font-normal">{area} {subArea}</span></div>
-                 
+                <div className="text-md font-semibold">
+                    전력량 사용 추이{" "}
+                    <span className="text-xs ml-2 text-gray-600 font-normal">
+                        {area} {subArea}
+                    </span>
+                </div>
+
                 <GroupBtn
                     selectedValue={interval}
                     onChange={handleXDataChange}
