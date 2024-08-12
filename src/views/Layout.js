@@ -10,7 +10,7 @@ export default function Layout({ children }) {
             <main className="flex-1 overflow-y-hidden">
                 <Outlet />
             </main>
-            <Footer />
+            {/* <Footer /> */}
         </div>
     );
 }

@@ -233,15 +233,7 @@ const KakaoMap = ({
             addPolygons(); // 폴리곤 추가
         }
     }, [mapInstance, currentZoomLevel]);
-
-    // 날짜 형식 변환 함수
-    // const formatDate = (date) => {
-    //     // 입력된 날짜가 '2024-08-05' 형식인지 확인
-    //     // '24-08-05' 형식으로 변환
-    //     const [year, month, day] = date.split("-");
-    //     return `${year.slice(-2)}-${month}-${day}`;
-    // };
-
+    
     useEffect(() => {
         if (propArea) setArea(propArea);
         if (propSubArea) setSubArea(propSubArea);

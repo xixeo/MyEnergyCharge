@@ -1,7 +1,24 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 
+.MuiDataGrid-root {
+    font-family: Pretendard !important;
+}
+
 .App {
     font-family: Pretendard;
+
+    .wrap:has(textarea) {
+        width: 100%;
+      }
+      .wrap textarea {
+        width: 100%;
+        resize: none;
+        padding: 8px 14px; /* prevents text jump on Enter keypress */
+        padding-bottom: 0.2em;
+        line-height: 1.6;
+        min-height: 100px;
+      }
+
 }
 .main_wrap {
     > div {
@@ -98,5 +115,26 @@
     .unit {
         color: #666;
         font-size: 0.8rem;
+    }
+}
+
+
+.MuiTableContainer-root {
+    .MuiTableCell-root {
+        border: 0;
+    }
+
+    th{
+        padding: 8px 16px;
+    }
+     td{
+        padding: 12px 16px;
+    }
+
+    .MuiCheckbox-root {
+        .css-i4bv87-MuiSvgIcon-root {
+            width: 1.2rem;
+            height: 1.2rem;
+        }
     }
 }

@@ -57,15 +57,35 @@ export default function Chart({
             dates.includes(item.date)
         );
 
-        const elecData = dates.map((date) => {
+        const elecData  = dates.map((date) => {
             const found = filteredData.find((item) => item.date === date);
             return found ? found.elec_avg : 0;
         });
-        const tempData = dates.map((date) => {
+        const maxTempData = dates.map((date) => {
             const found = filteredData.find((item) => item.date === date);
-            return found ? found.temp : 0;
+            return found ? found.max_temp : 0;
         });
-
+        const minTempData = dates.map((date) => {
+            const found = filteredData.find((item) => item.date === date);
+            return found ? found.min_temp : 0;
+        });
+        const avgTempData = dates.map((date) => {
+            const found = filteredData.find((item) => item.date === date);
+            return found ? found.avg_temp : 0;
+        });
+        const maxRhData = dates.map((date) => {
+            const found = filteredData.find((item) => item.date === date);
+            return found ? found.max_rh : 0;
+        });
+        const minRhData = dates.map((date) => {
+            const found = filteredData.find((item) => item.date === date);
+            return found ? found.min_rh : 0;
+        });
+        const avgRhData = dates.map((date) => {
+            const found = filteredData.find((item) => item.date === date);
+            return found ? found.avg_rh : 0;
+        });
+        
         return {
             series: [
                 {
@@ -84,16 +104,72 @@ export default function Chart({
                     },
                 },
                 {
-                    name: "기온",
+                    name: "최고기온",
                     type: "line",
                     smooth: true,
-                    data: tempData,
+                    data: maxTempData,
                     yAxisIndex: 1,
                     itemStyle: {
-                        color: "#EE6666",
+                        color: "#FF0000",
                         borderRadius: [10, 10, 0, 0],
                     },
                 },
+                {
+                    name: "평균기온",
+                    type: "line",
+                    smooth: true,
+                    data: avgTempData,
+                    yAxisIndex: 1,
+                    itemStyle: {
+                        color: "#FF7979",
+                        borderRadius: [10, 10, 0, 0],
+                    },
+                },
+                {
+                    name: "최저기온",
+                    type: "line",
+                    smooth: true,
+                    data: minTempData,
+                    yAxisIndex: 1,
+                    itemStyle: {
+                        color: "#FFB179",
+                        borderRadius: [10, 10, 0, 0],
+                    },
+                },
+                {
+                    name: "최고습도",
+                    type: "line",
+                    smooth: true,
+                    data: maxRhData,
+                    yAxisIndex: 2,
+                    itemStyle: {
+                        color: "#232EFF",
+                        borderRadius: [10, 10, 0, 0],
+                    },
+                },
+                {
+                    name: "평균습도",
+                    type: "line",
+                    smooth: true,
+                    data: avgRhData,
+                    yAxisIndex: 2,
+                    itemStyle: {
+                        color: "#9B9DFF",
+                        borderRadius: [10, 10, 0, 0],
+                    },
+                },
+                {
+                    name: "최저습도",
+                    type: "line",
+                    smooth: true,
+                    data: minRhData,
+                    yAxisIndex: 2,
+                    itemStyle: {
+                        color: "#79D2FF",
+                        borderRadius: [10, 10, 0, 0],
+                    },
+                },
+                
             ],
         };
     };
@@ -171,8 +247,7 @@ export default function Chart({
                 },
             },
             grid: {
-                left: 48,
-                right: 45,
+                right: '18%',
                 top: 40,
                 bottom: 40,
                 containLabel: false,
@@ -213,6 +288,20 @@ export default function Chart({
                     },
                     axisLabel: {
                         formatter: "{value} °C",
+                    },
+                },
+                {
+                    type: "value",
+                    position: "right",
+                    offset: 55,
+                    axisLine: {
+                        show: true,
+                        lineStyle: {
+                            color: "#6E74E7",
+                        },
+                    },
+                    axisLabel: {
+                        formatter: "{value} %",
                     },
                 },
             ],
