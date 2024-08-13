@@ -18,7 +18,7 @@ const InputBox = React.forwardRef(
             idx,
             placeholder,
             unit = "",
-            handleBlur
+            handleBlur,
         },
         ref
     ) => {
@@ -102,7 +102,7 @@ const InputBox = React.forwardRef(
                         id={id}
                         key={idx}
                         ref={ref}
-                        value={value}
+                        value={value}                        
                         onChange={onChange}
                         onBlur={onBlur}
                         className={`lg:min-w-40 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}

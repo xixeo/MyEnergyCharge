@@ -1,8 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import './assets//theme/map.modules.scss';
-@import './assets//theme/home.module.scss';
+@import './assets/theme/map.modules.scss';
+@import './assets/theme/home.module.scss';
+@import './assets/theme/grid.module.scss';
+@import './assets/theme/chart.module.scss';
 
 body {
   margin: 0;

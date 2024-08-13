@@ -88,7 +88,7 @@ const Home = () => {
 
     return (
         <div className="max-w-screen-2xl mx-auto px-4">
-            <div className="w-full h-14 md:px-4 flex pb-1 lg:pb-0 items-end lg:items-center justify-between border-b border-[#CDD1E1]">
+            <div className="w-full h-14 md:px-4 md:pr-0 flex pb-1 lg:pb-0 items-end lg:items-center justify-between border-b border-[#CDD1E1]">
                 <div className="flex items-center">
                     <InputBox
                         id="areaSelect"

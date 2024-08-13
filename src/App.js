@@ -7,6 +7,8 @@ import Layout from "./views/Layout";
 import Home from "./views/Home";
 
 import { createTheme, ThemeProvider } from "@mui/material";
+import { AlertProvider } from "./components/AlertContext";
+
 const theme = createTheme({
     typography: {
         fontFamily: "Pretendard",
@@ -17,6 +19,7 @@ const theme = createTheme({
 function App() {
     return (
         <ThemeProvider theme={theme}>
+            <AlertProvider>
             <BrowserRouter>
                 <Routes>
                     <Route path="/Login" element={<Login />} />
@@ -27,6 +30,7 @@ function App() {
                     </Route>
                 </Routes>
             </BrowserRouter>
+            </AlertProvider>
         </ThemeProvider>
     );
 }

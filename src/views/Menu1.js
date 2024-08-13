@@ -15,7 +15,7 @@ import Checkbox from "@mui/material/Checkbox";
 
 import InputBox from "../components/InputBox";
 import Btn from "../components/Btn";
-import Alerts from "../components/Alert";
+import { useAlert } from "../components/AlertContext";
 
 import tableData from "../components/data/table.json"; // JSON 파일 import
 import areas from "../components/data/area.json";
@@ -24,6 +24,8 @@ export default function Menu1() {
     const [rows, setRows] = useState([]);
     const [openRows, setOpenRows] = useState({}); // 각 행의 확장 상태를 저장하는 객체
     const [selectedRows, setSelectedRows] = useState(new Set()); // 선택된 행을 저장하는 Set
+    const [errors, setErrors] = useState({}); // 필드 오류 상태
+    const inputRefs = useRef({}); // Ref 저장용
 
     // useEffect를 사용하여 컴포넌트가 마운트될 때 초기 데이터를 설정
     // 조회버튼을 누르지 않아도 초기에 전체 데이터 한번 렌더링 시키기
@@ -41,7 +43,7 @@ export default function Menu1() {
             sum: item.sum,
             comment: item.comment || [], // 메모 데이터 포함
         }));
-        console.log("Initial rows data:", initialRows); // 데이터 확인
+        // console.log("Initial rows data:", initialRows); // 데이터 확인
         setRows(initialRows);
     }, []); // 빈 배열을 의존성으로 주어 컴포넌트가 처음 마운트될 때만 실행
 
@@ -145,6 +147,7 @@ export default function Menu1() {
                 sum: item.sum,
                 comment: item.comment || [], // 메모 데이터 포함
             }));
+        showAlert("조회되었습니다.", "success");
         setRows(filteredRows); // 필터링된 데이터를 상태로 설정하여 테이블에 표시
     };
 
@@ -176,56 +179,73 @@ export default function Menu1() {
     };
 
     // row 삭제 BTN
-    const [errorMessage, setErrorMessage] = useState(""); // ErrorAlert 컴포넌트에 사용할 상태
+    // const [errorMessage, setErrorMessage] = useState(""); // ErrorAlert 컴포넌트에 사용할 상태
+    const { showAlert } = useAlert(); // useAlert 훅 사용
 
     const handleDelete = () => {
         setRows((prevRows) =>
             prevRows.filter((row) => !selectedRows.has(row.forum_id))
         );
+        showAlert("삭제되었습니다.", "success");
         setSelectedRows(new Set()); // 삭제 후 선택된 행을 초기화
     };
 
     // row 저장 BTN
     const handleSave = () => {
-        // 필수 필드가 채워졌는지 확인
-        const allFieldsValid = rows.every((row) => {
+        const newErrors = {};
+
+        rows.forEach((row) => {
             if (selectedRows.has(row.forum_id)) {
-                return (
-                    row.date &&
-                    row.elec_total &&
-                    row.region &&
-                    row.subRegion
-                );
+                if (!row.date) newErrors[`${row.forum_id}-date`] = true;
+                if (!row.elec_total) newErrors[`${row.forum_id}-elec_total`] = true;
+                if (!row.region) newErrors[`${row.forum_id}-region`] = true;
+                if (!row.subRegion) newErrors[`${row.forum_id}-subRegion`] = true;
             }
-            return true;
         });
 
-        if (!allFieldsValid) {
-            setErrorMessage("모든 필수 필드를 채워야 합니다.");
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            showAlert("모든 필수 값을 채워야 합니다.", "error");
             return;
         }
 
-        setErrorMessage(""); // 에러 메시지 초기화
-
-        // 선택된 행만 업데이트
+        // 저장 로직
         const updatedRows = rows.map((row) => {
             if (selectedRows.has(row.forum_id)) {
                 return {
                     ...row,
-                    // 데이터가 수정된 부분을 업데이트합니다.
-                    // 예를 들어, 데이터 저장 API 호출 논리를 추가할 수 있습니다.
+                    // 데이터가 수정된 부분 업데이트
                 };
             }
             return row;
         });
 
-        // 상태 업데이트
-        setRows(updatedRows);
-        setSelectedRows(new Set()); // 저장 후 선택된 행을 초기화
+        showAlert("저장되었습니다.", "success");
+        setRows(updatedRows); // 상태 업데이트
+        setSelectedRows(new Set());  // 저장 후 선택된 행을 초기화
     };
 
+    // 필드 포커싱
+    useEffect(() => {
+        if (Object.keys(errors).length > 0) {
+            // 첫 번째 에러 키 찾기
+            const firstErrorKey = Object.keys(errors).find(key =>
+                key.includes('-date') ||
+                key.includes('-elec_total') ||
+                key.includes('-region') ||
+                key.includes('-subRegion')
+            );
+            if (firstErrorKey && inputRefs.current[firstErrorKey]) {
+                // 포커스 맞추기
+                inputRefs.current[firstErrorKey].focus();
+            }
+            console.log('errors', errors)
+        }
+    }, [errors]);
+
+
     //////////////////////////TABLE/////////////////////////////
-    // 체크박스         핸들러                                  //
+    //                   체크박스  핸들러                       //
     // ////////////////////////////////////////////////////////
 
     // 체크박스 핸들러
@@ -250,7 +270,7 @@ export default function Menu1() {
     };
 
     //////////////////////////TABLE/////////////////////////////
-    // 셀 수정          핸들러                                  //
+    //                   셀 수정  핸들러                        //
     ////////////////////////////////////////////////////////////
 
     const handleChangeCell = (id, field, value, commentIdx = null) => {
@@ -294,6 +314,12 @@ export default function Menu1() {
             newSelectedRows.add(id); //해당 행의 체크박스 활성화
             return newSelectedRows;
         });
+
+        setErrors((prevErrors) => {
+            const newErrors = { ...prevErrors };
+            delete newErrors[`${id}-${field}`];
+            return newErrors;
+        });
     };
     const handleBlur = (id, field, value, unit) => {
         // kW 단위를 추가하는 로직을 포함한 handleBlur 함수 정의
@@ -315,7 +341,7 @@ export default function Menu1() {
     return (
         <div className="max-w-screen-2xl mx-auto px-4">
             <h1>마이페이지</h1>
-            <div className="w-full h-14 md:px-4 flex pb-1 lg:pb-0 items-end lg:items-center justify-between border-b border-[#CDD1E1]">
+            <div className="w-full h-14 md:px-4 md:pr-0 flex pb-1 lg:pb-0  items-end lg:items-center justify-between border-b border-[#CDD1E1]">
                 <div className="flex items-center">
                     <InputBox
                         id="startDate"
@@ -372,29 +398,26 @@ export default function Menu1() {
                 <div>
                     <Btn
                         caption="조회"
-                        customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm mx-1 px-1"
+                        customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
                         handleClick={handleSearch}
                     />
                     <Btn
                         caption="추가"
-                        customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm mx-1 px-1"
+                        customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
                         handleClick={handleAdd}
                     />
                     <Btn
                         caption="삭제"
-                        customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm mx-1 px-1"
+                        customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
                         handleClick={handleDelete}
                     />
                     <Btn
                         caption="저장"
-                        customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm mx-1 px-1"
+                        customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
                         handleClick={handleSave}
                     />
                 </div>
             </div>
-            <Alerts
-                message={errorMessage}
-                severity="error" />
             <TableContainer
                 style={{
                     marginTop: "20px",
@@ -431,10 +454,19 @@ export default function Menu1() {
                                 />
                             </TableCell>
                             <TableCell align="center">번호</TableCell>
-                            <TableCell align="center">날짜</TableCell>
-                            <TableCell align="center">계량기 수치</TableCell>
-                            <TableCell align="center">시도</TableCell>
-                            <TableCell align="center">시군구</TableCell>
+                            <TableCell align="center">
+                                {" "}
+                                <span className="req">날짜</span>
+                            </TableCell>
+                            <TableCell align="center">
+                                <span className="req">계량기 수치</span>
+                            </TableCell>
+                            <TableCell align="center">
+                                <span className="req">시도</span>
+                            </TableCell>
+                            <TableCell align="center">
+                                <span className="req">시군구</span>
+                            </TableCell>
                             <TableCell align="center">기온</TableCell>
                             <TableCell align="center">습도</TableCell>
                             <TableCell align="center">지난 수치 대비</TableCell>
@@ -475,6 +507,7 @@ export default function Menu1() {
                                                     e.target.value
                                                 );
                                             }}
+                                            ref={(el) => { inputRefs.current[`${row.forum_id}-date`] = el; }}
                                             customClass=""
                                         />
                                     </TableCell>
@@ -494,6 +527,7 @@ export default function Menu1() {
                                                     e.target.value
                                                 );
                                             }}
+                                            ref={(el) => { inputRefs.current[`${row.forum_id}-elec_total`] = el; }}
                                         />
                                     </TableCell>
                                     <TableCell align="center">
@@ -510,6 +544,7 @@ export default function Menu1() {
                                                     e.target.value
                                                 )
                                             }
+                                            ref={(el) => { inputRefs.current[`${row.forum_id}-region`] = el; }}
                                         />
                                     </TableCell>
                                     <TableCell align="center">
@@ -531,6 +566,7 @@ export default function Menu1() {
                                                     e.target.value
                                                 )
                                             }
+                                            ref={(el) => { inputRefs.current[`${row.forum_id}-subRegion`] = el; }}
                                         />
                                     </TableCell>
                                     <TableCell align="center">
