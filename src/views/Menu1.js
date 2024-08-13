@@ -197,9 +197,11 @@ export default function Menu1() {
         rows.forEach((row) => {
             if (selectedRows.has(row.forum_id)) {
                 if (!row.date) newErrors[`${row.forum_id}-date`] = true;
-                if (!row.elec_total) newErrors[`${row.forum_id}-elec_total`] = true;
+                if (!row.elec_total)
+                    newErrors[`${row.forum_id}-elec_total`] = true;
                 if (!row.region) newErrors[`${row.forum_id}-region`] = true;
-                if (!row.subRegion) newErrors[`${row.forum_id}-subRegion`] = true;
+                if (!row.subRegion)
+                    newErrors[`${row.forum_id}-subRegion`] = true;
             }
         });
 
@@ -222,27 +224,27 @@ export default function Menu1() {
 
         showAlert("저장되었습니다.", "success");
         setRows(updatedRows); // 상태 업데이트
-        setSelectedRows(new Set());  // 저장 후 선택된 행을 초기화
+        setSelectedRows(new Set()); // 저장 후 선택된 행을 초기화
     };
 
     // 필드 포커싱
     useEffect(() => {
         if (Object.keys(errors).length > 0) {
             // 첫 번째 에러 키 찾기
-            const firstErrorKey = Object.keys(errors).find(key =>
-                key.includes('-date') ||
-                key.includes('-elec_total') ||
-                key.includes('-region') ||
-                key.includes('-subRegion')
+            const firstErrorKey = Object.keys(errors).find(
+                (key) =>
+                    key.includes("-date") ||
+                    key.includes("-elec_total") ||
+                    key.includes("-region") ||
+                    key.includes("-subRegion")
             );
             if (firstErrorKey && inputRefs.current[firstErrorKey]) {
                 // 포커스 맞추기
                 inputRefs.current[firstErrorKey].focus();
             }
-            console.log('errors', errors)
+            console.log("errors", errors);
         }
     }, [errors]);
-
 
     //////////////////////////TABLE/////////////////////////////
     //                   체크박스  핸들러                       //
@@ -507,7 +509,11 @@ export default function Menu1() {
                                                     e.target.value
                                                 );
                                             }}
-                                            ref={(el) => { inputRefs.current[`${row.forum_id}-date`] = el; }}
+                                            ref={(el) => {
+                                                inputRefs.current[
+                                                    `${row.forum_id}-date`
+                                                ] = el;
+                                            }}
                                             customClass=""
                                         />
                                     </TableCell>
@@ -527,7 +533,11 @@ export default function Menu1() {
                                                     e.target.value
                                                 );
                                             }}
-                                            ref={(el) => { inputRefs.current[`${row.forum_id}-elec_total`] = el; }}
+                                            ref={(el) => {
+                                                inputRefs.current[
+                                                    `${row.forum_id}-elec_total`
+                                                ] = el;
+                                            }}
                                         />
                                     </TableCell>
                                     <TableCell align="center">
@@ -544,7 +554,11 @@ export default function Menu1() {
                                                     e.target.value
                                                 )
                                             }
-                                            ref={(el) => { inputRefs.current[`${row.forum_id}-region`] = el; }}
+                                            ref={(el) => {
+                                                inputRefs.current[
+                                                    `${row.forum_id}-region`
+                                                ] = el;
+                                            }}
                                         />
                                     </TableCell>
                                     <TableCell align="center">
@@ -566,32 +580,55 @@ export default function Menu1() {
                                                     e.target.value
                                                 )
                                             }
-                                            ref={(el) => { inputRefs.current[`${row.forum_id}-subRegion`] = el; }}
+                                            ref={(el) => {
+                                                inputRefs.current[
+                                                    `${row.forum_id}-subRegion`
+                                                ] = el;
+                                            }}
                                         />
                                     </TableCell>
                                     <TableCell align="center">
                                         <span className="text-red-600 font-bold">
                                             {row.temp}
                                         </span>
-                                        <span className="ml-1 text-xs text-zinc-500">
-                                            °C
-                                        </span>
+
+                                        {row.temp ? (
+                                            <span className="ml-1 text-xs text-zinc-500">
+                                                °C
+                                            </span>
+                                        ) : (
+                                            <span className="ml-1 text-xs text-zinc-500">
+                                                -
+                                            </span>
+                                        )}
                                     </TableCell>
                                     <TableCell align="center">
                                         <span className="text-sky-600 font-bold">
                                             {row.rh}
                                         </span>
-                                        <span className="ml-1 text-xs text-zinc-500">
-                                            %
-                                        </span>
+                                        {row.rh ? (
+                                            <span className="ml-1 text-xs text-zinc-500">
+                                                %
+                                            </span>
+                                        ) : (
+                                            <span className="ml-1 text-xs text-zinc-500">
+                                                -
+                                            </span>
+                                        )}
                                     </TableCell>
                                     <TableCell align="right">
                                         <span className="text-green-600 font-bold">
                                             {row.elec_diff}
                                         </span>
-                                        <span className="ml-1">
-                                            ({row.days_dff})
-                                        </span>
+                                        {row.days_dff ? (
+                                            <span className="ml-1 text-zinc-500">
+                                               ({row.days_dff})
+                                            </span>
+                                        ) : (
+                                            <span className="ml-1 text-xs text-zinc-500">
+                                                -
+                                            </span>
+                                        )}
                                     </TableCell>
                                     <TableCell align="right">
                                         {row.sum}
