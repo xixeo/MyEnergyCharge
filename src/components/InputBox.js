@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 // React.forwardRef를 사용하여 ref를 전달받는 컴포넌트를 생성
 const InputBox = React.forwardRef(
@@ -16,16 +16,45 @@ const InputBox = React.forwardRef(
             max,
             value,
             idx,
-            placeholder
+            placeholder,
+            unit = "",
+            handleBlur
         },
         ref
     ) => {
-        const today = new Date().toISOString().slice(0, 10);
+        const [inputValue, setInputValue] = useState(value || "");
+
+        useEffect(() => {
+            setInputValue(value || "");
+        }, [value]);
+
+        const onChange = (e) => {
+            setInputValue(e.target.value);
+            if (handleChange) {
+                handleChange(e);
+            }
+        };
+    
+        const onBlur = () => {
+            if (unit && !inputValue.endsWith(unit)) {
+                const updatedValue = `${inputValue} ${unit}`;
+                setInputValue(updatedValue);
+                if (handleChange) {
+                    handleChange({ target: { value: updatedValue } });
+                }
+            }
+            if (handleBlur) {
+                handleBlur();
+            }
+        };
+
+        // const today = new Date().toISOString().slice(0, 10);
         const opTags = ops.map((item) => (
             <option key={item} value={item}>
                 {item}
             </option>
         ));
+
 
         return (
             <div className="w-auto">
@@ -43,7 +72,6 @@ const InputBox = React.forwardRef(
                         type={type}
                         min={min}
                         max={max}
-                        defaultValue={today}
                         ref={ref}
                         value={value}
                         className={`lg:min-w-40 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
@@ -72,7 +100,11 @@ const InputBox = React.forwardRef(
                 ) : (
                     <input
                         id={id}
+                        key={idx}
                         ref={ref}
+                        value={value}
+                        onChange={onChange}
+                        onBlur={onBlur}
                         className={`lg:min-w-40 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
                     />
                 )}

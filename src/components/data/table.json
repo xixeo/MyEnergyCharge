@@ -2,75 +2,75 @@
   "data": [
     {
       "date": "2024-08-10",
-      "elec_total": "5000 kWh",
+      "elec_total": "5000",
       "region": "부산광역시",
       "subRegion": "부산진구",
-      "elecCont": "0 kWh",
-      "temp": "23°C",
-      "rh": "50%",
-      "elec_diff": "100 kWh",
+      "elecCont": "0",
+      "temp": "23",
+      "rh": "50",
+      "elec_diff": "100",
       "days_diff": "3",
-      "sum": "8000 kWh",
+      "sum": "8000",
       "comment": [
         {"content": "전기 사용량 측정 완료"}
       ]
     },
     {
       "date": "2024-08-11",
-      "elec_total": "3000 kWh",
+      "elec_total": "3000",
       "region": "부산광역시",
       "subRegion": "남구",
-      "elecCont": "0 kWh",
-      "temp": "28°C",
-      "rh": "5%",
-      "elec_diff": "50 kWh",
+      "elecCont": "0",
+      "temp": "28",
+      "rh": "5",
+      "elec_diff": "50",
       "days_diff": "3",
-      "sum": "7950 kWh",
+      "sum": "7950",
       "comment": [
         {"content": "전기세 너무 많이 나오겠다 아껴써야지.."}
       ]
     },
     {
       "date": "2024-08-08",
-      "elec_total": "6000 kWh",
+      "elec_total": "6000",
       "region": "부산광역시",
       "subRegion": "부산진구",
-      "elecCont": "0 kWh",
-      "temp": "28°C",
-      "rh": "15%",
-      "elec_diff": "80 kWh",
+      "elecCont": "0",
+      "temp": "28",
+      "rh": "15",
+      "elec_diff": "80",
       "days_diff": "5",
-      "sum": "5000 kWh",
+      "sum": "5000",
       "comment": [
         {"content": ""}
       ]
     },
     {
       "date": "2024-08-11",
-      "elec_total": "3000 kWh",
+      "elec_total": "3000",
       "region": "부산광역시",
       "subRegion": "금정구",
-      "elecCont": "0 kWh",
-      "temp": "28°C",
-      "rh": "5%",
-      "elec_diff": "50 kWh",
+      "elecCont": "0",
+      "temp": "28",
+      "rh": "5",
+      "elec_diff": "50",
       "days_diff": "3",
-      "sum": "7950 kWh",
+      "sum": "7950",
       "comment": [
         {"content": "전기세 너무 많이 나오겠다 아껴써야지.."}
       ]
     },
     {
       "date": "2024-08-11",
-      "elec_total": "3000 kWh",
+      "elec_total": "3000",
       "region": "서울",
       "subRegion": "마포구",
-      "elecCont": "0 kWh",
-      "temp": "28°C",
-      "rh": "5%",
-      "elec_diff": "50 kWh",
+      "elecCont": "0",
+      "temp": "28",
+      "rh": "5",
+      "elec_diff": "50",
       "days_diff": "3",
-      "sum": "7950 kWh",
+      "sum": "7950",
       "comment": [
         {"content": "전기세 너무 많이 나오겠다 아껴써야지.."}
       ]

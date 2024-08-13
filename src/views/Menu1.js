@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+
 import Box from "@mui/material/Box";
 import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
@@ -10,11 +11,13 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-// import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
-import tableData from "../components/data/table.json"; // JSON 파일 import
+
 import InputBox from "../components/InputBox";
 import Btn from "../components/Btn";
+import Alerts from "../components/Alert";
+
+import tableData from "../components/data/table.json"; // JSON 파일 import
 import areas from "../components/data/area.json";
 
 export default function Menu1() {
@@ -28,7 +31,7 @@ export default function Menu1() {
         const initialRows = tableData.data.map((item, index) => ({
             forum_id: index + 1,
             date: item.date,
-            elec_total: item.elec_total,
+            elec_total: `${item.elec_total} kW` || "", // 단위 추가
             region: item.region,
             subRegion: item.subRegion,
             temp: item.temp,
@@ -61,12 +64,12 @@ export default function Menu1() {
         );
         setSubAreas(selectedAreaObj ? selectedAreaObj.subArea : []);
         setSelectedSubArea(""); // 지역을 바꾸면 시, 군, 구 선택 초기화
-        console.log("Selected area:", selectedArea); // selectedArea 변수 사용
+        // console.log("Selected area:", selectedArea); // selectedArea 변수 사용
     };
 
     const handleSubAreaChange = (e) => {
         setSelectedSubArea(e.target.value);
-        console.log("Selected sub area:", e.target.value); // selectedSubArea 변수 사용
+        // console.log("Selected sub area:", e.target.value); // selectedSubArea 변수 사용
     };
 
     // dateBox
@@ -86,6 +89,9 @@ export default function Menu1() {
     // 키워드 입력
     const inRef = useRef();
 
+    //////////////////////////BTN EVENT////////////////////////
+    //                       CRUD                            //
+    // ////////////////////////////////////////////////////////
     // 조회 BTN 수정
     const handleSearch = () => {
         const filteredRows = tableData.data
@@ -117,7 +123,7 @@ export default function Menu1() {
                             val.toString().toLowerCase().includes(keywordValue)
                     );
 
-                console.log("Matching Keyword:", matchingKeyword);
+                // console.log("Matching Keyword:", matchingKeyword);
 
                 return (
                     dateRange &&
@@ -142,30 +148,94 @@ export default function Menu1() {
         setRows(filteredRows); // 필터링된 데이터를 상태로 설정하여 테이블에 표시
     };
 
-     // 조회 BTN 수정
-     const handleAdd = () => {
+    // row 추가 BTN
+    const handleAdd = () => {
+        const newId = rows.length + 1; // 새 행의 ID는 기존 행의 수 + 1
+        const newRow = {
+            forum_id: newId,
+            date: "",
+            elec_total: "",
+            region: "",
+            subRegion: "",
+            temp: "",
+            rh: "",
+            elec_diff: "",
+            days_dff: "",
+            sum: "",
+            comment: [], // 기본적으로 빈 배열로 초기화
+        };
 
-     }
+        // 새 행을 추가하고, 그 행의 ID를 selectedRows에 추가
+        setRows((prevRows) => [...prevRows, newRow]);
+
+        setSelectedRows((prevSelectedRows) => {
+            const newSelectedRows = new Set(prevSelectedRows);
+            newSelectedRows.add(newId); // 새로 추가된 행의 체크박스 체크
+            return newSelectedRows;
+        });
+    };
+
+    // row 삭제 BTN
+    const [errorMessage, setErrorMessage] = useState(""); // ErrorAlert 컴포넌트에 사용할 상태
+
+    const handleDelete = () => {
+        setRows((prevRows) =>
+            prevRows.filter((row) => !selectedRows.has(row.forum_id))
+        );
+        setSelectedRows(new Set()); // 삭제 후 선택된 행을 초기화
+    };
+
+    // row 저장 BTN
+    const handleSave = () => {
+        // 필수 필드가 채워졌는지 확인
+        const allFieldsValid = rows.every((row) => {
+            if (selectedRows.has(row.forum_id)) {
+                return (
+                    row.date &&
+                    row.elec_total &&
+                    row.region &&
+                    row.subRegion
+                );
+            }
+            return true;
+        });
+
+        if (!allFieldsValid) {
+            setErrorMessage("모든 필수 필드를 채워야 합니다.");
+            return;
+        }
+
+        setErrorMessage(""); // 에러 메시지 초기화
+
+        // 선택된 행만 업데이트
+        const updatedRows = rows.map((row) => {
+            if (selectedRows.has(row.forum_id)) {
+                return {
+                    ...row,
+                    // 데이터가 수정된 부분을 업데이트합니다.
+                    // 예를 들어, 데이터 저장 API 호출 논리를 추가할 수 있습니다.
+                };
+            }
+            return row;
+        });
+
+        // 상태 업데이트
+        setRows(updatedRows);
+        setSelectedRows(new Set()); // 저장 후 선택된 행을 초기화
+    };
 
     //////////////////////////TABLE/////////////////////////////
-    // 체크박스 전체 선택 핸들러                                  //
-    ////////////////////////////////////////////////////////////
-    const handleSelectAllRows = (event) => {
-        if (event.target.checked) {
-            setSelectedRows(new Set(rows.map((row) => row.forum_id)));
-        } else {
-            setSelectedRows(new Set());
-        }
-    };
+    // 체크박스         핸들러                                  //
+    // ////////////////////////////////////////////////////////
 
     // 체크박스 핸들러
     const handleSelectRow = (id) => {
         setSelectedRows((prevSelectedRows) => {
             const newSelectedRows = new Set(prevSelectedRows);
             if (newSelectedRows.has(id)) {
-                newSelectedRows.delete(id);
+                newSelectedRows.delete(id); // 이미 선택된 행은 선택 해제
             } else {
-                newSelectedRows.add(id);
+                newSelectedRows.add(id); // 선택되지 않은 행은 선택
             }
             return newSelectedRows;
         });
@@ -195,6 +265,7 @@ export default function Menu1() {
                 if (row.forum_id === id) {
                     if (field === "comment") {
                         // 메모 업데이트
+                        // Comment가 객체 배열로 되어있으므로, idx를 활용하여 해당 인덱스의 content를 업데이트
                         return {
                             ...row,
                             comment: row.comment.map((comment, idx) =>
@@ -202,6 +273,12 @@ export default function Menu1() {
                                     ? { ...comment, content: value }
                                     : comment
                             ),
+                        };
+                    } else if (field === "elecTotal") {
+                        // elecTotal 업데이트
+                        return {
+                            ...row,
+                            elec_total: value,
                         };
                     } else {
                         // 다른 필드 업데이트
@@ -218,7 +295,23 @@ export default function Menu1() {
             return newSelectedRows;
         });
     };
-
+    const handleBlur = (id, field, value, unit) => {
+        // kW 단위를 추가하는 로직을 포함한 handleBlur 함수 정의
+        if (field === "elecTotal") {
+            setRows((prevRows) =>
+                prevRows.map((row) =>
+                    row.forum_id === id
+                        ? {
+                              ...row,
+                              elec_total: row.elec_total.endsWith(unit)
+                                  ? row.elec_total
+                                  : `${row.elec_total} ${unit}`,
+                          }
+                        : row
+                )
+            );
+        }
+    };
     return (
         <div className="max-w-screen-2xl mx-auto px-4">
             <h1>마이페이지</h1>
@@ -276,13 +369,32 @@ export default function Menu1() {
                         labelClass="ml-0 mr-2 lg:mr-4"
                     />
                 </div>
-
-                <Btn
-                    caption="조회"
-                    customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm mx-1 px-1"
-                    handleClick={handleSearch}
-                />
+                <div>
+                    <Btn
+                        caption="조회"
+                        customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm mx-1 px-1"
+                        handleClick={handleSearch}
+                    />
+                    <Btn
+                        caption="추가"
+                        customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm mx-1 px-1"
+                        handleClick={handleAdd}
+                    />
+                    <Btn
+                        caption="삭제"
+                        customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm mx-1 px-1"
+                        handleClick={handleDelete}
+                    />
+                    <Btn
+                        caption="저장"
+                        customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm mx-1 px-1"
+                        handleClick={handleSave}
+                    />
+                </div>
             </div>
+            <Alerts
+                message={errorMessage}
+                severity="error" />
             <TableContainer
                 style={{
                     marginTop: "20px",
@@ -320,13 +432,13 @@ export default function Menu1() {
                             </TableCell>
                             <TableCell align="center">번호</TableCell>
                             <TableCell align="center">날짜</TableCell>
-                            <TableCell align="right">계량기 수치</TableCell>
+                            <TableCell align="center">계량기 수치</TableCell>
                             <TableCell align="center">시도</TableCell>
                             <TableCell align="center">시군구</TableCell>
                             <TableCell align="center">기온</TableCell>
                             <TableCell align="center">습도</TableCell>
-                            <TableCell align="right">지난 수치 대비</TableCell>
-                            <TableCell align="right">합계</TableCell>
+                            <TableCell align="center">지난 수치 대비</TableCell>
+                            <TableCell align="center">합계</TableCell>
                             <TableCell />
                         </TableRow>
                     </TableHead>
@@ -366,13 +478,29 @@ export default function Menu1() {
                                             customClass=""
                                         />
                                     </TableCell>
-                                    <TableCell align="right">
-                                        {row.elec_total}
+                                    <TableCell align="center">
+                                        <InputBox
+                                            type="text"
+                                            id={`elec_total-${row.forum_id}`} // 단일 id 사용
+                                            key={`elec_total-${row.forum_id}`} // 단일 key 사용
+                                            value={row.elec_total}
+                                            unit="kW" // 단위 설정
+                                            customClass="text-right"
+                                            handleBlur={handleBlur}
+                                            handleChange={(e) => {
+                                                handleChangeCell(
+                                                    row.forum_id,
+                                                    "elec_total",
+                                                    e.target.value
+                                                );
+                                            }}
+                                        />
                                     </TableCell>
                                     <TableCell align="center">
                                         <InputBox
                                             id={`region-${row.forum_id}`}
                                             type="dropDown"
+                                            initText="선택"
                                             ops={areas.map((area) => area.name)}
                                             value={row.region}
                                             handleChange={(e) =>
@@ -388,6 +516,7 @@ export default function Menu1() {
                                         <InputBox
                                             id={`subRegion-${row.forum_id}`}
                                             type="dropDown"
+                                            initText="선택"
                                             ops={
                                                 areas.find(
                                                     (area) =>
@@ -405,14 +534,28 @@ export default function Menu1() {
                                         />
                                     </TableCell>
                                     <TableCell align="center">
-                                        {row.temp}
+                                        <span className="text-red-600 font-bold">
+                                            {row.temp}
+                                        </span>
+                                        <span className="ml-1 text-xs text-zinc-500">
+                                            °C
+                                        </span>
                                     </TableCell>
                                     <TableCell align="center">
-                                        {row.rh}
+                                        <span className="text-sky-600 font-bold">
+                                            {row.rh}
+                                        </span>
+                                        <span className="ml-1 text-xs text-zinc-500">
+                                            %
+                                        </span>
                                     </TableCell>
                                     <TableCell align="right">
-                                        {row.elec_diff}
-                                        <span>{row.days_dff}</span>
+                                        <span className="text-green-600 font-bold">
+                                            {row.elec_diff}
+                                        </span>
+                                        <span className="ml-1">
+                                            ({row.days_dff})
+                                        </span>
                                     </TableCell>
                                     <TableCell align="right">
                                         {row.sum}
@@ -452,33 +595,60 @@ export default function Menu1() {
                                             timeout="auto"
                                             unmountOnExit
                                         >
-                                            <Box
-                                                sx={{ margin: 1 }}
-                                            >
-                                                {row.comment.map(
-                                                    (commentRow, idx) => (
-                                                        <div class="wrap">
+                                            <Box sx={{ margin: 1 }}>
+                                                <div className="wrap">
+                                                    {Array.isArray(
+                                                        row.comment
+                                                    ) &&
+                                                    row.comment.length > 0 ? (
+                                                        row.comment.map(
+                                                            (
+                                                                commentRow,
+                                                                idx
+                                                            ) => (
+                                                                <InputBox
+                                                                    key={idx}
+                                                                    type="textArea"
+                                                                    id={`textarea-${row.forum_id}-${idx}`}
+                                                                    placeholder="메모"
+                                                                    value={
+                                                                        commentRow.content ||
+                                                                        ""
+                                                                    }
+                                                                    handleChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleChangeCell(
+                                                                            row.forum_id,
+                                                                            "comment",
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                            idx
+                                                                        )
+                                                                    }
+                                                                />
+                                                            )
+                                                        )
+                                                    ) : (
                                                         <InputBox
-                                                            type= "textArea"
-                                                            id={`textarea-${row.forum_id}-${idx}`}
-                                                            key={idx}
+                                                            type="textArea"
+                                                            id={`textarea-${row.forum_id}-0`}
+                                                            key={`textarea-${row.forum_id}-0`}
                                                             placeholder="메모"
-                                                            value={
-                                                                commentRow.content
-                                                            }
+                                                            value=""
                                                             handleChange={(e) =>
                                                                 handleChangeCell(
                                                                     row.forum_id,
                                                                     "comment",
                                                                     e.target
                                                                         .value,
-                                                                    idx
+                                                                    0
                                                                 )
                                                             }
                                                         />
-                                                        </div>
-                                                    )
-                                                )}
+                                                    )}
+                                                </div>
                                             </Box>
                                         </Collapse>
                                     </TableCell>
