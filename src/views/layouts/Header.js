@@ -1,9 +1,10 @@
 import { useNavigate, NavLink } from "react-router-dom";
-import { MdOutlineLogout } from "react-icons/md";
 import { useRecoilState } from "recoil";
 import { AtomN } from "./AtomN";
 import { useState } from "react";
 import data from "../menu/Menu";
+import { ReactComponent as User } from "../../assets/icons/svg/user.svg";
+import { ReactComponent as ArrowR } from "../../assets/icons/svg/arrowR.svg";
 
 export default function Header() {
     //MenuList
@@ -22,48 +23,97 @@ export default function Header() {
         }
     };
 
-    // 로그인이 되어있지 않으면 로그인 페이지로 이동
-    // 로그인이 안되면 메인화면, 메뉴화면으로 이동 불가해서 주석처리
-    // useEffect(() => {
-    //     if (!user) {
-    //         navigate("/");
-    //     }
-    // }, [user, navigate]);
-
     return (
-        <header className="flex justify-between items-center text-xl font-bold min-h-10 bg-white p-5">
-            <div className="Logo">나의 전력량</div>
-            <div className="MenuList">
-                <ul className="flex justify-center items-center gap-4 text-md">
+        <header className="w-[250px] text-xl font-bold bg-white pt-8 headerWrap">
+            <div className="Logo text-white px-5">나의 전력량</div>
+
+            <div className="UserInfo px-5">
+                {user ? (
+                    <div className="flex items-center justify-between pt-5">
+                        <div className="flex items-center">
+                            {/* <User width="16px" height="16px" className="mr-2"/> */}
+                            <span className="text-sm text-white font-normal">
+                                {userName}
+                                <span className="ml-2">님</span>
+                            </span>
+                        </div>
+                        <button
+                            onClick={onLogout}
+                            type="button"
+                            className="text-white border border-whtie hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-xs px-2 py-1 text-center"
+                        >
+                            로그아웃
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex justify-between items-center pt-5">
+                        <div className="flex items-center">
+                            {/* <User width="16px" height="16px"  className="mr-2"/> */}
+                            <span className="text-sm text-white font-normal">
+                                Guest
+                                <span className="ml-2">님</span>
+                            </span>
+                        </div>
+                        <NavLink
+                            to="/login"
+                            className="text-zinc-300 border border-zinc-300 hover:border-white hover:text-white font-medium rounded-lg text-xs px-2 py-1 text-center"
+                        >
+                            로그인
+                        </NavLink>
+                    </div>
+                )}
+            </div>
+            <hr className="border-[#ffffff25] mt-3 mb-5" />
+            <div className="MenuList px-3">
+                <ul className="text-md">
                     {navs.map((nav, index) => (
-                        <li key={index} className="py-2 px-3 rounded-sm hover:bg-[#ffffff10] md:hover:bg-transparent md:border-0 md:hover:text-[#f1edb2] md:p-0">
-                            <NavLink to={nav.link} className={({ isActive }) => (isActive ? 'text-[#2e236d]' : 'text-gray-400')}>
-                                {nav.title}
+                        <li
+                            key={index}
+                            className="my-2 rounded-md hover:bg-[#ffffff10] md:border-0 md:p-0"
+                        >
+                            <NavLink
+                                to={nav.link}
+                                className={({ isActive }) =>
+                                    `w-full flex justify-between items-center p-2 px-1 ${
+                                        isActive
+                                            ? "text-white"
+                                            : "text-gray-500"
+                                    }`
+                                }
+                            >
+                                {({ isActive }) => (
+                                    <>
+                                        <div className="flex items-center">
+                                            <nav.icon
+                                                width="20px"
+                                                height="20px"
+                                                className={`transition-colors duration-300 mr-4 ${
+                                                    isActive
+                                                        ? "text-white"
+                                                        : "text-gray-500"
+                                                }`}
+                                            />
+                                            <span className="text-[1.1rem]">
+                                                {nav.title}
+                                            </span>
+                                        </div>
+                                        <span>
+                                            <ArrowR
+                                                width="18px"
+                                                height="18px"
+                                                className={`transition-colors duration-300 ${
+                                                    isActive
+                                                        ? "text-white"
+                                                        : "text-gray-500"
+                                                }`}
+                                            />
+                                        </span>
+                                    </>
+                                )}
                             </NavLink>
                         </li>
                     ))}
                 </ul>
-            </div>
-            <div className="flex items-center UserInfo">
-                {user ? (
-                    <>
-                        <span className="text-sm">{userName}님</span>
-                        <button
-                            onClick={onLogout}
-                            type="button"
-                            className="text-white bg-[#2E236D] hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                        >
-                            <MdOutlineLogout className="text-teal-50" />
-                        </button>
-                    </>
-                ) : (
-                    <NavLink
-                        to="/login"
-                        className="text-white bg-[#343077] hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                    >
-                        로그인
-                    </NavLink>
-                )}
             </div>
         </header>
     );

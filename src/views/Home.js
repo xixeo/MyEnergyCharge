@@ -87,7 +87,7 @@ const Home = () => {
     };
 
     return (
-        <div className="max-w-screen-2xl mx-auto px-4">
+        <div className="w-full px-10">
             <div className="w-full h-14 md:px-4 md:pr-0 flex pb-1 lg:pb-0 items-end lg:items-center justify-between border-b border-[#CDD1E1]">
                 <div className="flex items-center">
                     <InputBox
@@ -130,13 +130,13 @@ const Home = () => {
 
                 <Btn
                     caption="조회"
-                    customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm mx-1 px-1"
+                    customClass="bg-[#17458d] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm mx-1 px-1"
                     handleClick={handleButtonClick}
                 />
             </div>
 
             <div className="lg:grid grid-cols-5 gap-4 mt-6 displayWrap overflow-y-auto">
-                <div className="h-full col-span-3 p-3 bg-[#F2F5FE] rounded-md border border-[#CDD1E1]">
+                <div className="h-full col-span-3 p-3 bg-[#DEE0EA] rounded-md border border-[#CDD1E1]">
                     <KakaoMap
                         onMapReady={handleMapReady}
                         area={queryArea}

@@ -341,8 +341,7 @@ export default function Menu1() {
         }
     };
     return (
-        <div className="max-w-screen-2xl mx-auto px-4">
-            <h1>마이페이지</h1>
+        <div className="w-full px-10  pb-10">
             <div className="w-full h-14 md:px-4 md:pr-0 flex pb-1 lg:pb-0  items-end lg:items-center justify-between border-b border-[#CDD1E1]">
                 <div className="flex items-center">
                     <InputBox
@@ -400,22 +399,22 @@ export default function Menu1() {
                 <div>
                     <Btn
                         caption="조회"
-                        customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
+                        customClass="bg-[#17458d] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
                         handleClick={handleSearch}
                     />
                     <Btn
                         caption="추가"
-                        customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
+                        customClass="bg-[#17458d] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
                         handleClick={handleAdd}
                     />
                     <Btn
                         caption="삭제"
-                        customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
+                        customClass="bg-[#17458d] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
                         handleClick={handleDelete}
                     />
                     <Btn
                         caption="저장"
-                        customClass="bg-[#0473E9] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
+                        customClass="bg-[#17458d] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
                         handleClick={handleSave}
                     />
                 </div>
@@ -428,7 +427,7 @@ export default function Menu1() {
                 }}
             >
                 <Table aria-label="collapsible table">
-                    <TableHead style={{ background: "#dfe6fb" }}>
+                    <TableHead style={{ background: "#DEE0EA" }}>
                         <TableRow>
                             <TableCell>
                                 <Checkbox

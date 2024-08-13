@@ -4,10 +4,10 @@
     }
 
     th {
-        padding: 8px 16px;
+        padding: 4px 16px;
     }
     td {
-        padding: 12px 16px;
+        padding: 10px 16px;
     }
 
     .MuiCheckbox-root {
@@ -23,7 +23,7 @@
     .wrap textarea {
         width: 100%;
         resize: none;
-        padding: 8px 14px; /* prevents text jump on Enter keypress */
+        padding: 8px 14px; 
         padding-bottom: 0.2em;
         line-height: 1.6;
         min-height: 100px;

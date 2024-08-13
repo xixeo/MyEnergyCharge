@@ -1,4 +1,4 @@
-$header : 80px;
+$header : 4rem;
 $jogun : 55px;
 
 .home_wrap{
@@ -14,7 +14,6 @@ $jogun : 55px;
 .displayWrap{
   height: calc(100vh - $header - $jogun - 25px - 16px);
 }
-// height: calc(100vh - $header - $jogun - 25px (mt) - 16px(mb);
 .chartWrap{
   height: calc((100vh - $header - $jogun - 25px - 16px - 16px)/2);
 }

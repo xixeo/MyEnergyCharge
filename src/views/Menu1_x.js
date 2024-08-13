@@ -312,7 +312,7 @@ export default function Menu1() {
                 </div>
                 <Btn
                     caption="조회"
-                    customClass="bg-[#0473E9] text-white text-sm py-1 px-4 rounded"
+                    customClass="bg-[#092756] text-white text-sm py-1 px-4 rounded"
                     handleClick={handleSearch}
                 />
             </div>

@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function Menu2() {
   return (
-    <div>
+    <div className="w-full px-10">
       MENU 22
     </div>
   )
