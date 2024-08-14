@@ -9,9 +9,9 @@ export default function LoginForm({ onLogin }) {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-
+    
         const url = "http://192.168.0.144:8080/login";
-
+    
         try {
             const response = await fetch(url, {
                 method: "POST",
@@ -23,32 +23,30 @@ export default function LoginForm({ onLogin }) {
                     password: pw,
                 }),
             });
-
-            // 서버 응답 처리
+    
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.message || "로그인에 실패하였습니다.");
             }
-
+    
             // 응답 헤더에서 토큰 추출
-            const token = response.headers.get("Authorization"); // 서버에서 'Authorization' 헤더에 토큰을 포함해 보낼 것이라고 가정
-
+            const token = response.headers.get('Authorization'); // 토큰 읽기
+    
             if (token) {
-                // JWT 토큰을 localStorage에 저장
-                if (isRemember) {
-                    localStorage.setItem("token", token);
-                } else {
-                    localStorage.setItem("token", token);
-                }
+                localStorage.setItem("token", token);
+                console.log('Token ok');
+            } else {
+                console.log('Token not received from the server');
             }
-
-            // 로그인 성공 후 onLogin 호출
+    
             onLogin(username);
-            
+    
         } catch (error) {
             alert(error.message);
         }
     };
+    
+    
 
     const handleOnChange = (e) => {
         const { checked } = e.target;
@@ -60,7 +58,10 @@ export default function LoginForm({ onLogin }) {
             <p className="text-[#364f9b] text-3xl font-bold w-full px-8">
                 Login
             </p>
-            <form className="w-full px-8 pt-12 space-y-4 md:space-y-6" onSubmit={handleLogin}>
+            <form
+                className="w-full px-8 pt-12 space-y-4 md:space-y-6"
+                onSubmit={handleLogin}
+            >
                 <div>
                     <label
                         htmlFor="id"

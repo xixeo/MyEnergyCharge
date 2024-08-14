@@ -720,7 +720,7 @@ export default function Menu1() {
                                         >
                                             <Box sx={{ margin: 1 }}>
                                                 <div className="wrap">
-                                                {row.comment ? (
+                                                    {row.comment ? (
                                                         <InputBox
                                                             type="textArea"
                                                             id={`textarea-${row.forum_id}`}
@@ -745,26 +745,10 @@ export default function Menu1() {
                                                             }
                                                         />
                                                     ) : (
-                                                        <InputBox
-                                                            type="textArea"
-                                                            id={`textarea-${row.forum_id}-0`} // id를 문자열 템플릿으로 수정
-                                                            key={`${row.forum_id}-0`} // key를 문자열 템플릿으로 수정
-                                                            placeholder="메모"
-                                                            value="" // 빈 문자열로 초기화
-                                                            handleChange={(e) =>
-                                                                handleChangeCell(
-                                                                    row.forum_id,
-                                                                    "comment",
-                                                                    {
-                                                                        ...row.comment,
-                                                                        content:
-                                                                            e
-                                                                                .target
-                                                                                .value,
-                                                                    }
-                                                                )
-                                                            }
-                                                        />
+                                                        <div>
+                                                            Comment 데이터가
+                                                            없습니다.
+                                                        </div>
                                                     )}
                                                 </div>
                                             </Box>

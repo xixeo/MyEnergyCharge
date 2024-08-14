@@ -65,7 +65,7 @@ const InputBox = forwardRef(
                 {type === "date" ? (
                     <input
                         id={id}
-                        type={type}
+                        type="date"
                         min={min}
                         max={max}
                         ref={inRef || ref}  // `ref`를 `input`에 연결
@@ -73,7 +73,18 @@ const InputBox = forwardRef(
                         className={`lg:min-w-40 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
                         onChange={onChange}
                     />
-                ) : type === "dropDown" ? (
+                ) :  type === "datetime" ? (
+                    <input
+                        id={id}
+                        type="datetime-local"
+                        min={min}
+                        max={max}
+                        ref={inRef || ref}  // `ref`를 `input`에 연결
+                        value={value}
+                        className={`lg:min-w-40 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
+                        onChange={onChange}
+                    />
+                )  :type === "dropDown" ? (
                     <select
                         id={id}
                         ref={selRef || ref}  // `ref`를 `select`에 연결
