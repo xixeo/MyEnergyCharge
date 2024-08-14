@@ -28,6 +28,7 @@ export default function Menu1() {
     const inputRefs = useRef({}); // Ref 저장용
     // 데이터 fetch
     const url = `http://192.168.0.144:8080/members/forum`;
+    const [allData, setAllData] = useState([]); //패치된 데이터 저장
 
     // useEffect를 사용하여 컴포넌트가 마운트될 때 초기 데이터를 설정
     // 조회버튼을 누르지 않아도 초기에 전체 데이터 한번 렌더링 시키기
@@ -56,7 +57,8 @@ export default function Menu1() {
 
                 const data = await response.json();
                 const initialRows = data.map((item, index) => ({
-                    forum_id: index + 1,
+                    board_id: index + 1,
+                    forum_id: item.forum_id,
                     date: item.date,
                     elec_total: `${item.elec_total} kW` || "",
                     region: item.city,
@@ -68,7 +70,9 @@ export default function Menu1() {
                     sum: item.sum,
                     comment: item.comment,
                 }));
-                setRows(initialRows);
+
+                setAllData(initialRows); // 전체 데이터 상태로 저장
+                setRows(initialRows); // 초기 데이터 테이블에 렌더링
                 console.log("initialRows", initialRows);
             } catch (error) {
                 console.error("Fetch error:", error);
@@ -184,7 +188,8 @@ export default function Menu1() {
                 );
             })
             .map((item, index) => ({
-                forum_id: index + 1,
+                board_id: index + 1,
+                forum_id: item.forum_id,
                 date: item.date,
                 elec_total: item.elec_total ? `${item.elec_total} kW` : "", // unit 추가
                 region: item.region,
@@ -232,12 +237,51 @@ export default function Menu1() {
     // const [errorMessage, setErrorMessage] = useState(""); // ErrorAlert 컴포넌트에 사용할 상태
     const { showAlert } = useAlert(); // useAlert 훅 사용
 
-    const handleDelete = () => {
-        setRows((prevRows) =>
-            prevRows.filter((row) => !selectedRows.has(row.forum_id))
-        );
-        showAlert("삭제되었습니다.", "success");
-        setSelectedRows(new Set()); // 삭제 후 선택된 행을 초기화
+    const handleDelete = async () => {
+        // 삭제할건지 재확인
+        const confirmed = window.confirm("정말로 삭제하시겠습니까?");
+
+        if (confirmed) {
+            try {
+                // 선택된 행 ID들
+                const idsToDelete = Array.from(selectedRows);
+                // 서버에 삭제 요청
+                const token = localStorage.getItem("token"); // 필요한 경우 토큰을 가져옴
+                // 여러 ID에 대해 요청을 보내는 경우
+                await Promise.all(
+                    idsToDelete.map(async (id) => {
+                        const response = await fetch(
+                            `http://192.168.0.144:8080/members/forum/${id}`,
+                            {
+                                method: "DELETE",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    Authorization: `Bearer ${token}`, // 토큰이 필요한 경우
+                                },
+                            }
+                        );
+
+                        if (!response.ok) {
+                            throw new Error(
+                                `삭제 오류 ${id}`
+                            );
+                        }
+                    })
+                );
+
+                // 삭제 후 상태 업데이트
+                setRows((prevRows) =>
+                    prevRows.filter((row) => !selectedRows.has(row.forum_id))
+                );
+                setSelectedRows(new Set()); // 삭제 후 선택된 행을 초기화
+                showAlert("삭제되었습니다.", "success");
+            } catch (error) {
+                console.error("Delete error:", error);
+                showAlert("삭제 중 오류가 발생했습니다.", "error");
+            }
+        } else {
+            showAlert("삭제가 취소되었습니다.", "info");
+        }
     };
 
     // row 저장 BTN
@@ -309,6 +353,7 @@ export default function Menu1() {
             } else {
                 newSelectedRows.add(id); // 선택되지 않은 행은 선택
             }
+            console.log('newSelectedRows', Array.from(newSelectedRows));
             return newSelectedRows;
         });
     };
@@ -544,7 +589,7 @@ export default function Menu1() {
                                     </TableCell>
 
                                     <TableCell align="center">
-                                        {row.forum_id}
+                                        {row.board_id}
                                     </TableCell>
                                     <TableCell align="center" itemType="date">
                                         <InputBox
@@ -720,7 +765,7 @@ export default function Menu1() {
                                         >
                                             <Box sx={{ margin: 1 }}>
                                                 <div className="wrap">
-                                                {row.comment ? (
+                                                    {row.comment ? (
                                                         <InputBox
                                                             type="textArea"
                                                             id={`textarea-${row.forum_id}`}
