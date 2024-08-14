@@ -121,7 +121,7 @@ export default function Chart({
                     data: avgTempData,
                     yAxisIndex: 1,
                     itemStyle: {
-                        color: "#FF7979",
+                        color: "#ff4900",
                         borderRadius: [10, 10, 0, 0],
                     },
                 },
@@ -132,7 +132,7 @@ export default function Chart({
                     data: minTempData,
                     yAxisIndex: 1,
                     itemStyle: {
-                        color: "#FFB179",
+                        color: "#ff8f00",
                         borderRadius: [10, 10, 0, 0],
                     },
                 },
@@ -143,7 +143,7 @@ export default function Chart({
                     data: maxRhData,
                     yAxisIndex: 2,
                     itemStyle: {
-                        color: "#232EFF",
+                        color: "#0006ff",
                         borderRadius: [10, 10, 0, 0],
                     },
                 },
@@ -154,7 +154,7 @@ export default function Chart({
                     data: avgRhData,
                     yAxisIndex: 2,
                     itemStyle: {
-                        color: "#9B9DFF",
+                        color: "#0058ff",
                         borderRadius: [10, 10, 0, 0],
                     },
                 },
@@ -165,7 +165,7 @@ export default function Chart({
                     data: minRhData,
                     yAxisIndex: 2,
                     itemStyle: {
-                        color: "#79D2FF",
+                        color: "#00a9ff",
                         borderRadius: [10, 10, 0, 0],
                     },
                 },

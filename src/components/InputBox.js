@@ -70,7 +70,7 @@ const InputBox = forwardRef(
                         max={max}
                         ref={inRef || ref}  // `ref`를 `input`에 연결
                         value={value}
-                        className={`lg:min-w-40 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
+                        className={`lg:min-w-25 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
                         onChange={onChange}
                     />
                 ) :  type === "datetime" ? (
@@ -81,7 +81,7 @@ const InputBox = forwardRef(
                         max={max}
                         ref={inRef || ref}  // `ref`를 `input`에 연결
                         value={value}
-                        className={`lg:min-w-40 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
+                        className={`lg:min-w-25 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
                         onChange={onChange}
                     />
                 )  :type === "dropDown" ? (
@@ -110,7 +110,7 @@ const InputBox = forwardRef(
                         value={value}                        
                         onChange={onChange}
                         onBlur={onBlur}
-                        className={`lg:min-w-40 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
+                        className={`lg:min-w-20 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
                     />
                 )}
             </div>

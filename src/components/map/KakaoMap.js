@@ -25,29 +25,13 @@ const KakaoMap = ({
     const polygons = useRef([]); // 폴리곤을 저장할 useRef 변수
     const [currentZoomLevel, setCurrentZoomLevel] = useState(9); // 초기 줌 레벨 상태 설정
     const [rowData, setRowData] = useState([]);
-    const [area, setArea] = useState("부산광역시");
-    const [subArea, setSubArea] = useState("부산진구");
+    const [area, setArea] = useState();
+    const [subArea, setSubArea] = useState();
     const [selectedDate, setSelectedDate] = useState(
         new Date().toISOString().split("T")[0]
     ); // 기본값: 오늘 날짜
     // 색상 배열 정의
     const colorPalette = [
-        // "#FFDDC1",
-        // "#C1E1C1",
-        // "#C1D3E1",
-        // "#FAD02E",
-        // "#F28D35",
-        // "#E56B6F",
-        // "#D30C02",
-        // "#F6AA55",
-        // "#F7F7B6",
-        // "#A7D3E4",
-        // "#2275B2",
-        // "#F769AA",
-        // "#F7D592",
-        // "#CFF77F",
-        // "#6CF2F7",
-        // "#95B4F7",
         "#76AAAA",
         "#8ABA75",
         "#97A291",

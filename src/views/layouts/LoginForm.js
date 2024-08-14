@@ -4,14 +4,14 @@ import { useCookies } from "react-cookie";
 export default function LoginForm({ onLogin }) {
     const [username, setUsername] = useState("");
     const [pw, setPw] = useState("");
-    const [setCookie, removeCookie] = useCookies(["token"]);
+    const [setCookie] = useCookies(["token"]);
     const [isRemember, setIsRemember] = useState(false);
 
     const handleLogin = async (e) => {
-        e.preventDefault();
-    
+        e.preventDefault(); // 폼 제출 방지
+
         const url = "http://192.168.0.144:8080/login";
-    
+
         try {
             const response = await fetch(url, {
                 method: "POST",
@@ -23,30 +23,25 @@ export default function LoginForm({ onLogin }) {
                     password: pw,
                 }),
             });
-    
+
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.message || "로그인에 실패하였습니다.");
             }
-    
-            // 응답 헤더에서 토큰 추출
+
             const token = response.headers.get('Authorization'); // 토큰 읽기
-    
+
             if (token) {
                 localStorage.setItem("token", token);
                 console.log('Token ok');
+                onLogin(username); // 로그인 성공 시 사용자 상태 업데이트
             } else {
                 console.log('Token not received from the server');
             }
-    
-            onLogin(username);
-    
         } catch (error) {
             alert(error.message);
         }
     };
-    
-    
 
     const handleOnChange = (e) => {
         const { checked } = e.target;

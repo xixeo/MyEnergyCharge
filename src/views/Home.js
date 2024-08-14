@@ -88,22 +88,6 @@ const Home = () => {
             dateInputRef.current ? dateInputRef.current.value : 'None'
         );
     };
-    // const handleButtonClick = () => {
-    //     setQueryArea(
-    //         areaSelectRef.current
-    //             ? areaSelectRef.current.value
-    //             : ""
-    //     );
-    //     setQuerySubArea(
-    //         subAreaSelectRef.current ? subAreaSelectRef.current.value : ""
-    //     );
-    //     setQueryDate(dateInputRef.current ? dateInputRef.current.value : "");
-    //     console.log(
-    //         areaSelectRef.current.value,
-    //         subAreaSelectRef.current.value,
-    //         dateInputRef.current.value
-    //     );
-    // };
 
     return (
         <div className="w-full px-10">
@@ -115,7 +99,7 @@ const Home = () => {
                         initText="선택"
                         ops={areas.map((area) => area.name)}
                         handleChange={handleAreaChange}
-                        customClass="xl:mr-10 mr-4"
+                        customClass="xl:mr-10 mr-4 min-w-40"
                         selRef={areaSelectRef}
                         labelText="시도"
                         labelClass="ml-0 mr-2 lg:mr-4"
@@ -127,7 +111,7 @@ const Home = () => {
                         initText="선택"
                         ops={subAreas}
                         handleChange={handleSubAreaChange}
-                        customClass="xl:mr-10 mr-4"
+                        customClass="xl:mr-10 mr-4 min-w-40"
                         selRef={subAreaSelectRef}
                         labelText="시군구"
                         labelClass="ml-0 mr-2 lg:mr-4"
@@ -140,7 +124,7 @@ const Home = () => {
                         max={endDate}
                         value={selectedDate}
                         handleChange={handleDateChange}
-                        customClass="xl:mr-10 mr-4"
+                        customClass="xl:mr-10 mr-4 min-w-40"
                         inRef={dateInputRef}
                         labelText="날짜"
                         labelClass="ml-0 mr-2 lg:mr-4"

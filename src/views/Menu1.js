@@ -34,7 +34,7 @@ export default function Menu1() {
     // 조회버튼을 누르지 않아도 초기에 전체 데이터 한번 렌더링 시키기
     useEffect(() => {
         const fetchData = async () => {
-            const token = localStorage.getItem("token"); // 올바른 토큰 키 사용
+            const token = localStorage.getItem("token");
             if (!token) {
                 console.error("No token found");
                 showAlert("토큰이 저장되지 않았습니다.", "error");
@@ -56,15 +56,21 @@ export default function Menu1() {
                 }
 
                 const data = await response.json();
+                console.log("dataaaaaa", data);
                 const initialRows = data.map((item, index) => ({
                     board_id: index + 1,
                     forum_id: item.forum_id,
                     date: item.date,
                     elec_total: `${item.elec_total} kW` || "",
-                    region: item.city,
-                    subRegion: item.region,
-                    temp: item.max_temp,
-                    rh: item.max_rh,
+                    // elec_total: `${item.elec_total}` || "",
+                    city: item.city,
+                    region: item.region,
+                    min_temp: item.max_temp,
+                    avg_temp: item.avg_temp,
+                    max_temp: item.max_temp,
+                    min_rh: item.min_rh,
+                    avg_rh: item.avg_rh,
+                    max_rh: item.max_rh,
                     elec_diff: item.elec_diff,
                     days_dff: item.days_diff,
                     sum: item.sum,
@@ -89,8 +95,8 @@ export default function Menu1() {
     //         forum_id: index + 1,
     //         date: item.date,
     //         elec_total: `${item.elec_total} kW` || "", // 단위 추가
+    //         city: item.city,
     //         region: item.region,
-    //         subRegion: item.subRegion,
     //         temp: item.temp,
     //         rh: item.rh,
     //         elec_diff: item.elec_diff,
@@ -164,11 +170,11 @@ export default function Menu1() {
 
                 // 지역 필터링
                 const matchingArea =
-                    !selectedArea || item.region === selectedArea;
+                    !selectedArea || item.city === selectedArea;
 
                 // 하위 지역 필터링
                 const matchingSubArea =
-                    !selectedSubArea || item.subRegion === selectedSubArea;
+                    !selectedSubArea || item.region === selectedSubArea;
 
                 // 키워드 검색 부분에서 undefined 체크 추가
                 const keywordValue = (inRef.current?.value || "").toLowerCase(); // null 처리
@@ -192,10 +198,14 @@ export default function Menu1() {
                 forum_id: item.forum_id,
                 date: item.date,
                 elec_total: item.elec_total ? `${item.elec_total} kW` : "", // unit 추가
+                city: item.city,
                 region: item.region,
-                subRegion: item.subRegion,
-                temp: item.temp,
-                rh: item.rh,
+                min_temp: item.max_temp,
+                avg_temp: item.avg_temp,
+                max_temp: item.max_temp,
+                min_rh: item.min_rh,
+                avg_rh: item.avg_rh,
+                max_rh: item.max_rh,
                 elec_diff: item.elec_diff ? `${item.elec_diff} kW` : "", // unit 추가
                 days_dff: item.days_diff,
                 sum: item.sum,
@@ -207,23 +217,18 @@ export default function Menu1() {
     };
 
     // row 추가 BTN
-    const handleAdd = () => {
-        const newId = rows.length + 1; // 새 행의 ID는 기존 행의 수 + 1
+    const handleAdd = async () => {
+        const newId = rows.length + 1; // 임시 ID (서버에서 생성된 ID가 아닙니다)
         const newRow = {
-            forum_id: newId,
+            forum_id: newId, // 임시 ID로 시작
             date: "",
             elec_total: "",
+            city: "",
             region: "",
-            subRegion: "",
-            temp: "",
-            rh: "",
-            elec_diff: "",
-            days_dff: "",
-            sum: "",
-            comment: [], // 기본적으로 빈 배열로 초기화
+            comment: "", // 기본적으로 빈 배열로 초기화
         };
 
-        // 새 행을 추가하고, 그 행의 ID를 selectedRows에 추가
+        // 새 행을 추가하고, 해당 행의 ID를 selectedRows에 추가
         setRows((prevRows) => [...prevRows, newRow]);
 
         setSelectedRows((prevSelectedRows) => {
@@ -234,9 +239,7 @@ export default function Menu1() {
     };
 
     // row 삭제 BTN
-    // const [errorMessage, setErrorMessage] = useState(""); // ErrorAlert 컴포넌트에 사용할 상태
     const { showAlert } = useAlert(); // useAlert 훅 사용
-
     const handleDelete = async () => {
         // 삭제할건지 재확인
         const confirmed = window.confirm("정말로 삭제하시겠습니까?");
@@ -262,9 +265,7 @@ export default function Menu1() {
                         );
 
                         if (!response.ok) {
-                            throw new Error(
-                                `삭제 오류 ${id}`
-                            );
+                            throw new Error(`삭제 오류 ${id}`);
                         }
                     })
                 );
@@ -285,41 +286,92 @@ export default function Menu1() {
     };
 
     // row 저장 BTN
-    const handleSave = () => {
+    const handleSave = async () => {
         const newErrors = {};
-
+    
+        // 유효성 검사
         rows.forEach((row) => {
             if (selectedRows.has(row.forum_id)) {
                 if (!row.date) newErrors[`${row.forum_id}-date`] = true;
-                if (!row.elec_total)
+                if (!row.elec_total || isNaN(parseFloat(row.elec_total))) {
                     newErrors[`${row.forum_id}-elec_total`] = true;
-                if (!row.region) newErrors[`${row.forum_id}-region`] = true;
-                if (!row.subRegion)
-                    newErrors[`${row.forum_id}-subRegion`] = true;
+                }
             }
         });
-
+    
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             showAlert("모든 필수 값을 채워야 합니다.", "error");
             return;
         }
-
+    
+        // 숫자 추출 함수
+        const extractNumber = (str) => {
+            const match = str.match(/\d+(\.\d+)?/); // 정규 표현식으로 숫자 추출
+            return match ? parseFloat(match[0]) : null;
+        };
+    
         // 저장 로직
-        const updatedRows = rows.map((row) => {
-            if (selectedRows.has(row.forum_id)) {
-                return {
-                    ...row,
-                    // 데이터가 수정된 부분 업데이트
-                };
+        try {
+            const token = localStorage.getItem("token");
+            const url = "http://192.168.0.144:8080/members/forum";
+    
+            const requestBody = rows
+                .filter(row => selectedRows.has(row.forum_id))
+                .map(row => {
+                    // elec_total에서 숫자만 추출
+                    const elecTotal = extractNumber(row.elec_total);
+    
+                    return {
+                        date: row.date || '',
+                        elec_total: elecTotal !== null ? elecTotal : '', // 유효한 숫자인 경우만 설정
+                        city: row.city || '',
+                        region: row.region || '',
+                        comment: row.comment || '',
+                    };
+                });
+    
+            // 요청 본문 및 헤더 로그
+            console.log('Request URL:', url);
+            console.log('Request Headers:', {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            });
+            console.log('Request Body:', JSON.stringify(requestBody));
+    
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(requestBody), // 배열 형태로 전송
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Response Error:', errorData);
+                throw new Error(`업데이트 오류: ${errorData.message || response.statusText}`);
             }
-            return row;
-        });
-
-        showAlert("저장되었습니다.", "success");
-        setRows(updatedRows); // 상태 업데이트
-        setSelectedRows(new Set()); // 저장 후 선택된 행을 초기화
+    
+            const data = await response.json();
+            // 응답 데이터 처리
+            const updatedRows = rows.map(row => {
+                // 서버가 반환하는 응답을 통해 업데이트할 수 있는 부분을 조정
+                const updatedRow = data.find(d => d.forum_id === row.forum_id);
+                return updatedRow ? updatedRow : row;
+            });
+    
+            showAlert("저장되었습니다.", "success");
+            setRows(updatedRows); // 상태 업데이트
+            setSelectedRows(new Set()); // 저장 후 선택된 행을 초기화
+        } catch (error) {
+            console.error("Save error:", error);
+            showAlert("저장 중 오류가 발생했습니다.", "error");
+        }
     };
+    
+    
 
     // 필드 포커싱
     useEffect(() => {
@@ -329,8 +381,8 @@ export default function Menu1() {
                 (key) =>
                     key.includes("-date") ||
                     key.includes("-elec_total") ||
-                    key.includes("-region") ||
-                    key.includes("-subRegion")
+                    key.includes("-city") ||
+                    key.includes("-region")
             );
             if (firstErrorKey && inputRefs.current[firstErrorKey]) {
                 // 포커스 맞추기
@@ -353,7 +405,7 @@ export default function Menu1() {
             } else {
                 newSelectedRows.add(id); // 선택되지 않은 행은 선택
             }
-            console.log('newSelectedRows', Array.from(newSelectedRows));
+            console.log("newSelectedRows", Array.from(newSelectedRows));
             return newSelectedRows;
         });
     };
@@ -370,7 +422,7 @@ export default function Menu1() {
     //                   셀 수정  핸들러                        //
     ////////////////////////////////////////////////////////////
 
-    const handleChangeCell = (id, field, value, commentIdx = null) => {
+    const handleChangeCell = (id, field, value, commentKey = null) => {
         // setRows((prevRows) =>
         //     prevRows.map((row) =>
         //         row.forum_id === id ? { ...row, [field]: value } : row
@@ -380,16 +432,14 @@ export default function Menu1() {
         setRows((prevRows) =>
             prevRows.map((row) => {
                 if (row.forum_id === id) {
-                    if (field === "comment") {
-                        // 메모 업데이트
-                        // Comment가 객체 배열로 되어있으므로, idx를 활용하여 해당 인덱스의 content를 업데이트
+                    if (field === "comment" && commentKey) {
+                        // `comment`가 객체일 때 특정 필드를 업데이트
                         return {
                             ...row,
-                            comment: row.comment.map((comment, idx) =>
-                                idx === commentIdx
-                                    ? { ...comment, content: value }
-                                    : comment
-                            ),
+                            comment: {
+                                ...row.comment,
+                                [commentKey]: value, // 특정 필드를 업데이트
+                            },
                         };
                     } else if (field === "elecTotal") {
                         // elecTotal 업데이트
@@ -445,7 +495,7 @@ export default function Menu1() {
                         value={startDate}
                         max={today}
                         handleChange={(e) => setStartDate(e.target.value)}
-                        customClass=" mr-2"
+                        customClass="min-w-40 mr-2"
                         labelText="날짜"
                         labelClass="ml-0 mr-2 lg:mr-4"
                     />
@@ -457,7 +507,7 @@ export default function Menu1() {
                         max={today}
                         value={endDate}
                         handleChange={(e) => setEndDate(e.target.value)}
-                        customClass="xl:mr-10 mr-4"
+                        customClass="xl:mr-10 mr-4 min-w-40"
                     />
 
                     <InputBox
@@ -466,7 +516,7 @@ export default function Menu1() {
                         initText="선택"
                         ops={areas.map((area) => area.name)}
                         handleChange={handleAreaChange}
-                        customClass="xl:mr-10 mr-4"
+                        customClass="xl:mr-10 mr-4 min-w-40"
                         selRef={areaSelectRef}
                         labelText="시도"
                         labelClass="ml-0 mr-2 lg:mr-4"
@@ -478,7 +528,7 @@ export default function Menu1() {
                         initText="선택"
                         ops={subAreas}
                         handleChange={handleSubAreaChange}
-                        customClass="xl:mr-10 mr-4"
+                        customClass="xl:mr-10 mr-4 min-w-40"
                         selRef={subAreaSelectRef}
                         labelText="시군구"
                         labelClass="ml-0 mr-2 lg:mr-4"
@@ -488,7 +538,7 @@ export default function Menu1() {
                         ref={inRef}
                         labelText="검색"
                         initText="입력하세요"
-                        customClass="xl:mr-10 mr-4"
+                        customClass="xl:mr-10 mr-4 min-w-40"
                         labelClass="ml-0 mr-2 lg:mr-4"
                     />
                 </div>
@@ -564,8 +614,12 @@ export default function Menu1() {
                             <TableCell align="center">
                                 <span className="req">시군구</span>
                             </TableCell>
-                            <TableCell align="center">기온</TableCell>
-                            <TableCell align="center">습도</TableCell>
+                            <TableCell align="center">최저기온</TableCell>
+                            <TableCell align="center">평균기온</TableCell>
+                            <TableCell align="center">최고기온</TableCell>
+                            <TableCell align="center">최저습도</TableCell>
+                            <TableCell align="center">평균습도</TableCell>
+                            <TableCell align="center">최고습도</TableCell>
                             <TableCell align="center">지난 수치 대비</TableCell>
                             <TableCell align="center">합계</TableCell>
                             <TableCell />
@@ -619,7 +673,7 @@ export default function Menu1() {
                                             key={`elec_total-${row.forum_id}`} // 단일 key 사용
                                             value={row.elec_total}
                                             unit="kW" // 단위 설정
-                                            customClass="text-right"
+                                            customClass="text-right max-w-28"
                                             handleBlur={handleBlur}
                                             handleChange={(e) => {
                                                 handleChangeCell(
@@ -637,10 +691,36 @@ export default function Menu1() {
                                     </TableCell>
                                     <TableCell align="center">
                                         <InputBox
-                                            id={`region-${row.forum_id}`}
+                                            id={`city-${row.forum_id}`}
                                             type="dropDown"
                                             initText="선택"
                                             ops={areas.map((area) => area.name)}
+                                            value={row.city}
+                                            handleChange={(e) =>
+                                                handleChangeCell(
+                                                    row.forum_id,
+                                                    "city",
+                                                    e.target.value
+                                                )
+                                            }
+                                            ref={(el) => {
+                                                inputRefs.current[
+                                                    `${row.forum_id}-city`
+                                                ] = el;
+                                            }}
+                                        />
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <InputBox
+                                            id={`region-${row.forum_id}`}
+                                            type="dropDown"
+                                            initText="선택"
+                                            ops={
+                                                areas.find(
+                                                    (area) =>
+                                                        area.name === row.city
+                                                )?.subArea || []
+                                            }
                                             value={row.region}
                                             handleChange={(e) =>
                                                 handleChangeCell(
@@ -657,37 +737,11 @@ export default function Menu1() {
                                         />
                                     </TableCell>
                                     <TableCell align="center">
-                                        <InputBox
-                                            id={`subRegion-${row.forum_id}`}
-                                            type="dropDown"
-                                            initText="선택"
-                                            ops={
-                                                areas.find(
-                                                    (area) =>
-                                                        area.name === row.region
-                                                )?.subArea || []
-                                            }
-                                            value={row.subRegion}
-                                            handleChange={(e) =>
-                                                handleChangeCell(
-                                                    row.forum_id,
-                                                    "subRegion",
-                                                    e.target.value
-                                                )
-                                            }
-                                            ref={(el) => {
-                                                inputRefs.current[
-                                                    `${row.forum_id}-subRegion`
-                                                ] = el;
-                                            }}
-                                        />
-                                    </TableCell>
-                                    <TableCell align="center">
-                                        <span className="text-red-600 font-bold">
-                                            {row.temp}
+                                        <span className="text-[#ff8f00] font-bold">
+                                            {row.min_temp}
                                         </span>
 
-                                        {row.temp ? (
+                                        {row.min_temp ? (
                                             <span className="ml-1 text-xs text-zinc-500">
                                                 °C
                                             </span>
@@ -698,10 +752,68 @@ export default function Menu1() {
                                         )}
                                     </TableCell>
                                     <TableCell align="center">
-                                        <span className="text-sky-600 font-bold">
-                                            {row.rh}
+                                        <span className="text-[#ff4900] font-bold">
+                                            {row.avg_temp}
                                         </span>
-                                        {row.rh ? (
+
+                                        {row.avg_temp ? (
+                                            <span className="ml-1 text-xs text-zinc-500">
+                                                °C
+                                            </span>
+                                        ) : (
+                                            <span className="ml-1 text-xs text-zinc-500">
+                                                -
+                                            </span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <span className="text-[#FF0000] font-bold">
+                                            {row.max_temp}
+                                        </span>
+
+                                        {row.max_temp ? (
+                                            <span className="ml-1 text-xs text-zinc-500">
+                                                °C
+                                            </span>
+                                        ) : (
+                                            <span className="ml-1 text-xs text-zinc-500">
+                                                -
+                                            </span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <span className="text-[#00a9ff] font-bold">
+                                            {row.min_rh}
+                                        </span>
+                                        {row.min_rh ? (
+                                            <span className="ml-1 text-xs text-zinc-500">
+                                                %
+                                            </span>
+                                        ) : (
+                                            <span className="ml-1 text-xs text-zinc-500">
+                                                -
+                                            </span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <span className="text-[#0058ff] font-bold">
+                                            {row.avg_rh}
+                                        </span>
+                                        {row.avg_rh ? (
+                                            <span className="ml-1 text-xs text-zinc-500">
+                                                %
+                                            </span>
+                                        ) : (
+                                            <span className="ml-1 text-xs text-zinc-500">
+                                                -
+                                            </span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <span className="text-[#0006ff] font-bold">
+                                            {row.max_rh}
+                                        </span>
+                                        {row.max_rh ? (
                                             <span className="ml-1 text-xs text-zinc-500">
                                                 %
                                             </span>
@@ -765,52 +877,29 @@ export default function Menu1() {
                                         >
                                             <Box sx={{ margin: 1 }}>
                                                 <div className="wrap">
-                                                    {row.comment ? (
-                                                        <InputBox
-                                                            type="textArea"
-                                                            id={`textarea-${row.forum_id}`}
-                                                            key={`textarea-${row.forum_id}`}
-                                                            placeholder="메모"
-                                                            value={
-                                                                row.comment ||
-                                                                ""
-                                                            }
-                                                            handleChange={(e) =>
-                                                                handleChangeCell(
-                                                                    row.forum_id,
-                                                                    "comment",
-                                                                    {
-                                                                        ...row.comment,
-                                                                        content:
-                                                                            e
-                                                                                .target
-                                                                                .value,
-                                                                    }
-                                                                )
-                                                            }
-                                                        />
-                                                    ) : (
-                                                        <InputBox
-                                                            type="textArea"
-                                                            id={`textarea-${row.forum_id}-0`} // id를 문자열 템플릿으로 수정
-                                                            key={`${row.forum_id}-0`} // key를 문자열 템플릿으로 수정
-                                                            placeholder="메모"
-                                                            value="" // 빈 문자열로 초기화
-                                                            handleChange={(e) =>
-                                                                handleChangeCell(
-                                                                    row.forum_id,
-                                                                    "comment",
-                                                                    {
-                                                                        ...row.comment,
-                                                                        content:
-                                                                            e
-                                                                                .target
-                                                                                .value,
-                                                                    }
-                                                                )
-                                                            }
-                                                        />
-                                                    )}
+                                                    <InputBox
+                                                        type="textArea"
+                                                        id={`textarea-${row.forum_id}`}
+                                                        key={`textarea-${row.forum_id}`}
+                                                        placeholder="메모"
+                                                        value={
+                                                            row.comment
+                                                                ?.content || ""
+                                                        } // comment 객체가 있으면 content 필드를 사용하고, 없으면 빈 문자열
+                                                        handleChange={(e) => {
+                                                            const newContent =
+                                                                e.target.value;
+                                                            handleChangeCell(
+                                                                row.forum_id,
+                                                                "comment",
+                                                                {
+                                                                    ...row.comment,
+                                                                    content:
+                                                                        newContent,
+                                                                }
+                                                            );
+                                                        }}
+                                                    />
                                                 </div>
                                             </Box>
                                         </Collapse>
