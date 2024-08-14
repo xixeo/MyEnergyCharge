@@ -1,0 +1,97 @@
+package kdt.pnu.persistence;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import kdt.pnu.domain.Electricity;
+
+public interface ElectricityRepository extends JpaRepository<Electricity,Integer>{
+
+	@Query(value = "select  "
+			+ "	daily_data.date,  "
+			+ "    daily_data.city, "
+			+ "    daily_data.county, "
+			+ "    format((elec_data.elec_avg *((daily_data.avg_temp+30) / monthly_data.sum_avg_temp_30)), 1) as elec_avg,         "
+			+ "    format(daily_data.max_temp,1) as max_temp,  "
+			+ "    format(daily_data.min_temp,1) as min_temp,  "
+			+ "    format(daily_data.avg_temp,1) as avg_temp,     "
+			+ "    format(daily_data.max_rh,1) as max_rh, "
+			+ "    format(daily_data.min_rh,1) as min_rh, "
+			+ "    format(daily_data.avg_rh,1) as avg_rh, "
+			+ "    case        "
+			+ "		when month(daily_data.date) in (6,7,8) then format(1.8*daily_data.max_temp - .55*(1-daily_data.max_rh/100) * (1.8*daily_data.max_temp -26) + 32 , 1 ) "
+			+ "		else null "
+			+ "	end as di    "
+			+ "from ( "
+			+ "	select  "
+			+ "		elec_avg  "
+			+ "	from electricity e  "
+			+ "    where  "
+			+ "		e.city = :city "
+			+ "        and e.county = :county  "
+			+ "        and month(e.date) = month(:date) "
+			+ "        and year(e.date) = year(:date)  "
+			+ ") as elec_data  "
+			+ "cross join (  "
+			+ "	select  "
+			+ "		sum(daily_weather.max_temp+30) as sum_max_temp_30, "
+			+ "		sum(daily_weather.min_temp+30) as sum_min_temp_30,  "
+			+ "        sum(daily_weather.avg_temp+30) as sum_avg_temp_30, "
+			+ "        avg(daily_weather.avg_temp+30) as avg_avg_temp_30, "
+			+ "		sum(daily_weather.max_rh) as sum_max_rh, "
+			+ "        sum(daily_weather.min_rh) as sum_min_rh, "
+			+ "        sum(daily_weather.avg_rh) as sum_avg_rh, "
+			+ "		sum(daily_weather.max_ws) as sum_max_ws,  "
+			+ "		sum(daily_weather.min_ws) as sum_min_ws,  "
+			+ "		sum(daily_weather.avg_ws) as sum_avg_ws	 "
+			+ "	from ( "
+			+ "		select  "
+			+ "			date(w.date) as date,  "
+			+ "			max(w.tmpr) as max_temp, "
+			+ "			min(w.tmpr) as min_temp , "
+			+ "			avg(w.tmpr) as avg_temp,  "
+			+ "			max(w.rhwt) as max_rh,  "
+			+ "			min(w.rhwt) as min_rh,  "
+			+ "			avg(w.rhwt) as avg_rh,  "
+			+ "			max(w.ws) as max_ws,  "
+			+ "			min(w.ws) as min_ws,  "
+			+ "			avg(w.ws) as avg_ws     "
+			+ "		from weather w  "
+			+ "        where  "
+			+ "			w.city= :city  "
+			+ "            and w.county = :county  "
+			+ "			and month(w.date) = month(:date) "
+			+ "            and year(w.date) = year(:date)  "
+			+ "		group by date(w.date)  "
+			+ "	) as daily_weather	 "
+			+ ") as monthly_data  "
+			+ "join(  "
+			+ "	select  "
+			+ "		date(w.date) as date,  "
+			+ "        w.city as city,  "
+			+ "        w.county as county, "
+			+ "        max(w.tmpr) as max_temp, "
+			+ "        min(w.tmpr) as min_temp , "
+			+ "        avg(w.tmpr) as avg_temp,  "
+			+ "        max(w.rhwt) as max_rh,  "
+			+ "        min(w.rhwt) as min_rh,  "
+			+ "        avg(w.rhwt) as avg_rh,  "
+			+ "        max(w.ws) as max_ws,  "
+			+ "        min(w.ws) as min_ws,  "
+			+ "        avg(w.ws) as avg_ws         "
+			+ "	from weather w  "
+			+ "    where  "
+			+ "		w.city = :city "
+			+ "		and w.county = :county  "
+			+ "        and w.date between date_sub(:date, interval 1 month) and :date "
+			+ "	group by  "
+			+ "		date(w.date)  "
+			+ ") as daily_data on daily_data.date between date_sub(:date, interval 1 month) and :date;",
+			nativeQuery = true)
+	List<Object[]> findByDateCityCounty(@Param("date") String date,
+										@Param("city") String city,
+										@Param("county") String county);
+}
