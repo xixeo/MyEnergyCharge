@@ -80,11 +80,30 @@ const Home = () => {
         );
         setQueryDate(dateInputRef.current ? dateInputRef.current.value : "");
         console.log(
-            areaSelectRef.current.value,
-            subAreaSelectRef.current.value,
-            dateInputRef.current.value
+            'Selected Area:',
+            areaSelectRef.current ? areaSelectRef.current.value : 'None',
+            'Selected Sub Area:',
+            subAreaSelectRef.current ? subAreaSelectRef.current.value : 'None',
+            'Selected Date:',
+            dateInputRef.current ? dateInputRef.current.value : 'None'
         );
     };
+    // const handleButtonClick = () => {
+    //     setQueryArea(
+    //         areaSelectRef.current
+    //             ? areaSelectRef.current.value
+    //             : ""
+    //     );
+    //     setQuerySubArea(
+    //         subAreaSelectRef.current ? subAreaSelectRef.current.value : ""
+    //     );
+    //     setQueryDate(dateInputRef.current ? dateInputRef.current.value : "");
+    //     console.log(
+    //         areaSelectRef.current.value,
+    //         subAreaSelectRef.current.value,
+    //         dateInputRef.current.value
+    //     );
+    // };
 
     return (
         <div className="w-full px-10">

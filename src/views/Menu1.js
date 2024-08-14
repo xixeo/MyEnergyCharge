@@ -101,32 +101,30 @@ export default function Menu1() {
                 const itemDate = new Date(item.date);
                 const start = new Date(startDate);
                 const end = new Date(endDate);
-                // 날짜 필터링: startDate가 없거나 데이터의 날짜가 시작 날짜 이후이거나 같고,
-                // endDate가 없거나 데이터의 날짜가 종료 날짜 이전이거나 같을 때 true
+                
+                // 날짜 필터링
                 const dateRange =
                     (!startDate || itemDate >= start) &&
                     (!endDate || itemDate <= end);
-
-                // 지역 필터링: 선택된 지역이 없거나, 데이터의 지역과 선택된 지역이 일치할 때 true
+    
+                // 지역 필터링
                 const matchingArea =
                     !selectedArea || item.region === selectedArea;
-
-                // 하위 지역 필터링: 선택된 하위 지역이 없거나, 데이터의 하위 지역과 선택된 하위 지역이 일치할 때 true
+    
+                // 하위 지역 필터링
                 const matchingSubArea =
                     !selectedSubArea || item.subRegion === selectedSubArea;
-
+    
                 // 키워드 검색 부분에서 undefined 체크 추가
-                const keywordValue = inRef.current?.value.toLowerCase() || ""; // null 처리
+                const keywordValue = (inRef.current?.value || "").toLowerCase(); // null 처리
                 const matchingKeyword =
                     keywordValue === "" ||
                     Object.values(item).some(
                         (val) =>
-                            val &&
+                            val != null && // undefined와 null 체크
                             val.toString().toLowerCase().includes(keywordValue)
                     );
-
-                // console.log("Matching Keyword:", matchingKeyword);
-
+    
                 return (
                     dateRange &&
                     matchingArea &&
@@ -137,19 +135,21 @@ export default function Menu1() {
             .map((item, index) => ({
                 forum_id: index + 1,
                 date: item.date,
-                elec_total: item.elec_total,
+                elec_total: item.elec_total ? `${item.elec_total} kW` : '', // unit 추가
                 region: item.region,
                 subRegion: item.subRegion,
                 temp: item.temp,
                 rh: item.rh,
-                elec_diff: item.elec_diff,
+                elec_diff: item.elec_diff ? `${item.elec_diff} kW` : '', // unit 추가
                 days_dff: item.days_diff,
                 sum: item.sum,
                 comment: item.comment || [], // 메모 데이터 포함
             }));
+        
         showAlert("조회되었습니다.", "success");
         setRows(filteredRows); // 필터링된 데이터를 상태로 설정하여 테이블에 표시
     };
+    
 
     // row 추가 BTN
     const handleAdd = () => {
@@ -348,6 +348,7 @@ export default function Menu1() {
                         id="startDate"
                         type="date"
                         value={startDate}
+                        max={today}
                         handleChange={(e) => setStartDate(e.target.value)}
                         customClass=" mr-2"
                         labelText="날짜"

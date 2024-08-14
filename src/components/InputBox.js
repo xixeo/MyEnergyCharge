@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from "react";
-
-// React.forwardRef를 사용하여 ref를 전달받는 컴포넌트를 생성
-const InputBox = React.forwardRef(
+import React, { forwardRef, useEffect } from "react";
+const InputBox = forwardRef(
     (
         {
             labelText,
@@ -19,26 +17,26 @@ const InputBox = React.forwardRef(
             placeholder,
             unit = "",
             handleBlur,
+            selRef, // select용 ref
+            inRef,  // input용 ref
         },
         ref
     ) => {
-        const [inputValue, setInputValue] = useState(value || "");
-
         useEffect(() => {
-            setInputValue(value || "");
-        }, [value]);
+            if (ref && typeof ref === 'function') {
+                ref(ref.current);
+            }
+        }, [ref]);
 
         const onChange = (e) => {
-            setInputValue(e.target.value);
             if (handleChange) {
                 handleChange(e);
             }
         };
-    
+
         const onBlur = () => {
-            if (unit && !inputValue.endsWith(unit)) {
-                const updatedValue = `${inputValue} ${unit}`;
-                setInputValue(updatedValue);
+            if (unit && value && !value.endsWith(unit)) {
+                const updatedValue = `${value} ${unit}`;
                 if (handleChange) {
                     handleChange({ target: { value: updatedValue } });
                 }
@@ -48,13 +46,11 @@ const InputBox = React.forwardRef(
             }
         };
 
-        // const today = new Date().toISOString().slice(0, 10);
         const opTags = ops.map((item) => (
             <option key={item} value={item}>
                 {item}
             </option>
         ));
-
 
         return (
             <div className="w-auto">
@@ -72,18 +68,18 @@ const InputBox = React.forwardRef(
                         type={type}
                         min={min}
                         max={max}
-                        ref={ref}
+                        ref={inRef || ref}  // `ref`를 `input`에 연결
                         value={value}
                         className={`lg:min-w-40 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
-                        onChange={handleChange}
+                        onChange={onChange}
                     />
                 ) : type === "dropDown" ? (
                     <select
                         id={id}
-                        ref={ref}
+                        ref={selRef || ref}  // `ref`를 `select`에 연결
                         value={value}
                         className={`min-w-40 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
-                        onChange={handleChange}
+                        onChange={onChange}
                     >
                         <option value="">{initText}</option>
                         {opTags}
@@ -91,17 +87,15 @@ const InputBox = React.forwardRef(
                 ) : type === "textArea" ? (
                     <textarea
                         id={id}
-                        key={idx}
                         value={value}
-                        onChange={handleChange}
+                        onChange={onChange}
                         placeholder={placeholder}
                         className={`w-full focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#cdcdcd] ${customClass}`}
                     />
                 ) : (
                     <input
                         id={id}
-                        key={idx}
-                        ref={ref}
+                        ref={inRef || ref}
                         value={value}                        
                         onChange={onChange}
                         onBlur={onBlur}

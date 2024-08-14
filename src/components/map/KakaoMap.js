@@ -316,16 +316,16 @@ const KakaoMap = ({
                             <div class="unit-wrap">
                                 ${
                                     Omonth === 6 || Omonth === 7 || Omonth === 8
-                                        ? `<div class="unit">최고기온</div>`
+                                        ? `<div class="unit">최고기온</div> <div class="tem">${data.max_temp || "N/A"}<span>ºC</span></div>`
                                         : Omonth === 12 || Omonth === 1 || Omonth === 2
-                                        ? `<div class="unit">최저기온</div>`
-                                        : `<div class="unit">기온</div>`
+                                        ? `<div class="unit">최저기온</div>  <div class="tem">${data.min_temp || "N/A"}<span>ºC</span></div>`
+                                        : `<div class="unit">기온</div>  <div class="tem">${data.avg_temp || "N/A"}<span>ºC</span></div>`
                                 }
-                                <div class="tem">${data.temp || "N/A"}<span>ºC</span></div>
+                               
                             </div>
                             <div class="unit-wrap">
                                 <div class="unit">습도</div>
-                                <div class="hum">${data.rh || "N/A"}<span>%</span></div>
+                                <div class="hum">${data.avg_rh || "N/A"}<span>%</span></div>
                             </div>
                             ${data.di !== 0
                                 ? `
