@@ -2,29 +2,57 @@ import { useState } from "react";
 import { useCookies } from "react-cookie";
 
 export default function LoginForm({ onLogin }) {
-    const [username, setUsername] = useState();
-    const [pw, setPw] = useState();
-    const [setCookie, removeCookie] = useCookies(["rememberOK"]);
+    const [username, setUsername] = useState("");
+    const [pw, setPw] = useState("");
+    const [setCookie, removeCookie] = useCookies(["token"]);
     const [isRemember, setIsRemember] = useState(false);
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        //추후 서버와의 인증 과정 추가
-        if ((username === "user@naver.com") && (pw === "1234")) {
+
+        const url = "http://192.168.0.144:8080/login";
+
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    username,
+                    password: pw,
+                }),
+            });
+
+            // 서버 응답 처리
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || "로그인에 실패하였습니다.");
+            }
+
+            // 응답 헤더에서 토큰 추출
+            const token = response.headers.get("Authorization"); // 서버에서 'Authorization' 헤더에 토큰을 포함해 보낼 것이라고 가정
+
+            if (token) {
+                // JWT 토큰을 localStorage에 저장
+                if (isRemember) {
+                    localStorage.setItem("token", token);
+                } else {
+                    localStorage.setItem("token", token);
+                }
+            }
+
+            // 로그인 성공 후 onLogin 호출
             onLogin(username);
-        } else {
-            alert("로그인에 실패하였습니다.");
+            
+        } catch (error) {
+            alert(error.message);
         }
     };
 
     const handleOnChange = (e) => {
         const { checked } = e.target;
         setIsRemember(checked);
-        if (checked) {
-            setCookie("rememberOK", username, { maxAge: 7 * 24 * 60 * 60 });
-        } else {
-            removeCookie("rememberOK");
-        }
     };
 
     return (
@@ -32,19 +60,19 @@ export default function LoginForm({ onLogin }) {
             <p className="text-[#364f9b] text-3xl font-bold w-full px-8">
                 Login
             </p>
-            <form className="w-full px-8 pt-12 space-y-4 md:space-y-6" action="#">
+            <form className="w-full px-8 pt-12 space-y-4 md:space-y-6" onSubmit={handleLogin}>
                 <div>
                     <label
-                        htmlFor="email"
+                        htmlFor="id"
                         className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
-                        Your email
+                        Your id
                     </label>
                     <input
                         onChange={(e) => setUsername(e.target.value)}
-                        type="email"
-                        name="email"
-                        id="email"
+                        type="id"
+                        name="id"
+                        id="id"
                         className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         placeholder="name@company.com"
                         required=""
@@ -77,7 +105,6 @@ export default function LoginForm({ onLogin }) {
                                 aria-describedby="remember"
                                 type="checkbox"
                                 className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
-                                required=""
                             />
                         </div>
                         <div className="ml-3 text-sm">
@@ -86,11 +113,9 @@ export default function LoginForm({ onLogin }) {
                             </label>
                         </div>
                     </div>
-                    {/* <a href="#" className="text-sm font-medium text-[#343077] hover:underline ">Forgot password?</a> */}
                 </div>
                 <div className="py-1"></div>
                 <button
-                    onClick={handleLogin}
                     type="submit"
                     className="w-full text-white bg-[#343077] hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                 >
