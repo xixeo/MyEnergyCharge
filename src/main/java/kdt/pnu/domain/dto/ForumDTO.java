@@ -16,7 +16,7 @@ import lombok.ToString;
 @NoArgsConstructor
 public class ForumDTO implements Comparable<ForumDTO> {
 
-	private int forum_id; 	
+	private Integer forum_id; 	
 	private String date; 	
 	private String username; 	
 	private Double elec_total; 

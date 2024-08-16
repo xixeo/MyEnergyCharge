@@ -25,14 +25,14 @@ public class ElectricityService {
 					.date(objs[0].toString())
 					.city(objs[1].toString())
 					.county(objs[2].toString())
-					.elec_avg(Double.parseDouble(objs[3].toString()))
-					.max_temp(Double.parseDouble(objs[4].toString()))
-					.min_temp(Double.parseDouble(objs[5].toString()))
-					.avg_temp(Double.parseDouble(objs[6].toString()))
-					.max_rh(Double.parseDouble(objs[7].toString()))
-					.min_rh(Double.parseDouble(objs[8].toString()))
-					.avg_rh(Double.parseDouble(objs[9].toString()))
-					.di(objs[10] != null ? Double.parseDouble(objs[10].toString()) : 0.0)
+					.max_temp(Double.parseDouble(objs[3].toString()))
+					.min_temp(Double.parseDouble(objs[4].toString()))
+					.avg_temp(Double.parseDouble(objs[5].toString()))
+					.max_rh(Double.parseDouble(objs[6].toString()))
+					.min_rh(Double.parseDouble(objs[7].toString()))
+					.avg_rh(Double.parseDouble(objs[8].toString()))
+					.di(objs[9] != null ? Double.parseDouble(objs[10].toString()) : 0.0)
+					.elec_avg(Double.parseDouble(objs[10].toString()))
 					.build());
 		}
 

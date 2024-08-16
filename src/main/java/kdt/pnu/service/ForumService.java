@@ -2,10 +2,15 @@ package kdt.pnu.service;
 
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import kdt.pnu.domain.Forum;
 import kdt.pnu.domain.dto.ForumDTO;
 import kdt.pnu.persistence.ForumRepository;
@@ -15,11 +20,33 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ForumService {
 	private final ForumRepository forumRepo; 
+	private final ModelMapper modelMapper; 
+	
 	
 	// Create	
 	public void saveForum(Forum forum) {			
 		forumRepo.save(forum); 		
 		forumRepo.sortForum(forum.getUsername());
+	}
+	
+	//Update
+	public void updateForum(Forum updatedforum) {
+		Forum forum = forumRepo.findById(updatedforum.getForum_id()).get(); 
+		
+		if (updatedforum.getDate() != forum.getDate())
+			forum.setDate(updatedforum.getDate());
+		
+		if (updatedforum.getElec_total() != forum.getElec_total())
+			forum.setElec_total(updatedforum.getElec_total() );
+		
+		if (updatedforum.getComment() != forum.getComment())
+			forum.setComment(updatedforum.getComment());;
+			
+			if (updatedforum.getRegion() != forum.getRegion())
+				forum.setRegion(updatedforum.getRegion());
+			
+			forumRepo.save(forum); 		
+			forumRepo.sortForum(forum.getUsername());
 	}
 	
 	// Read
@@ -64,28 +91,7 @@ public class ForumService {
 		}		
 		ret.sort((f1,f2) -> f1.getDate().compareTo(f2.getDate()));
 		return ret;
-	}
-
-	
-	//Update
-	public void updateForum(Forum updatedforum) {
-		Forum forum = forumRepo.findById(updatedforum.getForum_id()).get(); 
-		
-		if (updatedforum.getDate() != forum.getDate())
-			forum.setDate(updatedforum.getDate());
-		
-		if (updatedforum.getElec_total() != forum.getElec_total())
-			forum.setElec_total(updatedforum.getElec_total() );
-		
-		if (updatedforum.getComment() != forum.getComment())
-			forum.setComment(updatedforum.getComment());;
-		
-		if (updatedforum.getRegion() != forum.getRegion())
-			forum.setRegion(updatedforum.getRegion());
-		
-		forumRepo.save(forum); 		
-		forumRepo.sortForum(forum.getUsername());
-	}
+	}	
 	
 	// Delete	
 	public void deleteForum(int id) { 
@@ -93,6 +99,26 @@ public class ForumService {
 		forumRepo.delete(forum);
 		forumRepo.sortForum(forum.getUsername());
 	}
+	
+	@Transactional
+	public HashMap<String, Integer> postForum(List<ForumDTO> forumList, User user) {
+		HashMap<String, Integer> results = new HashMap<>(); 
+		String username = user.getUsername();
+		Integer inserted = 0 ; Integer updated = 0 ;
+		for (ForumDTO forumDTO : forumList) {
+			forumDTO.setUsername(username);
+			Forum forum = modelMapper.map(forumDTO, Forum.class);
+			System.out.println(forum.toString());
+			if(forum.getDate() == null) forum.setDate(new Date());	
+			if(forum.getForum_id() == null) inserted ++ ; 
+			else updated ++;
+			forumRepo.save(forum);				
+		}
+		results.put("inserted", inserted); results.put("updated", updated);
+		System.out.println("====> HashMap" + results.toString());
+		return results;
+	}
+	
 	
 	
 	

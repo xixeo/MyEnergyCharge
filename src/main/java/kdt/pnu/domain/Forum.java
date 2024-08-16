@@ -34,6 +34,7 @@ public class Forum implements Comparable<Forum>{
 	private Double elec_total; 
 	private String comment; 
 	private String region;
+	private String city;
 	private Double elec_diff; 
 	private Integer days_diff; 
 	
