@@ -17,6 +17,9 @@ $jogun : 55px;
 .chartWrap{
   height: calc((100vh - $header - $jogun - 25px - 16px - 16px)/2);
 }
+.calendarWrap{
+  height: calc(100vh - $header - $jogun - 25px - 16px - 20px);
+}
 
 .logined{
   background-color: rgba(36 43 49 / 40%);

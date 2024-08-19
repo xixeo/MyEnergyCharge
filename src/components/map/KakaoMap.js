@@ -56,6 +56,7 @@ const KakaoMap = ({
             navigator.geolocation.getCurrentPosition((position) => {
                 const { latitude, longitude } = position.coords;
                 const center = new kakao.maps.LatLng(latitude, longitude); // 현재 위치를 중심으로 설정
+                // const center = new kakao.maps.LatLng(35.2333798, 129.0798453); // 현재 위치를 중심으로 설정
                 const container = mapContainerRef.current; // 지도 컨테이너 참조
                 const options = {
                     center,

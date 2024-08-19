@@ -28,6 +28,7 @@ export default function Menu1() {
     const inputRefs = useRef({}); // Ref 저장용
     // 데이터 fetch
     const url = `http://192.168.0.144:8080/members/forum`;
+    // const url = `http://192.168.0.144:8080/admin/forum`; admin/abcd 파라미터:username
     const [allData, setAllData] = useState([]); //패치된 데이터 저장
 
     // useEffect를 사용하여 컴포넌트가 마운트될 때 초기 데이터를 설정
@@ -45,7 +46,6 @@ export default function Menu1() {
                 const response = await fetch(url, {
                     method: "GET",
                     headers: {
-                        // 'headers'로 수정
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`, //토큰도 함께 가져오기
                     },
@@ -68,10 +68,10 @@ export default function Menu1() {
                     board_id: index + 1,
                     forum_id: item.forum_id,
                     date: extractDate(item.date), // 날짜만 추출
-                    elec_total: `${item.elec_total} kW` || "",
+                    elec_total: `${item.elec_total} kWh` || "",
                     city: item.city,
                     region: item.region,
-                    min_temp: item.max_temp,
+                    min_temp: item.min_temp,
                     avg_temp: item.avg_temp,
                     max_temp: item.max_temp,
                     min_rh: item.min_rh,
@@ -94,25 +94,6 @@ export default function Menu1() {
 
         fetchData();
     }, [url]); // url이 변경될 때만 새로 요청
-
-    // 목업 파일
-    // useEffect(() => {
-    //     const initialRows = tableData.data.map((item, index) => ({
-    //         forum_id: index + 1,
-    //         date: item.date,
-    //         elec_total: `${item.elec_total} kW` || "", // 단위 추가
-    //         city: item.city,
-    //         region: item.region,
-    //         temp: item.temp,
-    //         rh: item.rh,
-    //         elec_diff: item.elec_diff,
-    //         days_dff: item.days_diff,
-    //         sum: item.sum,
-    //         comment: item.comment || [], // 메모 데이터 포함
-    //     }));
-    //     // console.log("Initial rows data:", initialRows); // 데이터 확인
-    //     setRows(initialRows);
-    // }, []); // 빈 배열을 의존성으로 주어 컴포넌트가 처음 마운트될 때만 실행
 
     ////////////////////////////////////////////////////////////
     //               조회조건                                  //
@@ -161,8 +142,7 @@ export default function Menu1() {
     //////////////////////////BTN EVENT////////////////////////
     //                       CRUD                            //
     // ////////////////////////////////////////////////////////
-    // 조회 BTN 수정
-    // 조회 BTN 수정
+    // 조회 BTN
     const handleSearch = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -240,7 +220,7 @@ export default function Menu1() {
                     board_id: index + 1,
                     forum_id: item.forum_id,
                     date: extractDate(item.date),
-                    elec_total: item.elec_total ? `${item.elec_total} kW` : "", // unit 추가
+                    elec_total: item.elec_total ? `${item.elec_total} kWh` : "", // unit 추가
                     city: item.city,
                     region: item.region,
                     min_temp: item.min_temp,
@@ -249,7 +229,7 @@ export default function Menu1() {
                     min_rh: item.min_rh,
                     avg_rh: item.avg_rh,
                     max_rh: item.max_rh,
-                    elec_diff: item.elec_diff ? `${item.elec_diff} kW` : "", // unit 추가
+                    elec_diff: item.elec_diff ? `${item.elec_diff} kWh` : "", // unit 추가
                     days_diff: item.days_diff,
                     sum: item.sum,
                     comment: item.comment || [], // 메모 데이터 포함
@@ -263,69 +243,9 @@ export default function Menu1() {
         }
     };
 
-    // const handleSearch = () => {
-    //     const filteredRows = tableData.data
-    //         .filter((item) => {
-    //             const itemDate = new Date(item.date);
-    //             const start = new Date(startDate);
-    //             const end = new Date(endDate);
-
-    //             // 날짜 필터링
-    //             const dateRange =
-    //                 (!startDate || itemDate >= start) &&
-    //                 (!endDate || itemDate <= end);
-
-    //             // 지역 필터링
-    //             const matchingArea =
-    //                 !selectedArea || item.city === selectedArea;
-
-    //             // 하위 지역 필터링
-    //             const matchingSubArea =
-    //                 !selectedSubArea || item.region === selectedSubArea;
-
-    //             // 키워드 검색 부분에서 undefined 체크 추가
-    //             const keywordValue = (inRef.current?.value || "").toLowerCase(); // null 처리
-    //             const matchingKeyword =
-    //                 keywordValue === "" ||
-    //                 Object.values(item).some(
-    //                     (val) =>
-    //                         val != null && // undefined와 null 체크
-    //                         val.toString().toLowerCase().includes(keywordValue)
-    //                 );
-
-    //             return (
-    //                 dateRange &&
-    //                 matchingArea &&
-    //                 matchingSubArea &&
-    //                 matchingKeyword
-    //             );
-    //         })
-    //         .map((item, index) => ({
-    //             board_id: index + 1,
-    //             forum_id: item.forum_id,
-    //             date: item.date,
-    //             elec_total: item.elec_total ? `${item.elec_total} kW` : "", // unit 추가
-    //             city: item.city,
-    //             region: item.region,
-    //             min_temp: item.max_temp,
-    //             avg_temp: item.avg_temp,
-    //             max_temp: item.max_temp,
-    //             min_rh: item.min_rh,
-    //             avg_rh: item.avg_rh,
-    //             max_rh: item.max_rh,
-    //             elec_diff: item.elec_diff ? `${item.elec_diff} kW` : "", // unit 추가
-    //             days_dff: item.days_diff,
-    //             sum: item.sum,
-    //             comment: item.comment || [], // 메모 데이터 포함
-    //         }));
-
-    //     showAlert("조회되었습니다.", "success");
-    //     setRows(filteredRows); // 필터링된 데이터를 상태로 설정하여 테이블에 표시
-    // };
-
     // row 추가 BTN
     const handleAdd = async () => {
-        const newId = rows.length + 1; // 임시 ID (서버에서 생성된 ID가 아닙니다)
+        const newId = rows.length + 10; // 임시 ID (서버에서 생성된 ID아님)
         const newRow = {
             forum_id: newId, // 임시 ID로 시작
             date: "",
@@ -536,12 +456,6 @@ export default function Menu1() {
     ////////////////////////////////////////////////////////////
 
     const handleChangeCell = (id, field, value, commentKey = null) => {
-        // setRows((prevRows) =>
-        //     prevRows.map((row) =>
-        //         row.forum_id === id ? { ...row, [field]: value } : row
-        //     )
-        // );
-
         setRows((prevRows) =>
             prevRows.map((row) => {
                 if (row.forum_id === id) {
@@ -582,7 +496,7 @@ export default function Menu1() {
         });
     };
     const handleBlur = (id, field, value, unit) => {
-        // kW 단위를 추가하는 로직을 포함한 handleBlur 함수 정의
+        // kWh 단위를 추가하는 로직을 포함한 handleBlur 함수 정의
         if (field === "elecTotal") {
             setRows((prevRows) =>
                 prevRows.map((row) =>
@@ -722,10 +636,10 @@ export default function Menu1() {
                                 <span className="req">계량기 수치</span>
                             </TableCell>
                             <TableCell align="center">
-                                <span className="req">시도</span>
+                                시도
                             </TableCell>
                             <TableCell align="center">
-                                <span className="req">시군구</span>
+                                시군구
                             </TableCell>
                             <TableCell align="center">최저기온</TableCell>
                             <TableCell align="center">평균기온</TableCell>
@@ -733,8 +647,8 @@ export default function Menu1() {
                             <TableCell align="center">최저습도</TableCell>
                             <TableCell align="center">평균습도</TableCell>
                             <TableCell align="center">최고습도</TableCell>
-                            <TableCell align="center">지난 수치 대비</TableCell>
-                            <TableCell align="center">합계</TableCell>
+                            <TableCell align="center">전력 사용량</TableCell>
+                            {/* <TableCell align="center">합계</TableCell> */}
                             <TableCell />
                         </TableRow>
                     </TableHead>
@@ -785,7 +699,7 @@ export default function Menu1() {
                                             id={`elec_total-${row.forum_id}`} // 단일 id 사용
                                             key={`elec_total-${row.forum_id}`} // 단일 key 사용
                                             value={row.elec_total}
-                                            unit="kW" // 단위 설정
+                                            unit="kWh" // 단위 설정
                                             customClass="text-right max-w-28"
                                             handleBlur={handleBlur}
                                             handleChange={(e) => {
@@ -950,9 +864,9 @@ export default function Menu1() {
                                             </span>
                                         )}
                                     </TableCell>
-                                    <TableCell align="right">
+                                    {/* <TableCell align="right">
                                         {row.sum}
-                                    </TableCell>
+                                    </TableCell> */}
                                     <TableCell style={{ width: "50px" }}>
                                         <IconButton
                                             aria-label="expand row"
@@ -971,7 +885,7 @@ export default function Menu1() {
                                 </TableRow>
                                 <TableRow>
                                     <TableCell
-                                        colSpan={10}
+                                        colSpan={14}
                                         style={{
                                             paddingBottom: openRows[
                                                 row.forum_id

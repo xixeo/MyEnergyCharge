@@ -4,17 +4,17 @@ import { ReactComponent as Menu3} from "../../assets/icons/svg/menu3.svg"
 
 const data = [
     {
-        title: "Home",
+        title: "전력 모니터링",
         link: "/",
         icon: Menu1,
     },
     {
-        title: "My Page",
+        title: "전력 데이터 관리",
         link: "/menu1",
         icon: Menu2,
     },
     {
-        title: "menu2",
+        title: "전기 요금 계산/비교",
         link: "/menu2",
         icon: Menu3,
     },
