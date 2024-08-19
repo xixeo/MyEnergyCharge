@@ -11,6 +11,7 @@ export default function LoginForm({ onLogin }) {
         e.preventDefault(); // 폼 제출 방지
 
         const url = "http://192.168.0.144:8080/login";
+        // const url = "http://localhost:8080/login";
 
         try {
             const response = await fetch(url, {
@@ -49,7 +50,7 @@ export default function LoginForm({ onLogin }) {
     };
 
     return (
-        <div className="w-1/4 min-w-96 h-1/2 min-h-96 rounded-lg bg-white/[.55] shadow-lg flex flex-col justify-center items-center">
+        <div className="w-1/4 min-w-96 py-6 min-h-96 rounded-lg bg-white/[.55] shadow-lg flex flex-col justify-center items-center">
             <p className="text-[#364f9b] text-3xl font-bold w-full px-8">
                 Login
             </p>

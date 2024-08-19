@@ -4,12 +4,18 @@ import { AtomN } from "./AtomN";
 import { useState } from "react";
 import data from "../menu/Menu";
 import { ReactComponent as ArrowR } from "../../assets/icons/svg/arrowR.svg";
+import { ReactComponent as Logo } from "../../assets/icons/svg/logo.svg";
+import { ReactComponent as Close } from "../../assets/icons/svg/close.svg";
+// import { ReactComponent as Menu } from "../../assets/icons/svg/menu.svg";
 
 export default function Header() {
     // MenuList
     const [navs] = useState(data);
     const [user, setUser] = useRecoilState(AtomN);
     const navigate = useNavigate();
+    
+    // 헤더 너비 관리
+    const [isOpen, setIsOpen] = useState(false);
 
     // 사용자 이름 추출
     const userName = user ? user.split("@")[0] : "Guest";
@@ -30,14 +36,34 @@ export default function Header() {
         }
     };
 
-    return (
-        <header className="w-[250px] text-xl font-bold bg-white pt-8 headerWrap">
-            <div className="Logo text-white px-5">나의 전력량</div>
+    // sideNav 
+    const sideNave = () => {
+        setIsOpen(!isOpen);
+    };
+    //메뉴 클릭시 sideNav 확장
+    const handleMenuClick = () =>{
+        setIsOpen(false);
+    }
 
-            <div className="UserInfo px-5">
-                <div className="flex items-center justify-between pt-5">
+    return (
+        <header className={`transition-all duration-300 ${isOpen ? 'w-[65px]' : 'w-[250px]'} text-xl font-bold bg-white pt-8 headerWrap`}>
+            <div className="Logo flex items-center text-white px-5 pl-4">
+                <Logo width="24px" height="24px"/>
+                {isOpen ? (
+                    <div className="pt-7"></div>):(<span className="ml-2">나의 전력량</span>)}
+                        
+            </div>
+
+            <button 
+                onClick={sideNave} 
+                className="p-2 pl-1.5 bg-[#092856] rounded rounded-s-none sideNavBtn">
+                {isOpen ? (<ArrowR color="white" width="16px" height="16px"/>) : (<Close width="13px" height="13px"/>)}
+            </button>
+
+            <div className="UserInfo px-5 h-[58px] pt-5">
+            {isOpen ? (""):(
+                <div className="flex items-center justify-between">
                     <div className="flex items-center">
-                        {/* <User width="16px" height="16px" className="mr-2"/> */}
                         <span className="text-sm text-white font-normal">
                             {userName}
                             <span className="ml-2">님</span>
@@ -47,7 +73,7 @@ export default function Header() {
                         <button
                             onClick={onLogout}
                             type="button"
-                            className="text-white border border-white hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-xs px-2 py-1 text-center"
+                            className="text-white border border-white hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-xs px-2 text-center"
                         >
                             로그아웃
                         </button>
@@ -60,8 +86,9 @@ export default function Header() {
                         </NavLink>
                     )}
                 </div>
+            )}
             </div>
-            <hr className="border-[#ffffff25] mt-3 mb-5" />
+            <hr className="border-[#ffffff25] mb-5" />
             <div className="MenuList px-3">
                 <ul className="text-md">
                     {navs.map((nav, index) => (
@@ -72,12 +99,17 @@ export default function Header() {
                             <NavLink
                                 to={nav.link}
                                 className={({ isActive }) =>
-                                    `w-full flex justify-between items-center p-2 px-1 ${
+                                    `w-full flex items-center p-2 px-1 ${
                                         isActive
                                             ? "text-white"
-                                            : "text-gray-500"
+                                            : "text-gray-500"}
+                                            ${
+                                            isOpen
+                                            ? "justify-center"
+                                            : "justify-between"
                                     }`
                                 }
+                                onClick={handleMenuClick}
                             >
                                 {({ isActive }) => (
                                     <>
@@ -85,16 +117,19 @@ export default function Header() {
                                             <nav.icon
                                                 width="20px"
                                                 height="20px"
-                                                className={`transition-colors duration-300 mr-4 ${
+                                                className={`transition-colors duration-300 ${
                                                     isActive
                                                         ? "text-white"
                                                         : "text-gray-500"
                                                 }`}
                                             />
-                                            <span className="text-[1.1rem]">
-                                                {nav.title}
-                                            </span>
+                                            {!isOpen && (
+                                                <span className="text-[1rem] ml-4">
+                                                    {nav.title}
+                                                </span>
+                                            )}
                                         </div>
+                                        {isOpen ? (""): (
                                         <span>
                                             <ArrowR
                                                 width="18px"
@@ -105,7 +140,7 @@ export default function Header() {
                                                         : "text-gray-500"
                                                 }`}
                                             />
-                                        </span>
+                                        </span>)}
                                     </>
                                 )}
                             </NavLink>
