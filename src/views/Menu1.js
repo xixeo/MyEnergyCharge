@@ -56,13 +56,19 @@ export default function Menu1() {
                 }
 
                 const data = await response.json();
+                const extractDate = (dateString) => {
+                    if (!dateString) return null;
+                    const date = new Date(dateString);
+                    // 날짜 문자열을 yyyy-mm-dd 형식으로 변환
+                    return formatDate(date); // yyyy-mm-dd 형식으로 변환
+                };
                 console.log("dataaaaaa", data);
+                // const itemDate = new Date(item.date);
                 const initialRows = data.map((item, index) => ({
                     board_id: index + 1,
                     forum_id: item.forum_id,
-                    date: item.date,
+                    date: extractDate(item.date), // 날짜만 추출
                     elec_total: `${item.elec_total} kW` || "",
-                    // elec_total: `${item.elec_total}` || "",
                     city: item.city,
                     region: item.region,
                     min_temp: item.max_temp,
@@ -156,65 +162,166 @@ export default function Menu1() {
     //                       CRUD                            //
     // ////////////////////////////////////////////////////////
     // 조회 BTN 수정
-    const handleSearch = () => {
-        const filteredRows = tableData.data
-            .filter((item) => {
-                const itemDate = new Date(item.date);
-                const start = new Date(startDate);
-                const end = new Date(endDate);
+    // 조회 BTN 수정
+    const handleSearch = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const url = "http://192.168.0.144:8080/members/forum"; // 데이터 가져올 API 엔드포인트
 
-                // 날짜 필터링
-                const dateRange =
-                    (!startDate || itemDate >= start) &&
-                    (!endDate || itemDate <= end);
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    // 'headers'로 수정
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
-                // 지역 필터링
-                const matchingArea =
-                    !selectedArea || item.city === selectedArea;
-
-                // 하위 지역 필터링
-                const matchingSubArea =
-                    !selectedSubArea || item.region === selectedSubArea;
-
-                // 키워드 검색 부분에서 undefined 체크 추가
-                const keywordValue = (inRef.current?.value || "").toLowerCase(); // null 처리
-                const matchingKeyword =
-                    keywordValue === "" ||
-                    Object.values(item).some(
-                        (val) =>
-                            val != null && // undefined와 null 체크
-                            val.toString().toLowerCase().includes(keywordValue)
-                    );
-
-                return (
-                    dateRange &&
-                    matchingArea &&
-                    matchingSubArea &&
-                    matchingKeyword
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Fetch Error:", errorData);
+                throw new Error(
+                    `데이터 로드 오류: ${
+                        errorData.message || response.statusText
+                    }`
                 );
-            })
-            .map((item, index) => ({
-                board_id: index + 1,
-                forum_id: item.forum_id,
-                date: item.date,
-                elec_total: item.elec_total ? `${item.elec_total} kW` : "", // unit 추가
-                city: item.city,
-                region: item.region,
-                min_temp: item.max_temp,
-                avg_temp: item.avg_temp,
-                max_temp: item.max_temp,
-                min_rh: item.min_rh,
-                avg_rh: item.avg_rh,
-                max_rh: item.max_rh,
-                elec_diff: item.elec_diff ? `${item.elec_diff} kW` : "", // unit 추가
-                days_dff: item.days_diff,
-                sum: item.sum,
-                comment: item.comment || [], // 메모 데이터 포함
-            }));
+            }
 
-        showAlert("조회되었습니다.", "success");
-        setRows(filteredRows); // 필터링된 데이터를 상태로 설정하여 테이블에 표시
+            const data = await response.json(); // 서버에서 가져온 데이터를 `data`로 저장
+            const extractDate = (dateString) => {
+                if (!dateString) return null;
+                const date = new Date(dateString);
+                // 날짜 문자열을 yyyy-mm-dd 형식으로 변환
+                return formatDate(date); // yyyy-mm-dd 형식으로 변환
+            };
+            // 필터링 로직 적용
+            const filteredRows = data
+                .filter((item) => {
+                    const itemDate = extractDate(item.date);
+                    const start = extractDate(startDate);
+                    const end = extractDate(endDate);
+
+                    // 날짜 필터링
+                    const dateRange =
+                        (!startDate || itemDate >= start) &&
+                        (!endDate || itemDate <= end);
+
+                    // 지역 필터링
+                    const matchingArea =
+                        !selectedArea || item.city === selectedArea;
+
+                    // 하위 지역 필터링
+                    const matchingSubArea =
+                        !selectedSubArea || item.region === selectedSubArea;
+
+                    // 키워드 검색 부분에서 undefined 체크 추가
+                    const keywordValue = (
+                        inRef.current?.value || ""
+                    ).toLowerCase(); // null 처리
+                    const matchingKeyword =
+                        keywordValue === "" ||
+                        Object.values(item).some(
+                            (val) =>
+                                val != null && // undefined와 null 체크
+                                val
+                                    .toString()
+                                    .toLowerCase()
+                                    .includes(keywordValue)
+                        );
+
+                    return (
+                        dateRange &&
+                        matchingArea &&
+                        matchingSubArea &&
+                        matchingKeyword
+                    );
+                })
+                .map((item, index) => ({
+                    board_id: index + 1,
+                    forum_id: item.forum_id,
+                    date: extractDate(item.date),
+                    elec_total: item.elec_total ? `${item.elec_total} kW` : "", // unit 추가
+                    city: item.city,
+                    region: item.region,
+                    min_temp: item.min_temp,
+                    avg_temp: item.avg_temp,
+                    max_temp: item.max_temp,
+                    min_rh: item.min_rh,
+                    avg_rh: item.avg_rh,
+                    max_rh: item.max_rh,
+                    elec_diff: item.elec_diff ? `${item.elec_diff} kW` : "", // unit 추가
+                    days_diff: item.days_diff,
+                    sum: item.sum,
+                    comment: item.comment || [], // 메모 데이터 포함
+                }));
+
+            showAlert("조회되었습니다.", "success");
+            setRows(filteredRows); // 필터링된 데이터를 상태로 설정하여 테이블에 표시
+        } catch (error) {
+            console.error("Data fetch error:", error);
+            showAlert("데이터 로드 중 오류가 발생했습니다.", "error");
+        }
     };
+
+    // const handleSearch = () => {
+    //     const filteredRows = tableData.data
+    //         .filter((item) => {
+    //             const itemDate = new Date(item.date);
+    //             const start = new Date(startDate);
+    //             const end = new Date(endDate);
+
+    //             // 날짜 필터링
+    //             const dateRange =
+    //                 (!startDate || itemDate >= start) &&
+    //                 (!endDate || itemDate <= end);
+
+    //             // 지역 필터링
+    //             const matchingArea =
+    //                 !selectedArea || item.city === selectedArea;
+
+    //             // 하위 지역 필터링
+    //             const matchingSubArea =
+    //                 !selectedSubArea || item.region === selectedSubArea;
+
+    //             // 키워드 검색 부분에서 undefined 체크 추가
+    //             const keywordValue = (inRef.current?.value || "").toLowerCase(); // null 처리
+    //             const matchingKeyword =
+    //                 keywordValue === "" ||
+    //                 Object.values(item).some(
+    //                     (val) =>
+    //                         val != null && // undefined와 null 체크
+    //                         val.toString().toLowerCase().includes(keywordValue)
+    //                 );
+
+    //             return (
+    //                 dateRange &&
+    //                 matchingArea &&
+    //                 matchingSubArea &&
+    //                 matchingKeyword
+    //             );
+    //         })
+    //         .map((item, index) => ({
+    //             board_id: index + 1,
+    //             forum_id: item.forum_id,
+    //             date: item.date,
+    //             elec_total: item.elec_total ? `${item.elec_total} kW` : "", // unit 추가
+    //             city: item.city,
+    //             region: item.region,
+    //             min_temp: item.max_temp,
+    //             avg_temp: item.avg_temp,
+    //             max_temp: item.max_temp,
+    //             min_rh: item.min_rh,
+    //             avg_rh: item.avg_rh,
+    //             max_rh: item.max_rh,
+    //             elec_diff: item.elec_diff ? `${item.elec_diff} kW` : "", // unit 추가
+    //             days_dff: item.days_diff,
+    //             sum: item.sum,
+    //             comment: item.comment || [], // 메모 데이터 포함
+    //         }));
+
+    //     showAlert("조회되었습니다.", "success");
+    //     setRows(filteredRows); // 필터링된 데이터를 상태로 설정하여 테이블에 표시
+    // };
 
     // row 추가 BTN
     const handleAdd = async () => {
@@ -288,7 +395,7 @@ export default function Menu1() {
     // row 저장 BTN
     const handleSave = async () => {
         const newErrors = {};
-    
+
         // 유효성 검사
         rows.forEach((row) => {
             if (selectedRows.has(row.forum_id)) {
@@ -298,47 +405,48 @@ export default function Menu1() {
                 }
             }
         });
-    
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             showAlert("모든 필수 값을 채워야 합니다.", "error");
             return;
         }
-    
+
         // 숫자 추출 함수
         const extractNumber = (str) => {
             const match = str.match(/\d+(\.\d+)?/); // 정규 표현식으로 숫자 추출
             return match ? parseFloat(match[0]) : null;
         };
-    
+
         // 저장 로직
         try {
             const token = localStorage.getItem("token");
             const url = "http://192.168.0.144:8080/members/forum";
-    
+
             const requestBody = rows
-                .filter(row => selectedRows.has(row.forum_id))
-                .map(row => {
+                .filter((row) => selectedRows.has(row.forum_id))
+                .map((row) => {
                     // elec_total에서 숫자만 추출
                     const elecTotal = extractNumber(row.elec_total);
-    
+
                     return {
-                        date: row.date || '',
-                        elec_total: elecTotal !== null ? elecTotal : '', // 유효한 숫자인 경우만 설정
-                        city: row.city || '',
-                        region: row.region || '',
-                        comment: row.comment || '',
+                        forum_id: row.forum_id || null,
+                        date: row.date || "",
+                        elec_total: elecTotal !== null ? elecTotal : "", // 유효한 숫자인 경우만 설정
+                        city: row.city || "",
+                        region: row.region || "",
+                        comment: row.comment || "",
                     };
                 });
-    
+
             // 요청 본문 및 헤더 로그
-            console.log('Request URL:', url);
-            console.log('Request Headers:', {
+            console.log("Request URL:", url);
+            console.log("Request Headers:", {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
             });
-            console.log('Request Body:', JSON.stringify(requestBody));
-    
+            console.log("Request Body:", JSON.stringify(requestBody));
+
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
@@ -347,31 +455,36 @@ export default function Menu1() {
                 },
                 body: JSON.stringify(requestBody), // 배열 형태로 전송
             });
-    
+
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error('Response Error:', errorData);
-                throw new Error(`업데이트 오류: ${errorData.message || response.statusText}`);
+                console.error("Response Error:", errorData);
+                throw new Error(
+                    `업데이트 오류: ${errorData.message || response.statusText}`
+                );
             }
-    
+
             const data = await response.json();
-            // 응답 데이터 처리
-            const updatedRows = rows.map(row => {
-                // 서버가 반환하는 응답을 통해 업데이트할 수 있는 부분을 조정
-                const updatedRow = data.find(d => d.forum_id === row.forum_id);
-                return updatedRow ? updatedRow : row;
-            });
-    
-            showAlert("저장되었습니다.", "success");
-            setRows(updatedRows); // 상태 업데이트
-            setSelectedRows(new Set()); // 저장 후 선택된 행을 초기화
+            // 응답 데이터가 객체(HashMap) 형태로 온다
+            if (typeof data === "object" && data !== null) {
+                const updatedRows = rows.map((row) => {
+                    // forum_id를 키로 사용해 data에서 해당 row 찾기
+                    const updatedRow = data[row.forum_id];
+                    return updatedRow ? updatedRow : row;
+                });
+
+                showAlert("저장되었습니다.", "success");
+                setRows(updatedRows); // 상태 업데이트
+                setSelectedRows(new Set()); // 저장 후 선택된 행을 초기화
+            } else {
+                console.error("Unexpected response format:", data);
+                showAlert("서버 응답 형식이 예상과 다릅니다.", "error");
+            }
         } catch (error) {
             console.error("Save error:", error);
             showAlert("저장 중 오류가 발생했습니다.", "error");
         }
     };
-    
-    
 
     // 필드 포커싱
     useEffect(() => {
@@ -648,7 +761,7 @@ export default function Menu1() {
                                     <TableCell align="center" itemType="date">
                                         <InputBox
                                             id={`date-${row.forum_id}`}
-                                            type="datetime"
+                                            type="date"
                                             max={today}
                                             value={row.date}
                                             handleChange={(e) => {
