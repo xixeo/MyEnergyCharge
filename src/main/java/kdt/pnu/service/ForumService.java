@@ -1,14 +1,16 @@
 package kdt.pnu.service;
 
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import jakarta.transaction.Transactional;
 import kdt.pnu.domain.Forum;
@@ -50,11 +52,11 @@ public class ForumService {
 	}
 	
 	// Read
-	public List<Forum> getForums(String username) {
-		List<Forum> list = forumRepo.findByUsername(username);
-		list.sort((f1,f2) -> f1.getDate().compareTo(f2.getDate()));
-		return list;
-	}
+//	public List<Forum> getForums(String username) {
+//		List<Forum> list = forumRepo.findByUsername(username);
+//		list.sort((f1,f2) -> f1.getDate().compareTo(f2.getDate()));
+//		return list;
+//	}
 	
 	// Search
 	public List<ForumDTO> searchForums(String username, 
@@ -63,6 +65,7 @@ public class ForumService {
 									String elec_diff2, 
 									String start_date, 
 									String end_date) {
+		forumRepo.sortForum(username);
 		List<Object[]> list = forumRepo.searchForums(username, 
 												 region, 
 												 elec_diff1, 
@@ -107,12 +110,18 @@ public class ForumService {
 		Integer inserted = 0 ; Integer updated = 0 ;
 		for (ForumDTO forumDTO : forumList) {
 			forumDTO.setUsername(username);
-			Forum forum = modelMapper.map(forumDTO, Forum.class);
+			LocalDate date = LocalDate.now();
+			if(forumDTO.getDate() != null)	 
+			date = LocalDate.parse(forumDTO.getDate(),
+					DateTimeFormatter.ofPattern("yyyy-MM-dd"));		
+			Forum forum = modelMapper.map(forumDTO, Forum.class);			
+			forum.setDate(date);
 			System.out.println(forum.toString());
-			if(forum.getDate() == null) forum.setDate(new Date());	
+
 			if(forum.getForum_id() == null) inserted ++ ; 
 			else updated ++;
-			forumRepo.save(forum);				
+			forumRepo.save(forum);	
+			
 		}
 		results.put("inserted", inserted); results.put("updated", updated);
 		System.out.println("====> HashMap" + results.toString());
@@ -120,6 +129,38 @@ public class ForumService {
 	}
 	
 	
-	
+	@GetMapping("members/forum/fee") 
+	public HashMap<String, Double> fee_calculation(String date,
+												   String city,
+												   String county, 
+												   User user) { 
+		String username = user.getUsername(); 	
+		System.out.println(city + county);
+		HashMap<String, Double> results = new HashMap<>(); 		
+		List<Object[]> list = forumRepo.electricity_fee(date, username);
+		Double fee = 
+				(list.get(0)[0]!=null? Double.parseDouble(list.get(0)[0].toString()): -1);
+		Double amount = 
+				(list.get(0)[1]!=null? Double.parseDouble(list.get(0)[1].toString()): -1);
+		Double prev_fee = 
+				(list.get(0)[1]!=null? Double.parseDouble(list.get(0)[2].toString()): -1);
+		Double prev_amount = 
+				(list.get(0)[1]!=null? Double.parseDouble(list.get(0)[3].toString()): -1);		
+		results.put("fee", fee); results.put("sum", amount);
+		results.put("prev_fee", prev_fee); results.put("prev_sum", prev_amount);
+		
+		if (city != null && county != null) {
+			List<Object[]> list1 = forumRepo.average_fee(date, city, county);
+			Double prev_price_avg = Double.parseDouble(list1.get(0)[0].toString());			
+			Double price_avg = Double.parseDouble(list1.get(1)[0].toString());
+			results.put("prev_price_avg", prev_price_avg); 
+			results.put("price_avg", price_avg);				
+		}		
+		return results;
+	}
 	
 }
+
+
+
+

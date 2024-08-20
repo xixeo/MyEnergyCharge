@@ -22,7 +22,8 @@ public class SecurityUserDetailService implements UserDetailsService{
 		
 		Members member = memRepo.findById(username)
 				.orElseThrow(()->new UsernameNotFoundException("Not Found"));; 
-		System.out.println(member.toString());
+
+		if (member.isEnabled() == false) throw new UsernameNotFoundException("User is not active");
 		
 		return new User(member.getUsername(), member.getPassword(),
 				AuthorityUtils.createAuthorityList(member.getRole().toString()));

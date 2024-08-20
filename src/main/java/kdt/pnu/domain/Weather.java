@@ -1,7 +1,8 @@
 package kdt.pnu.domain;
 
-import java.util.Date;
+import java.time.LocalDate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,10 +28,11 @@ public class Weather {
 	
 	private String city; 
 	private String county; 
-	private double tmpr; 
-	private double rhwt; 
-	private double ws;
-	private Date date; 
-	private int hour; 
+	private Double tmpr; 
+	private Double rhwt; 
+	private Double ws;
+	@Column(name = "date", columnDefinition = "DATE")
+	private LocalDate date;
+	private Integer hour; 
 }
 

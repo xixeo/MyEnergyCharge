@@ -103,6 +103,7 @@ public class ForumController {
 	//Controller => Service (insert and update) 
 	@PostMapping("members/forum")
 	public HashMap<String, Integer> postForum(@RequestBody List<ForumDTO> forumList, @AuthenticationPrincipal User user) {
+		System.out.println("===> memberForum");
 		return forumService.postForum(forumList, user);
 	}
 
@@ -171,13 +172,14 @@ public class ForumController {
 			@RequestParam(required=false) String start_date, 
 			@RequestParam(required=false) String end_date) {
 		System.out.println("===> Forum.searchForum");	
-		String username = user.getUsername();
+		String username = user.getUsername();	
 		String elec1 = (elec_diff1 == null? "-100000" : elec_diff1.toString());
 		String elec2 = (elec_diff2 == null? "1000000" : elec_diff2.toString());	   
 		start_date = (start_date == null? "19000101" : start_date);
 		end_date = (end_date == null? "21000101" : end_date);
 		return ResponseEntity
-				.ok(forumService.searchForums(username, region, elec1, elec2, start_date, end_date));	    
+				.ok(forumService.searchForums(username, region, elec1, elec2, start_date, end_date));
+		
 	}
 
 	// delete the forum
@@ -205,5 +207,14 @@ public class ForumController {
 //			return 0;			
 //		}
 //	}
-
+	
+	// electricity fee 
+	@GetMapping("members/forum/fee")
+	public HashMap<String, Double> feeCalculator(@RequestParam String date,
+								 @RequestParam(required=false) String city, 
+								 @RequestParam(required=false) String county,
+								 @AuthenticationPrincipal User user) {	
+		
+		return forumService.fee_calculation(date, city, county, user);
+	}
 }

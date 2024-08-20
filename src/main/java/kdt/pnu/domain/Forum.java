@@ -1,6 +1,6 @@
 package kdt.pnu.domain;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,7 +27,9 @@ public class Forum implements Comparable<Forum>{
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Integer forum_id; 
 	@Builder.Default
-	private Date date = new Date(); 
+    @Column(name = "date", columnDefinition = "DATE")
+    private LocalDate date = LocalDate.now();
+//	private Date date = new Date(); 
 	@Column(nullable = false)
 	private String username; 
 	@Column(nullable = false)

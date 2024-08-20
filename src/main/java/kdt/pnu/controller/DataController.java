@@ -32,7 +32,7 @@ public class DataController {
     	System.out.println("===> findByDateCityCounty");
     	List<ElectricityDTO> list = eService.findByDateCityCounty(date,city,county);
     	return ResponseEntity.ok(list);
-    }
-    
+    }    
+
  
 }
