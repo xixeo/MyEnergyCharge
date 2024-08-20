@@ -77,12 +77,11 @@ const KakaoMap = ({
 
         // 지도 클릭 이벤트 리스너 추가
         kakao.maps.event.addListener(map, "click", (mouseEvent) => {
+            deletePolygon(); // 기존 폴리곤 삭제
             const latlng = mouseEvent.latLng;
             const lat = latlng.getLat();
             const lng = latlng.getLng();
             console.log(`지도 클릭 위치: 위도 ${lat}, 경도 ${lng}`);
-
-            deletePolygon(); // 기존 폴리곤 삭제
 
             const geocoder = new kakao.maps.services.Geocoder();
             geocoder.coord2Address(lng, lat, (result, status) => {
@@ -97,7 +96,6 @@ const KakaoMap = ({
                     map.setCenter(latlng); // 클릭한 지점으로 지도 이동
                     map.setLevel(7);
 
-                    
                     // 날짜 및 지역 정보를 업데이트하여 데이터 가져오기
                     const url = `http://192.168.0.144:8080/electricity?date=${selectedDate}&city=${area}&county=${subArea}`;
                     getFetchData(url);
@@ -110,7 +108,7 @@ const KakaoMap = ({
         // 지도 줌 레벨 변경 이벤트 리스너 추가
         kakao.maps.event.addListener(map, "zoom_changed", () => {
             const level = map.getLevel();
-            setCurrentZoomLevel(level);
+            setCurrentZoomLevel(level); // 줌 할때마다 레벨값 받아오기
         });
 
         // 초기 줌 레벨 상태 설정
@@ -257,6 +255,14 @@ const KakaoMap = ({
         console.log("검색된 데이터:", data); // 콘솔에 검색된 데이터 출력
         return data || {};
     };
+
+    useEffect(() => {
+        if (mapInstance) {
+            if (customOverlay) {
+                customOverlay.setMap(null);
+            }
+        }
+    }, [mapInstance]);
 
     // 오버레이 업데이트
     useEffect(() => {

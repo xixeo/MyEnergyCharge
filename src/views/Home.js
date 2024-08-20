@@ -20,6 +20,7 @@ const Home = () => {
     // 초기 값 설정
     const initialArea = "부산광역시";
     const initialSubArea = "금정구";
+    const initialDate = "2024-06-20";
     const today = new Date().toISOString().split("T")[0];
 
     // selectBox
@@ -30,12 +31,14 @@ const Home = () => {
     // 실제로 KakaoMap과 Chart에 전달될 상태
     const [queryArea, setQueryArea] = useState(initialArea);
     const [querySubArea, setQuerySubArea] = useState(initialSubArea);
-    const [queryDate, setQueryDate] = useState(today);
+    // const [queryDate, setQueryDate] = useState(today);
+    const [queryDate, setQueryDate] = useState(initialDate);
 
     // 사용자가 선택한 값 (임시로 보관)
     const [tempArea, setTempArea] = useState(initialArea);
     const [tempSubArea, setTempSubArea] = useState(initialSubArea);
-    const [tempDate, setTempDate] = useState(today);
+    // const [tempDate, setTempDate] = useState(today);
+    const [tempDate, setTempDate] = useState(initialDate);
 
     useEffect(() => {
         const initialAreaObj = areas.find((area) => area.name === initialArea);
