@@ -10,16 +10,16 @@ export default function Login() {
     const [user, setUser] = useRecoilState(AtomN);
 
     const handleLogin = (username) => {
-        localStorage.setItem("user", username);
-        setUser(username);
+        localStorage.setItem("user", username); // 로컬 스토리지에 사용자명 저장
+        setUser(username); // Recoil 상태 업데이트
         navigate("/"); // 홈으로 이동
     };
 
     useEffect(() => {
         const lsUser = localStorage.getItem("user");
         if (lsUser) {
-            setUser(lsUser);
-            navigate("/"); // 이미 로그인된 경우 홈 페이지로 이동
+            setUser(lsUser); // 이미 로그인된 경우 Recoil 상태 업데이트
+            navigate("/"); // 홈 페이지로 이동
         }
     }, [setUser, navigate]);
 

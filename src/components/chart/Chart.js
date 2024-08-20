@@ -28,6 +28,13 @@ export default function Chart({
         if (propSelectedDate) setSelectedDate(propSelectedDate);
     }, [propArea, propSubArea, propSelectedDate]);
 
+    // 여기에서 interval을 "day"로 설정하는 useEffect를 추가
+    useEffect(() => {
+        if (propArea || propSubArea || propSelectedDate) {
+            setInterval("day");
+        }
+    }, [propArea, propSubArea, propSelectedDate]);
+
     useEffect(() => {
         const url = `http://192.168.0.144:8080/electricity?date=${selectedDate}&city=${area}&county=${subArea}`;
         getFetchData(url);

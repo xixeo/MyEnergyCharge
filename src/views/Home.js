@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import KakaoMap from "../components/map/KakaoMap";
 import areas from "../components/data/area.json";
 import InputBox from "../components/InputBox";
@@ -8,7 +8,7 @@ import { useRecoilState } from "recoil";
 import { AtomN } from "./layouts/AtomN";
 
 const Home = () => {
-    const [user, setUser] = useRecoilState(AtomN); //로그인 됐는지 안됐는지
+    const [user, setUser] = useRecoilState(AtomN); // 로그인 여부 상태
     const [map, setMap] = useState(null);
     const infowindowRef = useRef(null);
 
@@ -18,15 +18,26 @@ const Home = () => {
         console.log("Map instance:", map); // map 변수 사용
     }, []);
 
+    // 초기 값 설정
+    const initialArea = "부산광역시";
+    const initialSubArea = "금정구";
+    const today = new Date().toISOString().split("T")[0]; // 오늘 날짜
+
     // selectBox
-    const [selectedArea, setSelectedArea] = useState("");
-    const [selectedSubArea, setSelectedSubArea] = useState("");
+    const [selectedArea, setSelectedArea] = useState(initialArea);
+    const [selectedSubArea, setSelectedSubArea] = useState(initialSubArea);
     const [subAreas, setSubAreas] = useState([]);
 
     // 실제로 KakaoMap에 전달될 상태
-    const [queryArea, setQueryArea] = useState("");
-    const [querySubArea, setQuerySubArea] = useState("");
-    const [queryDate, setQueryDate] = useState("");
+    const [queryArea, setQueryArea] = useState(initialArea);
+    const [querySubArea, setQuerySubArea] = useState(initialSubArea);
+    const [queryDate, setQueryDate] = useState(today);
+
+    useEffect(() => {
+        // 부산광역시에 해당하는 하위 지역 목록 설정
+        const initialAreaObj = areas.find((area) => area.name === initialArea);
+        setSubAreas(initialAreaObj ? initialAreaObj.subArea : []);
+    }, []);
 
     const handleAreaChange = (e) => {
         const areaName = e.target.value;
@@ -43,7 +54,7 @@ const Home = () => {
     };
 
     // dateBox
-    const [selectedDate, setSelectedDate] = useState("");
+    const [selectedDate, setSelectedDate] = useState(today);
 
     const areaSelectRef = useRef(null);
     const subAreaSelectRef = useRef(null);
@@ -61,12 +72,7 @@ const Home = () => {
         return `${year}-${month}-${day}`;
     };
 
-    const today = new Date();
-    const yearAgo = new Date(today);
-    yearAgo.setFullYear(today.getFullYear() - 3);
-
-    const startDate = formatDate(yearAgo);
-    const endDate = formatDate(today);
+    const endDate = formatDate(new Date());
 
     // 조회 버튼 클릭
     const handleButtonClick = () => {
@@ -96,7 +102,7 @@ const Home = () => {
                     <InputBox
                         id="areaSelect"
                         type="dropDown"
-                        initText="선택"
+                        initText={initialArea}
                         ops={areas.map((area) => area.name)}
                         handleChange={handleAreaChange}
                         customClass="xl:mr-10 mr-4 min-w-40"
@@ -108,7 +114,7 @@ const Home = () => {
                     <InputBox
                         id="subAreaSelect"
                         type="dropDown"
-                        initText="선택"
+                        initText={initialSubArea}
                         ops={subAreas}
                         handleChange={handleSubAreaChange}
                         customClass="xl:mr-10 mr-4 min-w-40"
@@ -120,7 +126,7 @@ const Home = () => {
                     <InputBox
                         id="dt"
                         type="date"
-                        min={startDate}
+                        min="2021-08-10"
                         max={endDate}
                         value={selectedDate}
                         handleChange={handleDateChange}

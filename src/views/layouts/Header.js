@@ -1,24 +1,27 @@
 import { useNavigate, NavLink } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import { AtomN } from "./AtomN";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import data from "../menu/Menu";
 import { ReactComponent as ArrowR } from "../../assets/icons/svg/arrowR.svg";
 import { ReactComponent as Logo } from "../../assets/icons/svg/logo.svg";
 import { ReactComponent as Close } from "../../assets/icons/svg/close.svg";
-// import { ReactComponent as Menu } from "../../assets/icons/svg/menu.svg";
 
 export default function Header() {
-    // MenuList
     const [navs] = useState(data);
     const [user, setUser] = useRecoilState(AtomN);
     const navigate = useNavigate();
     
-    // 헤더 너비 관리
     const [isOpen, setIsOpen] = useState(false);
 
-    // 사용자 이름 추출
     const userName = user ? user.split("@")[0] : "Guest";
+
+    useEffect(() => {
+        const lsUser = localStorage.getItem("user");
+        if (lsUser) {
+            setUser(lsUser); // 로컬 스토리지에 저장된 사용자 정보로 상태 복원
+        }
+    }, [setUser]);
 
     const onLogout = (e) => {
         e.preventDefault();
@@ -36,14 +39,13 @@ export default function Header() {
         }
     };
 
-    // sideNav 
     const sideNave = () => {
         setIsOpen(!isOpen);
     };
-    //메뉴 클릭시 sideNav 확장
-    const handleMenuClick = () =>{
+
+    const handleMenuClick = () => {
         setIsOpen(false);
-    }
+    };
 
     return (
         <header className={`transition-all duration-300 ${isOpen ? 'w-[65px]' : 'w-[250px]'} text-xl font-bold bg-white pt-8 headerWrap`}>
@@ -51,7 +53,6 @@ export default function Header() {
                 <Logo width="24px" height="24px"/>
                 {isOpen ? (
                     <div className="pt-7"></div>):(<span className="ml-2">나의 전력량</span>)}
-                        
             </div>
 
             <button 
