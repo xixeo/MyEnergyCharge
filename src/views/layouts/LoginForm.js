@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useCookies } from "react-cookie";
+import { Link } from "react-router-dom";
 
 export default function LoginForm({ onLogin }) {
     const [username, setUsername] = useState("");
@@ -63,7 +64,7 @@ export default function LoginForm({ onLogin }) {
                         htmlFor="id"
                         className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
-                        Your id
+                        ID
                     </label>
                     <input
                         onChange={(e) => setUsername(e.target.value)}
@@ -92,7 +93,7 @@ export default function LoginForm({ onLogin }) {
                         required=""
                     />
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between px-1">
                     <div className="flex items-start">
                         <div className="flex items-center h-5">
                             <input
@@ -106,9 +107,12 @@ export default function LoginForm({ onLogin }) {
                         </div>
                         <div className="ml-3 text-sm">
                             <label htmlFor="remember" className="text-gray-700">
-                                Remember me
+                                ID 저장
                             </label>
                         </div>
+                    </div>
+                    <div className="text-[#343077] font-bold text-sm">
+                    <Link to="/Join">회원가입</Link>
                     </div>
                 </div>
                 <div className="py-1"></div>
@@ -116,7 +120,7 @@ export default function LoginForm({ onLogin }) {
                     type="submit"
                     className="w-full text-white bg-[#343077] hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                 >
-                    Sign in
+                    로그인
                 </button>
             </form>
         </div>

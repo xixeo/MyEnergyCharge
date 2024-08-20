@@ -16,6 +16,7 @@ import Checkbox from "@mui/material/Checkbox";
 import InputBox from "../components/InputBox";
 import Btn from "../components/Btn";
 import { useAlert } from "../components/AlertContext";
+import { useLoading } from "../components/LoadingContext"; 
 
 import tableData from "../components/data/table.json"; // JSON 파일 import
 import areas from "../components/data/area.json";
@@ -30,10 +31,12 @@ export default function Menu1() {
     const url = `http://192.168.0.144:8080/members/forum`;
     // const url = `http://192.168.0.144:8080/admin/forum`; admin/abcd 파라미터:username
     const [allData, setAllData] = useState([]); //패치된 데이터 저장
+    const { setLoading } = useLoading(); // 로딩 컴포넌트
 
     // useEffect를 사용하여 컴포넌트가 마운트될 때 초기 데이터를 설정
     // 조회버튼을 누르지 않아도 초기에 전체 데이터 한번 렌더링 시키기
     useEffect(() => {
+        
         const fetchData = async () => {
             const token = localStorage.getItem("token");
             if (!token) {
@@ -41,7 +44,7 @@ export default function Menu1() {
                 showAlert("토큰이 저장되지 않았습니다.", "error");
                 return;
             }
-
+            setLoading(true); // 로딩 시작
             try {
                 const response = await fetch(url, {
                     method: "GET",
@@ -63,7 +66,6 @@ export default function Menu1() {
                     return formatDate(date); // yyyy-mm-dd 형식으로 변환
                 };
                 console.log("dataaaaaa", data);
-                // const itemDate = new Date(item.date);
                 const initialRows = data.map((item, index) => ({
                     board_id: index + 1,
                     forum_id: item.forum_id,
@@ -89,6 +91,8 @@ export default function Menu1() {
             } catch (error) {
                 console.error("Fetch error:", error);
                 showAlert("데이터를 가져오는 데 실패했습니다.", "error");
+            } finally {
+                setLoading(false); // 로딩 종료
             }
         };
 
@@ -144,6 +148,7 @@ export default function Menu1() {
     // ////////////////////////////////////////////////////////
     // 조회 BTN
     const handleSearch = async () => {
+        setLoading(true); // 조회 버튼 클릭 시 로딩 상태를 true로 설정
         try {
             const token = localStorage.getItem("token");
             const url = "http://192.168.0.144:8080/members/forum"; // 데이터 가져올 API 엔드포인트
@@ -240,6 +245,8 @@ export default function Menu1() {
         } catch (error) {
             console.error("Data fetch error:", error);
             showAlert("데이터 로드 중 오류가 발생했습니다.", "error");
+        } finally {
+            setLoading(false); // 데이터 로드가 완료되면 로딩 상태를 false로 설정
         }
     };
 
@@ -403,6 +410,8 @@ export default function Menu1() {
         } catch (error) {
             console.error("Save error:", error);
             showAlert("저장 중 오류가 발생했습니다.", "error");
+        } finally{
+            handleSearch()
         }
     };
 
@@ -513,7 +522,7 @@ export default function Menu1() {
         }
     };
     return (
-        <div className="w-full px-10  pb-10">
+        <div className="w-full px-10 pb-10">
             <div className="w-full h-14 md:px-4 md:pr-0 flex pb-1 lg:pb-0  items-end lg:items-center justify-between border-b border-[#CDD1E1]">
                 <div className="flex items-center">
                     <InputBox
@@ -635,20 +644,11 @@ export default function Menu1() {
                             <TableCell align="center">
                                 <span className="req">계량기 수치</span>
                             </TableCell>
-                            <TableCell align="center">
-                                시도
-                            </TableCell>
-                            <TableCell align="center">
-                                시군구
-                            </TableCell>
-                            <TableCell align="center">최저기온</TableCell>
+                            <TableCell align="center">시도</TableCell>
+                            <TableCell align="center">시군구</TableCell>
                             <TableCell align="center">평균기온</TableCell>
-                            <TableCell align="center">최고기온</TableCell>
-                            <TableCell align="center">최저습도</TableCell>
                             <TableCell align="center">평균습도</TableCell>
-                            <TableCell align="center">최고습도</TableCell>
                             <TableCell align="center">전력 사용량</TableCell>
-                            {/* <TableCell align="center">합계</TableCell> */}
                             <TableCell />
                         </TableRow>
                     </TableHead>
@@ -764,57 +764,13 @@ export default function Menu1() {
                                         />
                                     </TableCell>
                                     <TableCell align="center">
-                                        <span className="text-[#ff8f00] font-bold">
-                                            {row.min_temp}
-                                        </span>
-
-                                        {row.min_temp ? (
-                                            <span className="ml-1 text-xs text-zinc-500">
-                                                °C
-                                            </span>
-                                        ) : (
-                                            <span className="ml-1 text-xs text-zinc-500">
-                                                -
-                                            </span>
-                                        )}
-                                    </TableCell>
-                                    <TableCell align="center">
-                                        <span className="text-[#ff4900] font-bold">
+                                        <span className="text-[#ff5252] font-bold">
                                             {row.avg_temp}
                                         </span>
 
                                         {row.avg_temp ? (
                                             <span className="ml-1 text-xs text-zinc-500">
                                                 °C
-                                            </span>
-                                        ) : (
-                                            <span className="ml-1 text-xs text-zinc-500">
-                                                -
-                                            </span>
-                                        )}
-                                    </TableCell>
-                                    <TableCell align="center">
-                                        <span className="text-[#FF0000] font-bold">
-                                            {row.max_temp}
-                                        </span>
-
-                                        {row.max_temp ? (
-                                            <span className="ml-1 text-xs text-zinc-500">
-                                                °C
-                                            </span>
-                                        ) : (
-                                            <span className="ml-1 text-xs text-zinc-500">
-                                                -
-                                            </span>
-                                        )}
-                                    </TableCell>
-                                    <TableCell align="center">
-                                        <span className="text-[#00a9ff] font-bold">
-                                            {row.min_rh}
-                                        </span>
-                                        {row.min_rh ? (
-                                            <span className="ml-1 text-xs text-zinc-500">
-                                                %
                                             </span>
                                         ) : (
                                             <span className="ml-1 text-xs text-zinc-500">
@@ -836,20 +792,7 @@ export default function Menu1() {
                                             </span>
                                         )}
                                     </TableCell>
-                                    <TableCell align="center">
-                                        <span className="text-[#0006ff] font-bold">
-                                            {row.max_rh}
-                                        </span>
-                                        {row.max_rh ? (
-                                            <span className="ml-1 text-xs text-zinc-500">
-                                                %
-                                            </span>
-                                        ) : (
-                                            <span className="ml-1 text-xs text-zinc-500">
-                                                -
-                                            </span>
-                                        )}
-                                    </TableCell>
+                                  
                                     <TableCell align="right">
                                         <span className="text-green-600 font-bold">
                                             {row.elec_diff}
@@ -864,9 +807,6 @@ export default function Menu1() {
                                             </span>
                                         )}
                                     </TableCell>
-                                    {/* <TableCell align="right">
-                                        {row.sum}
-                                    </TableCell> */}
                                     <TableCell style={{ width: "50px" }}>
                                         <IconButton
                                             aria-label="expand row"
