@@ -16,28 +16,30 @@ export default function Chart({
     const [series, setSeries] = useState([]);
     const [options, setOptions] = useState({});
 
-    const [area, setArea] = useState("부산광역시");
-    const [subArea, setSubArea] = useState("부산진구");
-    const [selectedDate, setSelectedDate] = useState(
-        new Date().toISOString().split("T")[0]
-    ); // 기본값: 오늘 날짜
+    const [area, setArea] = useState(propArea);
+    const [subArea, setSubArea] = useState(propSubArea);
+    const [selectedDate, setSelectedDate] = useState(propSelectedDate);
 
+    // useEffect 훅을 사용해 props가 변경될 때 상태를 업데이트
     useEffect(() => {
         if (propArea) setArea(propArea);
         if (propSubArea) setSubArea(propSubArea);
         if (propSelectedDate) setSelectedDate(propSelectedDate);
     }, [propArea, propSubArea, propSelectedDate]);
 
-    // 여기에서 interval을 "day"로 설정하는 useEffect를 추가
+    // 조회버튼 누를 때 interval을 "day"로 default 설정
     useEffect(() => {
         if (propArea || propSubArea || propSelectedDate) {
             setInterval("day");
         }
     }, [propArea, propSubArea, propSelectedDate]);
 
+    // 상태가 업데이트될 때 데이터를 가져옴
     useEffect(() => {
-        const url = `http://192.168.0.144:8080/electricity?date=${selectedDate}&city=${area}&county=${subArea}`;
-        getFetchData(url);
+        if (selectedDate && area && subArea) {
+            const url = `http://192.168.0.144:8080/electricity?date=${selectedDate}&city=${area}&county=${subArea}`;
+            getFetchData(url);
+        }
     }, [selectedDate, area, subArea]);
 
     const getFetchData = (url) => {
@@ -64,7 +66,7 @@ export default function Chart({
             dates.includes(item.date)
         );
 
-        const elecData  = dates.map((date) => {
+        const elecData = dates.map((date) => {
             const found = filteredData.find((item) => item.date === date);
             return found ? found.elec_avg : 0;
         });
@@ -92,7 +94,7 @@ export default function Chart({
             const found = filteredData.find((item) => item.date === date);
             return found ? found.avg_rh : 0;
         });
-        
+
         return {
             series: [
                 {
@@ -176,7 +178,6 @@ export default function Chart({
                         borderRadius: [10, 10, 0, 0],
                     },
                 },
-                
             ],
         };
     };
@@ -184,7 +185,7 @@ export default function Chart({
     const generateDates = (start, end, interval) => {
         const dates = [];
         const current = new Date(start);
-    
+
         if (interval === "day") {
             dates.push(current.toISOString().split("T")[0]);
         } else if (interval === "week") {
@@ -199,16 +200,16 @@ export default function Chart({
                 tempDate.setDate(tempDate.getDate() + 1);
             }
         }
-    
+
         return dates;
     };
-    
+
     const handleXDataChange = (e) => {
         const value = e.target.value;
         setInterval(value);
-    
+
         let newStartDate, newEndDate;
-    
+
         if (value === "day") {
             newStartDate = selectedDate ? new Date(selectedDate) : new Date();
             newEndDate = new Date(newStartDate);
@@ -219,22 +220,22 @@ export default function Chart({
         } else if (value === "month") {
             newEndDate = selectedDate ? new Date(selectedDate) : new Date();
             newStartDate = new Date(newEndDate);
-            newStartDate.setDate(newEndDate.getDate() - 29);  // 30일 전
+            newStartDate.setDate(newEndDate.getDate() - 29); // 30일 전
         }
-    
+
         const dates = generateDates(newStartDate, newEndDate, value);
         setStartDate(newStartDate);
         setEndDate(newEndDate);
         setXData(dates);
         setSeries(transformChartData(rowData, dates).series);
     };
-    
+
     useEffect(() => {
         const dates = generateDates(startDate, endDate, interval);
         setXData(dates);
         setSeries(transformChartData(rowData, dates).series);
     }, [startDate, endDate, interval, rowData]);
-    
+
     useEffect(() => {
         const newStartDate = selectedDate ? new Date(selectedDate) : new Date();
         const newEndDate = selectedDate ? new Date(selectedDate) : new Date();
@@ -254,7 +255,7 @@ export default function Chart({
                 },
             },
             grid: {
-                right: '18%',
+                right: "18%",
                 top: 40,
                 bottom: 40,
                 containLabel: false,

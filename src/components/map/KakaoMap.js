@@ -14,6 +14,7 @@ const KakaoMap = ({
     area: propArea,
     subArea: propSubArea,
     selectedDate: propSelectedDate,
+    onMapClick, // 클릭 시 Home.js로 지역 데이터를 전달하는 콜백 함수
 }) => {
     const { kakao } = window;
     const mapContainerRef = useRef(null); // 지도를 렌더링할 DOM 요소 참조
@@ -86,16 +87,19 @@ const KakaoMap = ({
             const geocoder = new kakao.maps.services.Geocoder();
             geocoder.coord2Address(lng, lat, (result, status) => {
                 if (status === kakao.maps.services.Status.OK) {
-                    const address = result[0].address.region_2depth_name;
-                    console.log(`주소 변환 결과: ${address}`);
+                    const subArea = result[0].address.region_2depth_name;
+                    // const area = result[0].address.region_1depth_name;
+                    console.log(`주소 변환 결과: ${subArea}`);
+                    onMapClick(area, subArea); // 선택한 지역을 Home.js로 전달
 
                     setOverlayPosition(latlng); // 오버레이 위치 설정
-                    setSubAreaName(address); // 하위 지역 이름 설정
+                    setSubAreaName(subArea); // 하위 지역 이름 설정
                     map.setCenter(latlng); // 클릭한 지점으로 지도 이동
                     map.setLevel(7);
 
+                    
                     // 날짜 및 지역 정보를 업데이트하여 데이터 가져오기
-                    const url = `http://192.168.0.144:8080/electricity?date=${selectedDate}&city=${area}&county=${address}`;
+                    const url = `http://192.168.0.144:8080/electricity?date=${selectedDate}&city=${area}&county=${subArea}`;
                     getFetchData(url);
                 } else {
                     console.error("주소 변환 실패:", status);

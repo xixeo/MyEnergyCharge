@@ -15,84 +15,65 @@ const Home = () => {
     const handleMapReady = useCallback((mapInstance) => {
         setMap(mapInstance);
         infowindowRef.current = new window.kakao.maps.InfoWindow({ zIndex: 1 });
-        console.log("Map instance:", map); // map 변수 사용
     }, []);
 
     // 초기 값 설정
     const initialArea = "부산광역시";
     const initialSubArea = "금정구";
-    const today = new Date().toISOString().split("T")[0]; // 오늘 날짜
+    const today = new Date().toISOString().split("T")[0];
 
     // selectBox
     const [selectedArea, setSelectedArea] = useState(initialArea);
     const [selectedSubArea, setSelectedSubArea] = useState(initialSubArea);
     const [subAreas, setSubAreas] = useState([]);
 
-    // 실제로 KakaoMap에 전달될 상태
+    // 실제로 KakaoMap과 Chart에 전달될 상태
     const [queryArea, setQueryArea] = useState(initialArea);
     const [querySubArea, setQuerySubArea] = useState(initialSubArea);
     const [queryDate, setQueryDate] = useState(today);
 
+    // 사용자가 선택한 값 (임시로 보관)
+    const [tempArea, setTempArea] = useState(initialArea);
+    const [tempSubArea, setTempSubArea] = useState(initialSubArea);
+    const [tempDate, setTempDate] = useState(today);
+
     useEffect(() => {
-        // 부산광역시에 해당하는 하위 지역 목록 설정
         const initialAreaObj = areas.find((area) => area.name === initialArea);
         setSubAreas(initialAreaObj ? initialAreaObj.subArea : []);
     }, []);
 
     const handleAreaChange = (e) => {
         const areaName = e.target.value;
-        setSelectedArea(areaName);
+        setTempArea(areaName); // 임시 상태로 설정
         const selectedAreaObj = areas.find((area) => area.name === areaName);
         setSubAreas(selectedAreaObj ? selectedAreaObj.subArea : []);
-        setSelectedSubArea(""); // 지역을 바꾸면 시, 군, 구 선택 초기화
-        console.log("Selected area:", selectedArea); // selectedArea 변수 사용
+        setTempSubArea(""); // 지역 변경 시 하위 지역 초기화
     };
 
     const handleSubAreaChange = (e) => {
-        setSelectedSubArea(e.target.value);
-        console.log("Selected sub area:", e.target.value); // selectedSubArea 변수 사용
+        setTempSubArea(e.target.value); // 임시 상태로 설정
     };
-
-    // dateBox
-    const [selectedDate, setSelectedDate] = useState(today);
-
-    const areaSelectRef = useRef(null);
-    const subAreaSelectRef = useRef(null);
-    const dateInputRef = useRef(null);
 
     const handleDateChange = (e) => {
-        setSelectedDate(e.target.value);
+        setTempDate(e.target.value); // 날짜 변경 시 임시 상태 업데이트
     };
 
-    // YYYY-MM-DD 형식으로 날짜 포맷팅
-    const formatDate = (date) => {
-        const year = date.getFullYear();
-        const month = `0${date.getMonth() + 1}`.slice(-2);
-        const day = `0${date.getDate()}`.slice(-2);
-        return `${year}-${month}-${day}`;
+    // KakaoMap에서 클릭된 위치 정보를 바로 Chart에 반영
+    const handleMapClick = (area, subArea) => {
+        setQueryArea(area);
+        setQuerySubArea(subArea);
+        setQueryDate(tempDate); // 날짜는 조회 버튼을 눌렀을 때 사용되므로 여기서는 그대로 유지
+        // Chart.js가 상태 업데이트를 감지하도록 의도된 대로 로직이 이어지는지 확인
+        console.log('Updating area:', area, 'subArea:', subArea, 'date:', queryDate);
     };
+    
 
-    const endDate = formatDate(new Date());
-
-    // 조회 버튼 클릭
+    // 조회 버튼 클릭 시 상태 업데이트
     const handleButtonClick = () => {
-        setQueryArea(
-            areaSelectRef.current
-                ? areaSelectRef.current.value
-                : ""
-        );
-        setQuerySubArea(
-            subAreaSelectRef.current ? subAreaSelectRef.current.value : ""
-        );
-        setQueryDate(dateInputRef.current ? dateInputRef.current.value : "");
-        console.log(
-            'Selected Area:',
-            areaSelectRef.current ? areaSelectRef.current.value : 'None',
-            'Selected Sub Area:',
-            subAreaSelectRef.current ? subAreaSelectRef.current.value : 'None',
-            'Selected Date:',
-            dateInputRef.current ? dateInputRef.current.value : 'None'
-        );
+        // 조회 버튼을 누르면 입력된 값을 query 상태로 업데이트
+        setQueryArea(tempArea);
+        setQuerySubArea(tempSubArea);
+        setQueryDate(tempDate);
     };
 
     return (
@@ -106,7 +87,6 @@ const Home = () => {
                         ops={areas.map((area) => area.name)}
                         handleChange={handleAreaChange}
                         customClass="xl:mr-10 mr-4 min-w-40"
-                        selRef={areaSelectRef}
                         labelText="시도"
                         labelClass="ml-0 mr-2 lg:mr-4"
                     />
@@ -118,7 +98,6 @@ const Home = () => {
                         ops={subAreas}
                         handleChange={handleSubAreaChange}
                         customClass="xl:mr-10 mr-4 min-w-40"
-                        selRef={subAreaSelectRef}
                         labelText="시군구"
                         labelClass="ml-0 mr-2 lg:mr-4"
                     />
@@ -127,11 +106,10 @@ const Home = () => {
                         id="dt"
                         type="date"
                         min="2021-08-10"
-                        max={endDate}
-                        value={selectedDate}
+                        max={today}
+                        value={tempDate} // 임시 상태를 InputBox에 바인딩
                         handleChange={handleDateChange}
                         customClass="xl:mr-10 mr-4 min-w-40"
-                        inRef={dateInputRef}
                         labelText="날짜"
                         labelClass="ml-0 mr-2 lg:mr-4"
                     />
@@ -151,6 +129,7 @@ const Home = () => {
                         area={queryArea}
                         subArea={querySubArea}
                         selectedDate={queryDate}
+                        onMapClick={handleMapClick} // 지도에서 클릭한 값을 받아오는 콜백 함수
                     />
                 </div>
 
@@ -159,7 +138,7 @@ const Home = () => {
                         <Chart 
                           area={queryArea}
                           subArea={querySubArea}
-                          selectedDate={queryDate}
+                          selectedDate={queryDate} 
                         />
                     </div>
                     <div className="chartWrap relative">
@@ -171,7 +150,11 @@ const Home = () => {
                             </div>
                         )}
 
-                        <Chart />
+                        <Chart 
+                          area={queryArea}
+                          subArea={querySubArea}
+                          selectedDate={queryDate}
+                        />
                     </div>
                 </div>
             </div>
