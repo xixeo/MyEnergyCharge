@@ -170,9 +170,11 @@ export default function Header() {
                     </ul>
                 </div>
             </div>
+            {!isOpen ? (
             <div className="py-6 px-5 text-center">
                 <Unsub />
             </div>
+            ): ("")}
         </header>
     );
 }
