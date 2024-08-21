@@ -19,6 +19,8 @@ export default function Chart({
     const [area, setArea] = useState(propArea);
     const [subArea, setSubArea] = useState(propSubArea);
     const [selectedDate, setSelectedDate] = useState(propSelectedDate);
+     // const baseUrl = 'http://192.168.0.144:8080/';
+     const baseUrl = 'http://localhost:8080';
 
     // useEffect 훅을 사용해 props가 변경될 때 상태를 업데이트
     useEffect(() => {
@@ -37,7 +39,7 @@ export default function Chart({
     // 상태가 업데이트될 때 데이터를 가져옴
     useEffect(() => {
         if (selectedDate && area && subArea) {
-            const url = `http://192.168.0.144:8080/electricity?date=${selectedDate}&city=${area}&county=${subArea}`;
+            const url = `${baseUrl}/electricity?date=${selectedDate}&city=${area}&county=${subArea}`;
             getFetchData(url);
         }
     }, [selectedDate, area, subArea]);

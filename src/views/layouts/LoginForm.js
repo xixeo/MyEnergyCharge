@@ -7,12 +7,13 @@ export default function LoginForm({ onLogin }) {
     const [pw, setPw] = useState("");
     const [setCookie] = useCookies(["token"]);
     const [isRemember, setIsRemember] = useState(false);
+    const baseUrl = 'http://localhost:8080';
+    // const baseUrl = 'http://192.168.0.144:8080';
 
     const handleLogin = async (e) => {
         e.preventDefault(); // 폼 제출 방지
 
-        const url = "http://192.168.0.144:8080/login";
-        // const url = "http://localhost:8080/login";
+        const url = `${baseUrl}/login`;
 
         try {
             const response = await fetch(url, {

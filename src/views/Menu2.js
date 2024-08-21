@@ -40,7 +40,8 @@ export default function Menu2() {
     const fetchCalendarData = async () => {
         try {
             const token = localStorage.getItem("token");
-            const url = `http://192.168.0.144:8080/members/forum`;
+            const url = `http://localhost:8080/members/forum`;
+            // const url = `http://192.168.0.144:8080/members/forum`;
 
             const response = await fetch(url, {
                 method: "GET",
@@ -112,7 +113,8 @@ export default function Menu2() {
                 return;
             }
     
-            let url = `http://192.168.0.144:8080/members/forum/fee?date=${feeDate}`;
+            let url = `http://localhost:8080/members/forum/fee?date=${feeDate}`;
+            // let url = `http://192.168.0.144:8080/members/forum/fee?date=${feeDate}`;
             if (selectedArea && selectedSubArea) {
                 url += `&city=${selectedArea}&county=${selectedSubArea}`;
             }

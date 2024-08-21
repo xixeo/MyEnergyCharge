@@ -31,7 +31,9 @@ export default function Menu1() {
     const [errors, setErrors] = useState({}); // 필드 오류 상태
     const inputRefs = useRef({}); // Ref 저장용
     // 데이터 fetch
-    const url = `http://192.168.0.144:8080/members/forum`;
+     // const baseUrl = 'http://192.168.0.144:8080/';
+     const baseUrl = 'http://localhost:8080';
+     const url =`${baseUrl}/admin/forum`
     // const url = `http://192.168.0.144:8080/admin/forum`; admin/abcd 파라미터:username
     const [allData, setAllData] = useState([]); //패치된 데이터 저장
     const { setLoading } = useLoading(); // 로딩 컴포넌트
@@ -155,7 +157,7 @@ export default function Menu1() {
         setLoading(true); // 조회 버튼 클릭 시 로딩 상태를 true로 설정
         try {
             const token = localStorage.getItem("token");
-            const url = "http://192.168.0.144:8080/members/forum"; // 데이터 가져올 API 엔드포인트
+            const url = `${baseUrl}/members/forum`; // 데이터 가져올 API 엔드포인트
 
             const response = await fetch(url, {
                 method: "GET",
@@ -292,7 +294,7 @@ export default function Menu1() {
                 await Promise.all(
                     idsToDelete.map(async (id) => {
                         const response = await fetch(
-                            `http://192.168.0.144:8080/members/forum/${id}`,
+                            `${baseUrl}/members/forum/${id}`,
                             {
                                 method: "DELETE",
                                 headers: {
@@ -352,7 +354,7 @@ export default function Menu1() {
         // 저장 로직
         try {
             const token = localStorage.getItem("token");
-            const url = "http://192.168.0.144:8080/members/forum";
+            const url = `${baseUrl}/members/forum`;
 
             const requestBody = rows
                 .filter((row) => selectedRows.has(row.forum_id))
