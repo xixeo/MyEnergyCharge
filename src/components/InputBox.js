@@ -18,13 +18,13 @@ const InputBox = forwardRef(
             unit = "",
             handleBlur,
             selRef, // select용 ref
-            inRef,  // input용 ref
-            disabled
+            inRef, // input용 ref
+            disabled,
         },
         ref
     ) => {
         useEffect(() => {
-            if (ref && typeof ref === 'function') {
+            if (ref && typeof ref === "function") {
                 ref(ref.current);
             }
         }, [ref]);
@@ -69,34 +69,38 @@ const InputBox = forwardRef(
                         type="date"
                         min={min}
                         max={max}
-                        ref={inRef || ref}  // `ref`를 `input`에 연결
+                        ref={inRef || ref} // `ref`를 `input`에 연결
                         value={value}
                         disabled={disabled}
                         className={`lg:min-w-32 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
                         onChange={onChange}
                     />
-                ) :  type === "datetime" ? (
+                ) : type === "datetime" ? (
                     <input
                         id={id}
                         type="datetime-local"
                         min={min}
                         max={max}
-                        ref={inRef || ref}  // `ref`를 `input`에 연결
+                        ref={inRef || ref} // `ref`를 `input`에 연결
                         value={value}
                         disabled={disabled}
                         className={`lg:min-w-25 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
                         onChange={onChange}
                     />
-                )  :type === "dropDown" ? (
+                ) : type === "dropDown" ? (
                     <select
                         id={id}
-                        ref={selRef || ref}  // `ref`를 `select`에 연결
+                        ref={selRef || ref} // `ref`를 `select`에 연결
                         value={value}
                         disabled={disabled}
                         className={`min-w-40 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
                         onChange={onChange}
                     >
-                        <option value="">{initText}</option>
+                        {initText && (
+                            <option value="" disabled hidden>
+                                {initText}
+                            </option>
+                        )}
                         {opTags}
                     </select>
                 ) : type === "textArea" ? (
@@ -104,14 +108,14 @@ const InputBox = forwardRef(
                         id={id}
                         value={value}
                         onChange={onChange}
-                        placeholder={placeholder}                        
+                        placeholder={placeholder}
                         className={`w-full focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#cdcdcd] ${customClass}`}
                     />
                 ) : (
                     <input
                         id={id}
                         ref={inRef || ref}
-                        value={value}                        
+                        value={value}
                         onChange={onChange}
                         onBlur={onBlur}
                         disabled={disabled}

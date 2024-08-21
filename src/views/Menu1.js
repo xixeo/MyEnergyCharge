@@ -1,22 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
-
-import Box from "@mui/material/Box";
-import Collapse from "@mui/material/Collapse";
-import IconButton from "@mui/material/IconButton";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
+import {
+    Table,
+    TableHead,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableRow,
+    Checkbox,
+    IconButton,
+    Collapse,
+    Box,
+    Pagination,
+    Stack,
+} from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import Checkbox from "@mui/material/Checkbox";
 
 import InputBox from "../components/InputBox";
 import Btn from "../components/Btn";
 import { useAlert } from "../components/AlertContext";
-import { useLoading } from "../components/LoadingContext"; 
+import { useLoading } from "../components/LoadingContext";
 
 import tableData from "../components/data/table.json"; // JSON 파일 import
 import areas from "../components/data/area.json";
@@ -32,11 +35,12 @@ export default function Menu1() {
     // const url = `http://192.168.0.144:8080/admin/forum`; admin/abcd 파라미터:username
     const [allData, setAllData] = useState([]); //패치된 데이터 저장
     const { setLoading } = useLoading(); // 로딩 컴포넌트
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10); // 초기 페이지당 행의 수
 
     // useEffect를 사용하여 컴포넌트가 마운트될 때 초기 데이터를 설정
     // 조회버튼을 누르지 않아도 초기에 전체 데이터 한번 렌더링 시키기
     useEffect(() => {
-        
         const fetchData = async () => {
             const token = localStorage.getItem("token");
             if (!token) {
@@ -262,8 +266,8 @@ export default function Menu1() {
             comment: "", // 기본적으로 빈 배열로 초기화
         };
 
-        // 새 행을 추가하고, 해당 행의 ID를 selectedRows에 추가
-        setRows((prevRows) => [...prevRows, newRow]);
+        // 새 행을 기존의 rows 배열 앞에 추가하여 첫 줄에 생성되도록 함
+        setRows((prevRows) => [newRow, ...prevRows]);
 
         setSelectedRows((prevSelectedRows) => {
             const newSelectedRows = new Set(prevSelectedRows);
@@ -410,8 +414,8 @@ export default function Menu1() {
         } catch (error) {
             console.error("Save error:", error);
             showAlert("저장 중 오류가 발생했습니다.", "error");
-        } finally{
-            handleSearch()
+        } finally {
+            handleSearch();
         }
     };
 
@@ -521,362 +525,423 @@ export default function Menu1() {
             );
         }
     };
+
+    ////////////////////////////////////////////////////////////
+    //               페이지네이션                               //
+    ////////////////////////////////////////////////////////////
+    const handlePageChange = (event, newPage) => {
+        setCurrentPage(newPage);
+    };
+
+    const handleRowsPerPageChange = (event) => {
+        setRowsPerPage(event.target.value);
+        setCurrentPage(1); // 페이지 수가 변경되면 첫 페이지로 이동
+    };
+    // 현재 페이지에 맞는 데이터를 필터링
+    const paginatedRows = rows.slice(
+        (currentPage - 1) * rowsPerPage,
+        currentPage * rowsPerPage
+    );
+
     return (
-        <div className="w-full px-10 pb-10">
-            <div className="w-full h-14 md:px-4 md:pr-0 flex pb-1 lg:pb-0  items-end lg:items-center justify-between border-b border-[#CDD1E1]">
-                <div className="flex items-center">
-                    <InputBox
-                        id="startDate"
-                        type="date"
-                        value={startDate}
-                        max={today}
-                        handleChange={(e) => setStartDate(e.target.value)}
-                        customClass="min-w-40 mr-2"
-                        labelText="날짜"
-                        labelClass="ml-0 mr-2 lg:mr-4"
-                    />
-                    <div className="mr-2">~</div>
-                    <InputBox
-                        id="endDate"
-                        type="date"
-                        min={startDate}
-                        max={today}
-                        value={endDate}
-                        handleChange={(e) => setEndDate(e.target.value)}
-                        customClass="xl:mr-10 mr-4 min-w-40"
-                    />
+        <div className="w-full flex flex-col justify-between h-full px-10 pb-10">
+            <div>
+                <div className="w-full h-14 md:px-4 md:pr-0 flex pb-1 lg:pb-0  items-end lg:items-center justify-between border-b border-[#CDD1E1]">
+                    <div className="flex items-center">
+                        <InputBox
+                            id="startDate"
+                            type="date"
+                            value={startDate}
+                            max={today}
+                            handleChange={(e) => setStartDate(e.target.value)}
+                            customClass="min-w-40 mr-2"
+                            labelText="날짜"
+                            labelClass="ml-0 mr-2 lg:mr-4"
+                        />
+                        <div className="mr-2">~</div>
+                        <InputBox
+                            id="endDate"
+                            type="date"
+                            min={startDate}
+                            max={today}
+                            value={endDate}
+                            handleChange={(e) => setEndDate(e.target.value)}
+                            customClass="xl:mr-10 mr-4 min-w-40"
+                        />
 
-                    <InputBox
-                        id="areaSelect"
-                        type="dropDown"
-                        initText="선택"
-                        ops={areas.map((area) => area.name)}
-                        handleChange={handleAreaChange}
-                        customClass="xl:mr-10 mr-4 min-w-40"
-                        selRef={areaSelectRef}
-                        labelText="시도"
-                        labelClass="ml-0 mr-2 lg:mr-4"
-                    />
+                        <InputBox
+                            id="areaSelect"
+                            type="dropDown"
+                            initText="선택"
+                            ops={areas.map((area) => area.name)}
+                            handleChange={handleAreaChange}
+                            customClass="xl:mr-10 mr-4 min-w-40"
+                            selRef={areaSelectRef}
+                            labelText="시도"
+                            labelClass="ml-0 mr-2 lg:mr-4"
+                        />
 
-                    <InputBox
-                        id="subAreaSelect"
-                        type="dropDown"
-                        initText="선택"
-                        ops={subAreas}
-                        handleChange={handleSubAreaChange}
-                        customClass="xl:mr-10 mr-4 min-w-40"
-                        selRef={subAreaSelectRef}
-                        labelText="시군구"
-                        labelClass="ml-0 mr-2 lg:mr-4"
-                    />
-                    <InputBox
-                        id="search"
-                        ref={inRef}
-                        labelText="검색"
-                        initText="입력하세요"
-                        customClass="xl:mr-10 mr-4 min-w-40"
-                        labelClass="ml-0 mr-2 lg:mr-4"
-                    />
+                        <InputBox
+                            id="subAreaSelect"
+                            type="dropDown"
+                            initText="선택"
+                            ops={subAreas}
+                            handleChange={handleSubAreaChange}
+                            customClass="xl:mr-10 mr-4 min-w-40"
+                            selRef={subAreaSelectRef}
+                            labelText="시군구"
+                            labelClass="ml-0 mr-2 lg:mr-4"
+                        />
+                        <InputBox
+                            id="search"
+                            ref={inRef}
+                            labelText="검색"
+                            initText="입력하세요"
+                            customClass="xl:mr-10 mr-4 min-w-40"
+                            labelClass="ml-0 mr-2 lg:mr-4"
+                        />
+                    </div>
+                    <div>
+                        <Btn
+                            caption="조회"
+                            customClass="bg-[#17458d] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
+                            handleClick={handleSearch}
+                        />
+                        <Btn
+                            caption="추가"
+                            customClass="bg-[#17458d] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
+                            handleClick={handleAdd}
+                        />
+                        <Btn
+                            caption="삭제"
+                            customClass="bg-[#17458d] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
+                            handleClick={handleDelete}
+                        />
+                        <Btn
+                            caption="저장"
+                            customClass="bg-[#17458d] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
+                            handleClick={handleSave}
+                        />
+                    </div>
                 </div>
-                <div>
-                    <Btn
-                        caption="조회"
-                        customClass="bg-[#17458d] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
-                        handleClick={handleSearch}
-                    />
-                    <Btn
-                        caption="추가"
-                        customClass="bg-[#17458d] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
-                        handleClick={handleAdd}
-                    />
-                    <Btn
-                        caption="삭제"
-                        customClass="bg-[#17458d] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
-                        handleClick={handleDelete}
-                    />
-                    <Btn
-                        caption="저장"
-                        customClass="bg-[#17458d] min-w-14 py-1 h-[30px] rounded-sm text-white text-sm ml-1 px-1"
-                        handleClick={handleSave}
-                    />
-                </div>
-            </div>
-            <TableContainer
-                style={{
-                    marginTop: "20px",
-                    border: "1px solid #CED2E2",
-                    borderRadius: "0.375rem",
-                }}
-            >
-                <Table aria-label="collapsible table">
-                    <TableHead style={{ background: "#DEE0EA" }}>
-                        <TableRow>
-                            <TableCell>
-                                <Checkbox
-                                    indeterminate={
-                                        selectedRows.size > 0 &&
-                                        selectedRows.size < rows.length
-                                    }
-                                    checked={
-                                        rows.length > 0 &&
-                                        selectedRows.size === rows.length
-                                    }
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedRows(
-                                                new Set(
-                                                    rows.map(
-                                                        (row) => row.forum_id
-                                                    )
-                                                )
-                                            );
-                                        } else {
-                                            setSelectedRows(new Set());
+                <TableContainer
+                    style={{
+                        marginTop: "20px",
+                        border: "1px solid #CED2E2",
+                        borderRadius: "0.375rem",
+                    }}
+                >
+                    <Table aria-label="collapsible table">
+                        <TableHead style={{ background: "#DEE0EA" }}>
+                            <TableRow>
+                                <TableCell>
+                                    <Checkbox
+                                        indeterminate={
+                                            selectedRows.size > 0 &&
+                                            selectedRows.size < rows.length
                                         }
-                                    }}
-                                />
-                            </TableCell>
-                            <TableCell align="center">번호</TableCell>
-                            <TableCell align="center">
-                                {" "}
-                                <span className="req">날짜</span>
-                            </TableCell>
-                            <TableCell align="center">
-                                <span className="req">계량기 수치</span>
-                            </TableCell>
-                            <TableCell align="center">시도</TableCell>
-                            <TableCell align="center">시군구</TableCell>
-                            <TableCell align="center">평균기온</TableCell>
-                            <TableCell align="center">평균습도</TableCell>
-                            <TableCell align="center">전력 사용량</TableCell>
-                            <TableCell />
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {rows.map((row) => (
-                            <React.Fragment key={row.forum_id}>
-                                <TableRow
-                                    style={{ borderTop: "1px solid #e4e4e4" }}
-                                >
-                                    <TableCell style={{ width: "50px" }}>
-                                        <Checkbox
-                                            checked={selectedRows.has(
-                                                row.forum_id
-                                            )}
-                                            onChange={() =>
-                                                handleSelectRow(row.forum_id)
-                                            }
-                                        />
-                                    </TableCell>
-
-                                    <TableCell align="center">
-                                        {row.board_id}
-                                    </TableCell>
-                                    <TableCell align="center" itemType="date">
-                                        <InputBox
-                                            id={`date-${row.forum_id}`}
-                                            type="date"
-                                            max={today}
-                                            value={row.date}
-                                            handleChange={(e) => {
-                                                handleChangeCell(
-                                                    row.forum_id,
-                                                    "date",
-                                                    e.target.value
+                                        checked={
+                                            rows.length > 0 &&
+                                            selectedRows.size === rows.length
+                                        }
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                setSelectedRows(
+                                                    new Set(
+                                                        rows.map(
+                                                            (row) =>
+                                                                row.forum_id
+                                                        )
+                                                    )
                                                 );
-                                            }}
-                                            ref={(el) => {
-                                                inputRefs.current[
-                                                    `${row.forum_id}-date`
-                                                ] = el;
-                                            }}
-                                            customClass=""
-                                        />
-                                    </TableCell>
-                                    <TableCell align="center">
-                                        <InputBox
-                                            type="text"
-                                            id={`elec_total-${row.forum_id}`} // 단일 id 사용
-                                            key={`elec_total-${row.forum_id}`} // 단일 key 사용
-                                            value={row.elec_total}
-                                            unit="kWh" // 단위 설정
-                                            customClass="text-right max-w-28"
-                                            handleBlur={handleBlur}
-                                            handleChange={(e) => {
-                                                handleChangeCell(
-                                                    row.forum_id,
-                                                    "elec_total",
-                                                    e.target.value
-                                                );
-                                            }}
-                                            ref={(el) => {
-                                                inputRefs.current[
-                                                    `${row.forum_id}-elec_total`
-                                                ] = el;
-                                            }}
-                                        />
-                                    </TableCell>
-                                    <TableCell align="center">
-                                        <InputBox
-                                            id={`city-${row.forum_id}`}
-                                            type="dropDown"
-                                            initText="선택"
-                                            ops={areas.map((area) => area.name)}
-                                            value={row.city}
-                                            handleChange={(e) =>
-                                                handleChangeCell(
-                                                    row.forum_id,
-                                                    "city",
-                                                    e.target.value
-                                                )
+                                            } else {
+                                                setSelectedRows(new Set());
                                             }
-                                            ref={(el) => {
-                                                inputRefs.current[
-                                                    `${row.forum_id}-city`
-                                                ] = el;
-                                            }}
-                                        />
-                                    </TableCell>
-                                    <TableCell align="center">
-                                        <InputBox
-                                            id={`region-${row.forum_id}`}
-                                            type="dropDown"
-                                            initText="선택"
-                                            ops={
-                                                areas.find(
-                                                    (area) =>
-                                                        area.name === row.city
-                                                )?.subArea || []
-                                            }
-                                            value={row.region}
-                                            handleChange={(e) =>
-                                                handleChangeCell(
-                                                    row.forum_id,
-                                                    "region",
-                                                    e.target.value
-                                                )
-                                            }
-                                            ref={(el) => {
-                                                inputRefs.current[
-                                                    `${row.forum_id}-region`
-                                                ] = el;
-                                            }}
-                                        />
-                                    </TableCell>
-                                    <TableCell align="center">
-                                        <span className="text-[#ff5252] font-bold">
-                                            {row.avg_temp}
-                                        </span>
-
-                                        {row.avg_temp ? (
-                                            <span className="ml-1 text-xs text-zinc-500">
-                                                °C
-                                            </span>
-                                        ) : (
-                                            <span className="ml-1 text-xs text-zinc-500">
-                                                -
-                                            </span>
-                                        )}
-                                    </TableCell>
-                                    <TableCell align="center">
-                                        <span className="text-[#0058ff] font-bold">
-                                            {row.avg_rh}
-                                        </span>
-                                        {row.avg_rh ? (
-                                            <span className="ml-1 text-xs text-zinc-500">
-                                                %
-                                            </span>
-                                        ) : (
-                                            <span className="ml-1 text-xs text-zinc-500">
-                                                -
-                                            </span>
-                                        )}
-                                    </TableCell>
-                                  
-                                    <TableCell align="right">
-                                        <span className="text-green-600 font-bold">
-                                            {row.elec_diff}
-                                        </span>
-                                        {row.days_dff ? (
-                                            <span className="ml-1 text-zinc-500">
-                                                ({row.days_dff}일 전 대비)
-                                            </span>
-                                        ) : (
-                                            <span className="ml-1 text-xs text-zinc-500">
-                                                -
-                                            </span>
-                                        )}
-                                    </TableCell>
-                                    <TableCell style={{ width: "50px" }}>
-                                        <IconButton
-                                            aria-label="expand row"
-                                            size="small"
-                                            onClick={() =>
-                                                toggleRow(row.forum_id)
-                                            }
-                                        >
-                                            {openRows[row.forum_id] ? (
-                                                <KeyboardArrowUpIcon />
-                                            ) : (
-                                                <KeyboardArrowDownIcon />
-                                            )}
-                                        </IconButton>
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={14}
+                                        }}
+                                    />
+                                </TableCell>
+                                <TableCell align="center">번호</TableCell>
+                                <TableCell align="center">
+                                    {" "}
+                                    <span className="req">날짜</span>
+                                </TableCell>
+                                <TableCell align="center">
+                                    <span className="req">계량기 수치</span>
+                                </TableCell>
+                                <TableCell align="center">시도</TableCell>
+                                <TableCell align="center">시군구</TableCell>
+                                <TableCell align="center">평균기온</TableCell>
+                                <TableCell align="center">평균습도</TableCell>
+                                <TableCell align="center">
+                                    전력 사용량
+                                </TableCell>
+                                <TableCell />
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {paginatedRows.map((row) => (
+                                <React.Fragment key={row.forum_id}>
+                                    <TableRow
                                         style={{
-                                            paddingBottom: openRows[
-                                                row.forum_id
-                                            ]
-                                                ? 20
-                                                : 0,
-                                            paddingTop: 0,
-                                            paddingRight: 5,
-                                            paddingLeft: 50,
+                                            borderTop: "1px solid #e4e4e4",
                                         }}
                                     >
-                                        <Collapse
-                                            in={openRows[row.forum_id]}
-                                            timeout="auto"
-                                            unmountOnExit
+                                        <TableCell style={{ width: "50px" }}>
+                                            <Checkbox
+                                                checked={selectedRows.has(
+                                                    row.forum_id
+                                                )}
+                                                onChange={() =>
+                                                    handleSelectRow(
+                                                        row.forum_id
+                                                    )
+                                                }
+                                            />
+                                        </TableCell>
+
+                                        <TableCell align="center">
+                                            {row.board_id}
+                                        </TableCell>
+                                        <TableCell
+                                            align="center"
+                                            itemType="date"
                                         >
-                                            <Box sx={{ margin: 1 }}>
-                                                <div className="wrap">
-                                                    <InputBox
-                                                        type="textArea"
-                                                        id={`textarea-${row.forum_id}`}
-                                                        key={`textarea-${row.forum_id}`}
-                                                        placeholder="메모"
-                                                        value={
-                                                            row.comment
-                                                                ?.content || ""
-                                                        } // comment 객체가 있으면 content 필드를 사용하고, 없으면 빈 문자열
-                                                        handleChange={(e) => {
-                                                            const newContent =
-                                                                e.target.value;
-                                                            handleChangeCell(
-                                                                row.forum_id,
-                                                                "comment",
-                                                                {
-                                                                    ...row.comment,
-                                                                    content:
-                                                                        newContent,
-                                                                }
-                                                            );
-                                                        }}
-                                                    />
-                                                </div>
-                                            </Box>
-                                        </Collapse>
-                                    </TableCell>
-                                </TableRow>
-                            </React.Fragment>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                                            <InputBox
+                                                id={`date-${row.forum_id}`}
+                                                type="date"
+                                                max={today}
+                                                value={row.date}
+                                                handleChange={(e) => {
+                                                    handleChangeCell(
+                                                        row.forum_id,
+                                                        "date",
+                                                        e.target.value
+                                                    );
+                                                }}
+                                                ref={(el) => {
+                                                    inputRefs.current[
+                                                        `${row.forum_id}-date`
+                                                    ] = el;
+                                                }}
+                                            />
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <InputBox
+                                                type="text"
+                                                id={`elec_total-${row.forum_id}`} // 단일 id 사용
+                                                key={`elec_total-${row.forum_id}`} // 단일 key 사용
+                                                value={row.elec_total}
+                                                unit="kWh" // 단위 설정
+                                                customClass="text-right"
+                                                handleBlur={handleBlur}
+                                                handleChange={(e) => {
+                                                    handleChangeCell(
+                                                        row.forum_id,
+                                                        "elec_total",
+                                                        e.target.value
+                                                    );
+                                                }}
+                                                ref={(el) => {
+                                                    inputRefs.current[
+                                                        `${row.forum_id}-elec_total`
+                                                    ] = el;
+                                                }}
+                                            />
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <InputBox
+                                                id={`city-${row.forum_id}`}
+                                                type="dropDown"
+                                                initText="선택"
+                                                ops={areas.map(
+                                                    (area) => area.name
+                                                )}
+                                                value={row.city}
+                                                handleChange={(e) =>
+                                                    handleChangeCell(
+                                                        row.forum_id,
+                                                        "city",
+                                                        e.target.value
+                                                    )
+                                                }
+                                                ref={(el) => {
+                                                    inputRefs.current[
+                                                        `${row.forum_id}-city`
+                                                    ] = el;
+                                                }}
+                                            />
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <InputBox
+                                                id={`region-${row.forum_id}`}
+                                                type="dropDown"
+                                                initText="선택"
+                                                ops={
+                                                    areas.find(
+                                                        (area) =>
+                                                            area.name ===
+                                                            row.city
+                                                    )?.subArea || []
+                                                }
+                                                value={row.region}
+                                                handleChange={(e) =>
+                                                    handleChangeCell(
+                                                        row.forum_id,
+                                                        "region",
+                                                        e.target.value
+                                                    )
+                                                }
+                                                ref={(el) => {
+                                                    inputRefs.current[
+                                                        `${row.forum_id}-region`
+                                                    ] = el;
+                                                }}
+                                            />
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <span className="text-[#ff5252] font-bold">
+                                                {row.avg_temp}
+                                            </span>
+
+                                            {row.avg_temp ? (
+                                                <span className="ml-1 text-xs text-zinc-500">
+                                                    °C
+                                                </span>
+                                            ) : (
+                                                <span className="ml-1 text-xs text-zinc-500">
+                                                    -
+                                                </span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <span className="text-[#0058ff] font-bold">
+                                                {row.avg_rh}
+                                            </span>
+                                            {row.avg_rh ? (
+                                                <span className="ml-1 text-xs text-zinc-500">
+                                                    %
+                                                </span>
+                                            ) : (
+                                                <span className="ml-1 text-xs text-zinc-500">
+                                                    -
+                                                </span>
+                                            )}
+                                        </TableCell>
+
+                                        <TableCell align="right">
+                                            <span className="text-green-600 font-bold">
+                                                {row.elec_diff}
+                                            </span>
+                                            {row.days_dff ? (
+                                                <span className="ml-1 text-zinc-500">
+                                                    ({row.days_dff}일 전 대비)
+                                                </span>
+                                            ) : (
+                                                <span className="ml-1 text-xs text-zinc-500">
+                                                    -
+                                                </span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell style={{ width: "50px" }}>
+                                            <IconButton
+                                                aria-label="expand row"
+                                                size="small"
+                                                onClick={() =>
+                                                    toggleRow(row.forum_id)
+                                                }
+                                            >
+                                                {openRows[row.forum_id] ? (
+                                                    <KeyboardArrowUpIcon />
+                                                ) : (
+                                                    <KeyboardArrowDownIcon />
+                                                )}
+                                            </IconButton>
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell
+                                            colSpan={14}
+                                            style={{
+                                                paddingBottom: openRows[
+                                                    row.forum_id
+                                                ]
+                                                    ? 20
+                                                    : 0,
+                                                paddingTop: 0,
+                                                paddingRight: 5,
+                                                paddingLeft: 50,
+                                            }}
+                                        >
+                                            <Collapse
+                                                in={openRows[row.forum_id]}
+                                                timeout="auto"
+                                                unmountOnExit
+                                            >
+                                                <Box sx={{ margin: 1 }}>
+                                                    <div className="wrap">
+                                                        <InputBox
+                                                            type="textArea"
+                                                            id={`textarea-${row.forum_id}`}
+                                                            key={`textarea-${row.forum_id}`}
+                                                            placeholder="메모"
+                                                            value={
+                                                                row.comment
+                                                                    ?.content ||
+                                                                ""
+                                                            } // comment 객체가 있으면 content 필드를 사용하고, 없으면 빈 문자열
+                                                            handleChange={(
+                                                                e
+                                                            ) => {
+                                                                const newContent =
+                                                                    e.target
+                                                                        .value;
+                                                                handleChangeCell(
+                                                                    row.forum_id,
+                                                                    "comment",
+                                                                    {
+                                                                        ...row.comment,
+                                                                        content:
+                                                                            newContent,
+                                                                    }
+                                                                );
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </Box>
+                                            </Collapse>
+                                        </TableCell>
+                                    </TableRow>
+                                </React.Fragment>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </div>
+            <div className="flex w-full items-center relative">
+                <InputBox
+                    id="rowPage"
+                    type="dropDown"
+                    value={rowsPerPage}
+                    ops={[5, 10, 15, 20]}
+                    handleChange={handleRowsPerPageChange}
+                    customClass="xl:mr-10 mr-4 min-w-40"
+                    initText="선택하세요" // 기본 선택 옵션 텍스트 설정
+                />
+                {/* 페이지네이션 컴포넌트 */}
+                <Stack
+                    spacing={2}
+                    className="flex items-center absolute left-1/2 -translate-x-1/2"
+                >
+                    <Pagination
+                        count={Math.ceil(rows.length / rowsPerPage)} // 전체 페이지 수 계산
+                        page={currentPage} // 현재 페이지 설정
+                        onChange={handlePageChange} // 페이지 변경 핸들러
+                        variant="outlined"
+                        color="primary"
+                        shape="rounded"
+                    />
+                </Stack>
+            </div>
         </div>
     );
 }
