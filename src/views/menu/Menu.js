@@ -18,6 +18,11 @@ const data = [
         link: "/menu2",
         icon: Menu3,
     },
+    {
+        title: "관리자",
+        link: "/admin",
+        icon: Menu3,
+    },
 ];
 
 export default data;

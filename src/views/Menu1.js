@@ -33,7 +33,7 @@ export default function Menu1() {
     // 데이터 fetch
      // const baseUrl = 'http://192.168.0.144:8080/';
      const baseUrl = 'http://localhost:8080';
-     const url =`${baseUrl}/admin/forum`
+     const url =`${baseUrl}/members/forum`
     // const url = `http://192.168.0.144:8080/admin/forum`; admin/abcd 파라미터:username
     const [allData, setAllData] = useState([]); //패치된 데이터 저장
     const { setLoading } = useLoading(); // 로딩 컴포넌트

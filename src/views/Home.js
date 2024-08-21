@@ -4,6 +4,7 @@ import areas from "../components/data/area.json";
 import InputBox from "../components/InputBox";
 import Btn from "../components/Btn";
 import Chart from "../components/chart/Chart";
+import MyChart from "../components/chart/MyChart";
 import { useRecoilState } from "recoil";
 import { AtomN } from "./layouts/AtomN";
 
@@ -153,7 +154,7 @@ const Home = () => {
                             </div>
                         )}
 
-                        <Chart 
+                        <MyChart 
                           area={queryArea}
                           subArea={querySubArea}
                           selectedDate={queryDate}
