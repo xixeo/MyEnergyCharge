@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // 페이지 이동을 위한 useNavigate 훅 추가
 import styles from "../assets/theme/login.module.scss";
-import Btn from "../components/Btn";
 import { useAlert } from "../components/AlertContext";
 
 export default function Join() {
@@ -32,7 +31,8 @@ export default function Join() {
         }
     
         try {
-            const response = await fetch("http://localhost:8080/signup", {
+            const response = await fetch("http://192.168.0.144:8080/signup", {
+            // const response = await fetch("http://localhost:8080/signup", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
