@@ -40,7 +40,7 @@ const Unsub = () => {
   };
 
   return (
-    <button onClick={handleUnsub} className='text-sm text-white font-normal'>
+    <button onClick={handleUnsub} className='text-sm text-white font-light w-full border rounded-md p-2'>
       회원탈퇴
     </button>
   );

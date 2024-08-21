@@ -170,7 +170,7 @@ export default function Header() {
                     </ul>
                 </div>
             </div>
-            <div className="p-10 text-center">
+            <div className="py-6 px-5 text-center">
                 <Unsub />
             </div>
         </header>
