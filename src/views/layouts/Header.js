@@ -27,6 +27,7 @@ export default function Header() {
     const onLogout = (e) => {
         e.preventDefault();
 
+        
         if (window.confirm("로그아웃 하시겠습니까?")) {
             try {
                 setUser(""); // 사용자 상태 초기화

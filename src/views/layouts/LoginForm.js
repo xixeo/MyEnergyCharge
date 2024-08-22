@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { useCookies } from "react-cookie";
 import { Link } from "react-router-dom";
+import { useAlert } from "../../components/AlertContext";
 
 export default function LoginForm({ onLogin }) {
     const [username, setUsername] = useState("");
     const [pw, setPw] = useState("");
     const [setCookie] = useCookies(["token"]);
     const [isRemember, setIsRemember] = useState(false);
-    const baseUrl = 'http://localhost:8080';
-    // const baseUrl = 'http://192.168.0.144:8080';
+    const { showAlert } = useAlert();
+    // const baseUrl = 'http://localhost:8080';
+    const baseUrl = 'http://192.168.0.144:8080';
 
     const handleLogin = async (e) => {
         e.preventDefault(); // 폼 제출 방지
@@ -16,20 +18,27 @@ export default function LoginForm({ onLogin }) {
         const url = `${baseUrl}/login`;
 
         try {
+            console.log('Sending username:', username);
+            console.log('Sending password:', pw);
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    username,
+                    username: username,
                     password: pw,
                 }),
             });
 
+            console.log('responseeee', response)
+
             if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.message || "로그인에 실패하였습니다.");
+                showAlert("로그인에 실패했습니다.", "error");
+                // const error = await response.json();
+                // console.log('error', error);
+                // throw new Error(error.message || "로그인에 실패하였습니다.");
+                // console.log('dddddddddddddddddddddddd', error)
             }
 
             const token = response.headers.get('Authorization'); // 토큰 읽기
@@ -73,7 +82,7 @@ export default function LoginForm({ onLogin }) {
                         name="id"
                         id="id"
                         className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        placeholder="name@company.com"
+                        placeholder="username"
                         required=""
                     />
                 </div>

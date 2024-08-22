@@ -19,8 +19,8 @@ export default function MyChart({
     const [area, setArea] = useState(propArea);
     const [subArea, setSubArea] = useState(propSubArea);
     const [selectedDate, setSelectedDate] = useState(propSelectedDate);
-     // const baseUrl = 'http://192.168.0.144:8080/';
-     const baseUrl = 'http://localhost:8080';
+     const baseUrl = 'http://192.168.0.144:8080';
+    //  const baseUrl = 'http://localhost:8080';
 
     // useEffect 훅을 사용해 props가 변경될 때 상태를 업데이트
     useEffect(() => {

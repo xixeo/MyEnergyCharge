@@ -51,8 +51,8 @@ const KakaoMap = ({
     "#B0CBE9",
     "#B3A29B",
   ];
-  // const baseUrl = 'http://192.168.0.144:8080/';
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = 'http://192.168.0.144:8080';
+  // const baseUrl = "http://localhost:8080";
 
   // 지도 초기화 및 폴리곤 추가
   useEffect(() => {
@@ -270,7 +270,6 @@ const KakaoMap = ({
     }
   }, [mapInstance]);
 
-  // 오버레이 업데이트
   // 오버레이 업데이트
   useEffect(() => {
     if (mapInstance) {

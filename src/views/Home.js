@@ -87,7 +87,8 @@ const Home = () => {
                     <InputBox
                         id="areaSelect"
                         type="dropDown"
-                        initText={initialArea}
+                        value={selectedArea} // value를 selectedArea로 설정
+                        initText="시도를 선택하세요" // initText는 placeholder 역할
                         ops={areas.map((area) => area.name)}
                         handleChange={handleAreaChange}
                         customClass="xl:mr-10 mr-4 min-w-40"
@@ -98,7 +99,8 @@ const Home = () => {
                     <InputBox
                         id="subAreaSelect"
                         type="dropDown"
-                        initText={initialSubArea}
+                        value={selectedSubArea} // value를 selectedSubArea로 설정
+                        initText="시군구를 선택하세요" // initText는 placeholder 역할
                         ops={subAreas}
                         handleChange={handleSubAreaChange}
                         customClass="xl:mr-10 mr-4 min-w-40"

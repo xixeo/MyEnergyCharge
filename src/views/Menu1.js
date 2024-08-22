@@ -31,8 +31,8 @@ export default function Menu1() {
     const [errors, setErrors] = useState({}); // 필드 오류 상태
     const inputRefs = useRef({}); // Ref 저장용
     // 데이터 fetch
-     // const baseUrl = 'http://192.168.0.144:8080/';
-     const baseUrl = 'http://localhost:8080';
+     const baseUrl = 'http://192.168.0.144:8080';
+    //  const baseUrl = 'http://localhost:8080';
      const url =`${baseUrl}/members/forum`
     // const url = `http://192.168.0.144:8080/admin/forum`; admin/abcd 파라미터:username
     const [allData, setAllData] = useState([]); //패치된 데이터 저장
@@ -88,7 +88,7 @@ export default function Menu1() {
                     elec_diff: item.elec_diff,
                     days_dff: item.days_diff,
                     sum: item.sum,
-                    comment: item.comment,
+                    comment: item.comment || "",
                 }));
 
                 setAllData(initialRows); // 전체 데이터 상태로 저장
@@ -258,7 +258,7 @@ export default function Menu1() {
 
     // row 추가 BTN
     const handleAdd = async () => {
-        const newId = rows.length + 10; // 임시 ID (서버에서 생성된 ID아님)
+        const newId = rows.length + 100; // 임시 ID (서버에서 생성된 ID아님)
         const newRow = {
             forum_id: newId, // 임시 ID로 시작
             date: "",
@@ -336,6 +336,8 @@ export default function Menu1() {
                 if (!row.elec_total || isNaN(parseFloat(row.elec_total))) {
                     newErrors[`${row.forum_id}-elec_total`] = true;
                 }
+                if (!row.region) newErrors[`${row.forum_id}-region`] = true;
+                if (!row.subRegion) newErrors[`${row.forum_id}-subRegion`] = true;
             }
         });
 
@@ -368,16 +370,12 @@ export default function Menu1() {
                         elec_total: elecTotal !== null ? elecTotal : "", // 유효한 숫자인 경우만 설정
                         city: row.city || "",
                         region: row.region || "",
-                        comment: row.comment || "",
+                        comment: row.comment ? row.comment.content : "", // content 속성의 공백 제거
                     };
                 });
 
             // 요청 본문 및 헤더 로그
             console.log("Request URL:", url);
-            console.log("Request Headers:", {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            });
             console.log("Request Body:", JSON.stringify(requestBody));
 
             const response = await fetch(url, {
@@ -427,10 +425,10 @@ export default function Menu1() {
             // 첫 번째 에러 키 찾기
             const firstErrorKey = Object.keys(errors).find(
                 (key) =>
-                    key.includes("-date") ||
-                    key.includes("-elec_total") ||
-                    key.includes("-city") ||
-                    key.includes("-region")
+                    key.includes("date-") ||
+                    key.includes("elec_total-") ||
+                    key.includes("city-") ||
+                    key.includes("region-")
             );
             if (firstErrorKey && inputRefs.current[firstErrorKey]) {
                 // 포커스 맞추기
@@ -886,27 +884,9 @@ export default function Menu1() {
                                                             id={`textarea-${row.forum_id}`}
                                                             key={`textarea-${row.forum_id}`}
                                                             placeholder="메모"
-                                                            value={
-                                                                row.comment
-                                                                    ?.content ||
-                                                                ""
-                                                            } // comment 객체가 있으면 content 필드를 사용하고, 없으면 빈 문자열
-                                                            handleChange={(
-                                                                e
-                                                            ) => {
-                                                                const newContent =
-                                                                    e.target
-                                                                        .value;
-                                                                handleChangeCell(
-                                                                    row.forum_id,
-                                                                    "comment",
-                                                                    {
-                                                                        ...row.comment,
-                                                                        content:
-                                                                            newContent,
-                                                                    }
-                                                                );
-                                                            }}
+                                                            value={ row.comment } // comment 객체가 있으면 content 필드를 사용하고, 없으면 빈 문자열
+                                                            handleChange={(e) => { const newContent = e.target.value;
+                                                                handleChangeCell(row.forum_id,"comment",{ ...row.comment, content: newContent,}); }}
                                                         />
                                                     </div>
                                                 </Box>

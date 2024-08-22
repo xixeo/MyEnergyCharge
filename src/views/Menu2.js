@@ -40,8 +40,8 @@ export default function Menu2() {
     const fetchCalendarData = async () => {
         try {
             const token = localStorage.getItem("token");
-            const url = `http://localhost:8080/members/forum`;
-            // const url = `http://192.168.0.144:8080/members/forum`;
+            // const url = `http://localhost:8080/members/forum`;
+            const url = `http://192.168.0.144:8080/members/forum`;
 
             const response = await fetch(url, {
                 method: "GET",
@@ -113,8 +113,8 @@ export default function Menu2() {
                 return;
             }
     
-            let url = `http://localhost:8080/members/forum/fee?date=${feeDate}`;
-            // let url = `http://192.168.0.144:8080/members/forum/fee?date=${feeDate}`;
+            // let url = `http://localhost:8080/members/forum/fee?date=${feeDate}`;
+            let url = `http://192.168.0.144:8080/members/forum/fee?date=${feeDate}`;
             if (selectedArea && selectedSubArea) {
                 url += `&city=${selectedArea}&county=${selectedSubArea}`;
             }
@@ -148,6 +148,7 @@ export default function Menu2() {
                 prev_price_avg: feeData.prev_price_avg,
                 price_avg: feeData.price_avg,
                 sum: feeData.sum,
+
                 elec_total: calendarData.elec_total,
                 min_temp: calendarData.min_temp,
                 avg_temp: calendarData.avg_temp,
@@ -215,7 +216,6 @@ const handleDateChange = async (date) => {
     await fetchSelectedData(date, feeDate);
 };
 
-    // const handleSearch = async () => {
     //     setLoading(true);
     //     try {
     //         await fetchCalendarData();
@@ -612,7 +612,7 @@ const handleDateChange = async (date) => {
                                 </div>
                             </div>
                         ) : (
-                            <div>날짜를 선택하세요.</div>
+                            <div>데이터가 없습니다.</div>
                         )}
                     </div>
                 </div>
