@@ -324,9 +324,6 @@ export default function MyChart({
             <div className="flex justify-between items-start">
                 <div className="text-md font-semibold">
                     우리집 전력 사용량 추이
-                    <span className="text-xs ml-2 text-gray-600 font-normal">
-                        {area} {subArea}
-                    </span>
                 </div>
 
                 <GroupBtn

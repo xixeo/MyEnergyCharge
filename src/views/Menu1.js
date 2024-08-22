@@ -85,8 +85,8 @@ export default function Menu1() {
                     min_rh: item.min_rh,
                     avg_rh: item.avg_rh,
                     max_rh: item.max_rh,
-                    elec_diff: item.elec_diff,
-                    days_dff: item.days_diff,
+                    elec_diff: item.elec_diff ? `${item.elec_diff} kWh` : "", 
+                    days_diff: item.days_diff,
                     sum: item.sum,
                     comment: item.comment || "",
                 }));
@@ -301,8 +301,8 @@ export default function Menu1() {
             };
 
             // diff1과 diff2의 값 가져오기
-            const diff1Value = parseFloat(inRef1.current?.value || 0);
-            const diff2Value = parseFloat(inRef2.current?.value || Infinity);
+            const diff1Value = parseFloat(inRef1.current?.value);
+            const diff2Value = parseFloat(inRef2.current?.value);
 
             // 필터링 로직 적용
             const filteredRows = data
@@ -324,37 +324,21 @@ export default function Menu1() {
                     const matchingSubArea =
                         !selectedSubArea || item.region === selectedSubArea;
 
-                    // diff 범위 필터링
-                    const elecDiffValue = parseFloat(item.elec_diff);
-                    const matchingDiffRange =
-                        !isNaN(diff1Value) &&
-                        !isNaN(diff2Value) &&
-                        (isNaN(elecDiffValue) ||
-                            (elecDiffValue >= diff1Value &&
-                                elecDiffValue <= diff2Value));
-
-                    // 키워드 검색 부분에서 undefined 체크 추가
-                    // const keywordValue = (
-                    //     inRef.current?.value || ""
-                    // ).toLowerCase(); // null 처리
-                    // const matchingKeyword =
-                    //     keywordValue === "" ||
-                    //     Object.values(item).some(
-                    //         (val) =>
-                    //             val != null && // undefined와 null 체크
-                    //             val
-                    //                 .toString()
-                    //                 .toLowerCase()
-                    //                 .includes(keywordValue)
-                    //     );
+                    // diff 범위 필터링 (diff1Value와 diff2Value가 존재할 경우에만 적용)
+                    let matchingDiffRange = true;
+                    if (!isNaN(diff1Value) && !isNaN(diff2Value)) {
+                        const elecDiffValue = parseFloat(item.elec_diff);
+                        matchingDiffRange =
+                            !isNaN(elecDiffValue) &&
+                            elecDiffValue >= diff1Value &&
+                            elecDiffValue <= diff2Value;
+                    }
 
                     return (
                         dateRange &&
                         matchingArea &&
                         matchingSubArea &&
                         matchingDiffRange
-                        // &&
-                        // matchingKeyword
                     );
                 })
                 .map((item, index) => ({
@@ -467,27 +451,29 @@ export default function Menu1() {
                     newErrors[`elec_total-${row.forum_id}`] = true;
                 }
                 if (!row.city) newErrors[`city-${row.forum_id}`] = true;
-                if (!row.region)
-                    newErrors[`region-${row.forum_id}`] = true;
+                if (!row.region) newErrors[`region-${row.forum_id}`] = true;
             }
         });
-    
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             showAlert("모든 필수 값을 채워야 합니다.", "error");
-    
+
             // 에러가 있는 첫 번째 필드에 포커스 맞추기
             const firstErrorKey = Object.keys(newErrors)[0];
             const element = inputRefs.current[firstErrorKey];
             console.log("Focusing on:", firstErrorKey);
             console.log("Element found:", element);
-    
+
             if (element && element.focus) {
                 element.focus();
             } else {
-                console.error("Element not found or does not support focus:", firstErrorKey);
+                console.error(
+                    "Element not found or does not support focus:",
+                    firstErrorKey
+                );
             }
-    
+
             return;
         }
         // 숫자 추출 함수
@@ -496,7 +482,6 @@ export default function Menu1() {
             return match ? parseFloat(match[0]) : null;
         };
 
-        
         // 저장 로직
         try {
             const token = localStorage.getItem("token");
@@ -514,7 +499,7 @@ export default function Menu1() {
                         elec_total: elecTotal !== null ? elecTotal : "", // 유효한 숫자인 경우만 설정
                         city: row.city || "",
                         region: row.region || "",
-                        comment: row.comment ? row.comment : "", 
+                        comment: row.comment ? row.comment : "",
                     };
                 });
 
@@ -562,25 +547,6 @@ export default function Menu1() {
             handleSearch();
         }
     };
-
-    // 필드 포커싱
-    // useEffect(() => {
-    //     if (Object.keys(errors).length > 0) {
-    //         // 첫 번째 에러 키 찾기
-    //         const firstErrorKey = Object.keys(errors).find(
-    //             (key) =>
-    //                 key.includes("date-") ||
-    //                 key.includes("elec_total-") ||
-    //                 key.includes("city-") ||
-    //                 key.includes("region-")
-    //         );
-    //         if (firstErrorKey && inputRefs.current[firstErrorKey]) {
-    //             // 포커스 맞추기
-    //             inputRefs.current[firstErrorKey].focus();
-    //         }
-    //         console.log("errors", errors);
-    //     }
-    // }, [errors]);
 
     //////////////////////////TABLE/////////////////////////////
     //                   체크박스  핸들러                       //
@@ -870,7 +836,9 @@ export default function Menu1() {
                                                     );
                                                 }}
                                                 ref={(el) => {
-                                                    inputRefs.current[`date-${row.forum_id}`] = el;
+                                                    inputRefs.current[
+                                                        `date-${row.forum_id}`
+                                                    ] = el;
                                                 }}
                                             />
                                         </TableCell>
@@ -981,9 +949,9 @@ export default function Menu1() {
                                             <span className="text-green-600 font-bold">
                                                 {row.elec_diff}
                                             </span>
-                                            {row.days_dff ? (
+                                            {row.days_diff ? (
                                                 <span className="ml-1 text-zinc-500">
-                                                    ({row.days_dff}일 전 대비)
+                                                    ({row.days_diff}일 전 대비)
                                                 </span>
                                             ) : (
                                                 <span className="ml-1 text-xs text-zinc-500">
@@ -1033,10 +1001,21 @@ export default function Menu1() {
                                                             id={`textarea-${row.forum_id}`}
                                                             key={`textarea-${row.forum_id}`}
                                                             placeholder="메모"
-                                                            value={row.comment || ""}  // comment 필드를 문자열로 사용
-                                                            handleChange={(e) => {
-                                                                const newContent = e.target.value;
-                                                                handleChangeCell(row.forum_id, "comment", newContent);  // 문자열로 업데이트
+                                                            value={
+                                                                row.comment ||
+                                                                ""
+                                                            } // comment 필드를 문자열로 사용
+                                                            handleChange={(
+                                                                e
+                                                            ) => {
+                                                                const newContent =
+                                                                    e.target
+                                                                        .value;
+                                                                handleChangeCell(
+                                                                    row.forum_id,
+                                                                    "comment",
+                                                                    newContent
+                                                                ); // 문자열로 업데이트
                                                             }}
                                                         />
                                                     </div>

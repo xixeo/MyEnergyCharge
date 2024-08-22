@@ -52,7 +52,7 @@ const Home = () => {
         const selectedAreaObj = areas.find((area) => area.name === areaName);
         setSubAreas(selectedAreaObj ? selectedAreaObj.subArea : []);
         setTempSubArea(""); // 지역 변경 시 하위 지역 초기화
-    };
+    };    
 
     const handleSubAreaChange = (e) => {
         setTempSubArea(e.target.value); // 임시 상태로 설정
@@ -87,7 +87,7 @@ const Home = () => {
                     <InputBox
                         id="areaSelect"
                         type="dropDown"
-                        value={selectedArea} // value를 selectedArea로 설정
+                        value={tempArea} // value를 selectedArea로 설정
                         initText="시도를 선택하세요" // initText는 placeholder 역할
                         ops={areas.map((area) => area.name)}
                         handleChange={handleAreaChange}
@@ -99,7 +99,7 @@ const Home = () => {
                     <InputBox
                         id="subAreaSelect"
                         type="dropDown"
-                        value={selectedSubArea} // value를 selectedSubArea로 설정
+                        value={tempSubArea} // value를 selectedSubArea로 설정
                         initText="시군구를 선택하세요" // initText는 placeholder 역할
                         ops={subAreas}
                         handleChange={handleSubAreaChange}

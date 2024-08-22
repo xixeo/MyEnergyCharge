@@ -24,7 +24,7 @@ const Admin = () => {
     return (
       <div className="w-full h-2/3 flex justify-center flex-col items-center">
         <Person width={500} height={500}/>
-        <h1 className="text-xl text-sky-600 font-bold py-2">{error}</h1>
+        <h1 className="text-2xl text-sky-600 font-bold py-2">{error}</h1>
         <h1>잠시 후 메인 화면으로 이동합니다.</h1>
       </div>
     );
