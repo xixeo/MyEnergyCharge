@@ -1,4 +1,5 @@
-import React, { forwardRef, useEffect } from "react";
+import React, { forwardRef } from "react";
+
 const InputBox = forwardRef(
     (
         {
@@ -23,12 +24,6 @@ const InputBox = forwardRef(
         },
         ref
     ) => {
-        useEffect(() => {
-            if (ref && typeof ref === "function") {
-                ref(ref.current);
-            }
-        }, [ref]);
-        
         const onChange = (e) => {
             if (handleChange) {
                 handleChange(e);
@@ -69,7 +64,7 @@ const InputBox = forwardRef(
                         type="date"
                         min={min}
                         max={max}
-                        ref={inRef || ref} // `ref`를 `input`에 연결
+                        ref={inRef || ref} // `ref`를 `input`에 직접 연결
                         value={value}
                         disabled={disabled}
                         className={`lg:min-w-32 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
@@ -81,7 +76,7 @@ const InputBox = forwardRef(
                         type="datetime-local"
                         min={min}
                         max={max}
-                        ref={inRef || ref} // `ref`를 `input`에 연결
+                        ref={inRef || ref} // `ref`를 `input`에 직접 연결
                         value={value}
                         disabled={disabled}
                         className={`lg:min-w-25 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
@@ -90,7 +85,7 @@ const InputBox = forwardRef(
                 ) : type === "dropDown" ? (
                     <select
                         id={id}
-                        ref={selRef || ref} // `ref`를 `select`에 연결
+                        ref={selRef || ref} // `ref`를 `select`에 직접 연결
                         value={value}
                         disabled={disabled}
                         className={`min-w-40 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
@@ -106,6 +101,7 @@ const InputBox = forwardRef(
                 ) : type === "textArea" ? (
                     <textarea
                         id={id}
+                        ref={inRef || ref} // `ref`를 `textarea`에 직접 연결
                         value={value}
                         onChange={onChange}
                         placeholder={placeholder}
@@ -114,7 +110,8 @@ const InputBox = forwardRef(
                 ) : (
                     <input
                         id={id}
-                        ref={inRef || ref}
+                        type="text" // 기본 input type을 지정
+                        ref={inRef || ref} // `ref`를 `input`에 직접 연결
                         value={value}
                         onChange={onChange}
                         onBlur={onBlur}

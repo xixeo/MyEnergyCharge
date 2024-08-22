@@ -471,19 +471,32 @@ export default function Menu1() {
                     newErrors[`region-${row.forum_id}`] = true;
             }
         });
-
+    
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             showAlert("모든 필수 값을 채워야 합니다.", "error");
+    
+            // 에러가 있는 첫 번째 필드에 포커스 맞추기
+            const firstErrorKey = Object.keys(newErrors)[0];
+            const element = inputRefs.current[firstErrorKey];
+            console.log("Focusing on:", firstErrorKey);
+            console.log("Element found:", element);
+    
+            if (element && element.focus) {
+                element.focus();
+            } else {
+                console.error("Element not found or does not support focus:", firstErrorKey);
+            }
+    
             return;
         }
-
         // 숫자 추출 함수
         const extractNumber = (str) => {
             const match = str.match(/\d+(\.\d+)?/); // 정규 표현식으로 숫자 추출
             return match ? parseFloat(match[0]) : null;
         };
 
+        
         // 저장 로직
         try {
             const token = localStorage.getItem("token");
@@ -551,23 +564,23 @@ export default function Menu1() {
     };
 
     // 필드 포커싱
-    useEffect(() => {
-        if (Object.keys(errors).length > 0) {
-            // 첫 번째 에러 키 찾기
-            const firstErrorKey = Object.keys(errors).find(
-                (key) =>
-                    key.includes("date-") ||
-                    key.includes("elec_total-") ||
-                    key.includes("city-") ||
-                    key.includes("region-")
-            );
-            if (firstErrorKey && inputRefs.current[firstErrorKey]) {
-                // 포커스 맞추기
-                inputRefs.current[firstErrorKey].focus();
-            }
-            console.log("errors", errors);
-        }
-    }, [errors]);
+    // useEffect(() => {
+    //     if (Object.keys(errors).length > 0) {
+    //         // 첫 번째 에러 키 찾기
+    //         const firstErrorKey = Object.keys(errors).find(
+    //             (key) =>
+    //                 key.includes("date-") ||
+    //                 key.includes("elec_total-") ||
+    //                 key.includes("city-") ||
+    //                 key.includes("region-")
+    //         );
+    //         if (firstErrorKey && inputRefs.current[firstErrorKey]) {
+    //             // 포커스 맞추기
+    //             inputRefs.current[firstErrorKey].focus();
+    //         }
+    //         console.log("errors", errors);
+    //     }
+    // }, [errors]);
 
     //////////////////////////TABLE/////////////////////////////
     //                   체크박스  핸들러                       //
@@ -857,9 +870,7 @@ export default function Menu1() {
                                                     );
                                                 }}
                                                 ref={(el) => {
-                                                    inputRefs.current[
-                                                        `${row.forum_id}-date`
-                                                    ] = el;
+                                                    inputRefs.current[`date-${row.forum_id}`] = el;
                                                 }}
                                             />
                                         </TableCell>
@@ -881,7 +892,7 @@ export default function Menu1() {
                                                 }}
                                                 ref={(el) => {
                                                     inputRefs.current[
-                                                        `${row.forum_id}-elec_total`
+                                                        `elec_total-${row.forum_id}`
                                                     ] = el;
                                                 }}
                                             />
@@ -904,7 +915,7 @@ export default function Menu1() {
                                                 }
                                                 ref={(el) => {
                                                     inputRefs.current[
-                                                        `${row.forum_id}-city`
+                                                        `city-${row.forum_id}`
                                                     ] = el;
                                                 }}
                                             />
@@ -931,7 +942,7 @@ export default function Menu1() {
                                                 }
                                                 ref={(el) => {
                                                     inputRefs.current[
-                                                        `${row.forum_id}-region`
+                                                        `region-${row.forum_id}`
                                                     ] = el;
                                                 }}
                                             />
