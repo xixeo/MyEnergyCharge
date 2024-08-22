@@ -31,9 +31,9 @@ export default function Menu1() {
     const [errors, setErrors] = useState({}); // 필드 오류 상태
     const inputRefs = useRef({}); // Ref 저장용
     // 데이터 fetch
-     const baseUrl = 'http://192.168.0.144:8080';
+    const baseUrl = "http://192.168.0.144:8080";
     //  const baseUrl = 'http://localhost:8080';
-     const url =`${baseUrl}/members/forum`
+    const url = `${baseUrl}/members/forum`;
     // const url = `http://192.168.0.144:8080/admin/forum`; admin/abcd 파라미터:username
     const [allData, setAllData] = useState([]); //패치된 데이터 저장
     const { setLoading } = useLoading(); // 로딩 컴포넌트
@@ -150,8 +150,8 @@ export default function Menu1() {
     // const inRef = useRef();
 
     // 전력량 범위
-    const [diff1, setDiff1] = useState('');
-    const [diff2, setDiff2] = useState('');
+    const [diff1, setDiff1] = useState("");
+    const [diff2, setDiff2] = useState("");
     const inRef1 = useRef(null);
     const inRef2 = useRef(null);
 
@@ -162,7 +162,6 @@ export default function Menu1() {
     const handleDiff2Change = (e) => {
         setDiff2(e.target.value);
     };
-
 
     //////////////////////////BTN EVENT////////////////////////
     //                       CRUD                            //
@@ -275,7 +274,7 @@ export default function Menu1() {
         try {
             const token = localStorage.getItem("token");
             const url = `${baseUrl}/members/forum`; // 데이터 가져올 API 엔드포인트
-    
+
             const response = await fetch(url, {
                 method: "GET",
                 headers: {
@@ -283,7 +282,7 @@ export default function Menu1() {
                     Authorization: `Bearer ${token}`,
                 },
             });
-    
+
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error("Fetch Error:", errorData);
@@ -293,46 +292,47 @@ export default function Menu1() {
                     }`
                 );
             }
-    
+
             const data = await response.json(); // 서버에서 가져온 데이터를 `data`로 저장
             const extractDate = (dateString) => {
                 if (!dateString) return null;
                 const date = new Date(dateString);
                 return formatDate(date); // yyyy-mm-dd 형식으로 변환
             };
-    
+
             // diff1과 diff2의 값 가져오기
             const diff1Value = parseFloat(inRef1.current?.value || 0);
             const diff2Value = parseFloat(inRef2.current?.value || Infinity);
-    
+
             // 필터링 로직 적용
             const filteredRows = data
                 .filter((item) => {
                     const itemDate = extractDate(item.date);
                     const start = extractDate(startDate);
                     const end = extractDate(endDate);
-    
+
                     // 날짜 필터링
                     const dateRange =
                         (!startDate || itemDate >= start) &&
                         (!endDate || itemDate <= end);
-    
+
                     // 지역 필터링
                     const matchingArea =
                         !selectedArea || item.city === selectedArea;
-    
+
                     // 하위 지역 필터링
                     const matchingSubArea =
                         !selectedSubArea || item.region === selectedSubArea;
-    
+
                     // diff 범위 필터링
                     const elecDiffValue = parseFloat(item.elec_diff);
                     const matchingDiffRange =
-                        (!isNaN(diff1Value) && !isNaN(diff2Value)) &&
+                        !isNaN(diff1Value) &&
+                        !isNaN(diff2Value) &&
                         (isNaN(elecDiffValue) ||
                             (elecDiffValue >= diff1Value &&
-                             elecDiffValue <= diff2Value));
-    
+                                elecDiffValue <= diff2Value));
+
                     // 키워드 검색 부분에서 undefined 체크 추가
                     // const keywordValue = (
                     //     inRef.current?.value || ""
@@ -347,12 +347,12 @@ export default function Menu1() {
                     //                 .toLowerCase()
                     //                 .includes(keywordValue)
                     //     );
-    
+
                     return (
                         dateRange &&
                         matchingArea &&
                         matchingSubArea &&
-                        matchingDiffRange 
+                        matchingDiffRange
                         // &&
                         // matchingKeyword
                     );
@@ -373,9 +373,9 @@ export default function Menu1() {
                     elec_diff: item.elec_diff ? `${item.elec_diff} kWh` : "", // unit 추가
                     days_diff: item.days_diff,
                     sum: item.sum,
-                    comment: item.comment || [], // 메모 데이터 포함
+                    comment: item.comment || "", // 메모 데이터 포함
                 }));
-    
+
             showAlert("조회되었습니다.", "success");
             setRows(filteredRows); // 필터링된 데이터를 상태로 설정하여 테이블에 표시
         } catch (error) {
@@ -385,7 +385,6 @@ export default function Menu1() {
             setLoading(false); // 데이터 로드가 완료되면 로딩 상태를 false로 설정
         }
     };
-    
 
     // row 추가 BTN
     const handleAdd = async () => {
@@ -463,12 +462,13 @@ export default function Menu1() {
         // 유효성 검사
         rows.forEach((row) => {
             if (selectedRows.has(row.forum_id)) {
-                if (!row.date) newErrors[`${row.forum_id}-date`] = true;
+                if (!row.date) newErrors[`date-${row.forum_id}`] = true;
                 if (!row.elec_total || isNaN(parseFloat(row.elec_total))) {
-                    newErrors[`${row.forum_id}-elec_total`] = true;
+                    newErrors[`elec_total-${row.forum_id}`] = true;
                 }
-                if (!row.region) newErrors[`${row.forum_id}-region`] = true;
-                if (!row.subRegion) newErrors[`${row.forum_id}-subRegion`] = true;
+                if (!row.city) newErrors[`city-${row.forum_id}`] = true;
+                if (!row.region)
+                    newErrors[`region-${row.forum_id}`] = true;
             }
         });
 
@@ -501,7 +501,7 @@ export default function Menu1() {
                         elec_total: elecTotal !== null ? elecTotal : "", // 유효한 숫자인 경우만 설정
                         city: row.city || "",
                         region: row.region || "",
-                        comment: row.comment ? row.comment.content : "", // content 속성의 공백 제거
+                        comment: row.comment ? row.comment : "", 
                     };
                 });
 
@@ -572,7 +572,6 @@ export default function Menu1() {
     //////////////////////////TABLE/////////////////////////////
     //                   체크박스  핸들러                       //
     // ////////////////////////////////////////////////////////
-
     // 체크박스 핸들러
     const handleSelectRow = (id) => {
         setSelectedRows((prevSelectedRows) => {
@@ -1023,9 +1022,11 @@ export default function Menu1() {
                                                             id={`textarea-${row.forum_id}`}
                                                             key={`textarea-${row.forum_id}`}
                                                             placeholder="메모"
-                                                            value={ row.comment } // comment 객체가 있으면 content 필드를 사용하고, 없으면 빈 문자열
-                                                            handleChange={(e) => { const newContent = e.target.value;
-                                                                handleChangeCell(row.forum_id,"comment",{ ...row.comment, content: newContent,}); }}
+                                                            value={row.comment || ""}  // comment 필드를 문자열로 사용
+                                                            handleChange={(e) => {
+                                                                const newContent = e.target.value;
+                                                                handleChangeCell(row.forum_id, "comment", newContent);  // 문자열로 업데이트
+                                                            }}
                                                         />
                                                     </div>
                                                 </Box>
