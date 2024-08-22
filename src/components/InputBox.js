@@ -28,7 +28,7 @@ const InputBox = forwardRef(
                 ref(ref.current);
             }
         }, [ref]);
-
+        
         const onChange = (e) => {
             if (handleChange) {
                 handleChange(e);
@@ -119,7 +119,7 @@ const InputBox = forwardRef(
                         onChange={onChange}
                         onBlur={onBlur}
                         disabled={disabled}
-                        className={`lg:min-w-22 h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
+                        className={`h-[30px] focus:outline-0 focus:border-[#5582e2] focus:border-2 border rounded p-1 text-sm border-[#E4E4E4] ${customClass}`}
                     />
                 )}
             </div>

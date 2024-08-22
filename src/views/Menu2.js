@@ -537,6 +537,7 @@ const handleDateChange = async (date) => {
                                                 id="areaSelect"
                                                 type="dropDown"
                                                 initText="선택"
+                                                value={selectedArea}
                                                 ops={areas.map(
                                                     (area) => area.name
                                                 )}
@@ -550,6 +551,7 @@ const handleDateChange = async (date) => {
                                                 id="subAreaSelect"
                                                 type="dropDown"
                                                 initText="선택"
+                                                value={selectedSubArea}
                                                 ops={subAreas}
                                                 handleChange={
                                                     handleSubAreaChange

@@ -147,27 +147,143 @@ export default function Menu1() {
     const today = formatDate(new Date());
 
     // 키워드 입력
-    const inRef = useRef();
+    // const inRef = useRef();
+
+    // 전력량 범위
+    const [diff1, setDiff1] = useState('');
+    const [diff2, setDiff2] = useState('');
+    const inRef1 = useRef(null);
+    const inRef2 = useRef(null);
+
+    const handleDiff1Change = (e) => {
+        setDiff1(e.target.value);
+    };
+
+    const handleDiff2Change = (e) => {
+        setDiff2(e.target.value);
+    };
+
 
     //////////////////////////BTN EVENT////////////////////////
     //                       CRUD                            //
     // ////////////////////////////////////////////////////////
     // 조회 BTN
+    // const handleSearch = async () => {
+    //     setLoading(true); // 조회 버튼 클릭 시 로딩 상태를 true로 설정
+    //     try {
+    //         const token = localStorage.getItem("token");
+    //         const url = `${baseUrl}/members/forum`; // 데이터 가져올 API 엔드포인트
+
+    //         const response = await fetch(url, {
+    //             method: "GET",
+    //             headers: {
+    //                 // 'headers'로 수정
+    //                 "Content-Type": "application/json",
+    //                 Authorization: `Bearer ${token}`,
+    //             },
+    //         });
+
+    //         if (!response.ok) {
+    //             const errorData = await response.json();
+    //             console.error("Fetch Error:", errorData);
+    //             throw new Error(
+    //                 `데이터 로드 오류: ${
+    //                     errorData.message || response.statusText
+    //                 }`
+    //             );
+    //         }
+
+    //         const data = await response.json(); // 서버에서 가져온 데이터를 `data`로 저장
+    //         const extractDate = (dateString) => {
+    //             if (!dateString) return null;
+    //             const date = new Date(dateString);
+    //             // 날짜 문자열을 yyyy-mm-dd 형식으로 변환
+    //             return formatDate(date); // yyyy-mm-dd 형식으로 변환
+    //         };
+    //         // 필터링 로직 적용
+    //         const filteredRows = data
+    //             .filter((item) => {
+    //                 const itemDate = extractDate(item.date);
+    //                 const start = extractDate(startDate);
+    //                 const end = extractDate(endDate);
+
+    //                 // 날짜 필터링
+    //                 const dateRange =
+    //                     (!startDate || itemDate >= start) &&
+    //                     (!endDate || itemDate <= end);
+
+    //                 // 지역 필터링
+    //                 const matchingArea =
+    //                     !selectedArea || item.city === selectedArea;
+
+    //                 // 하위 지역 필터링
+    //                 const matchingSubArea =
+    //                     !selectedSubArea || item.region === selectedSubArea;
+
+    //                 // 키워드 검색 부분에서 undefined 체크 추가
+    //                 const keywordValue = (
+    //                     inRef.current?.value || ""
+    //                 ).toLowerCase(); // null 처리
+    //                 const matchingKeyword =
+    //                     keywordValue === "" ||
+    //                     Object.values(item).some(
+    //                         (val) =>
+    //                             val != null && // undefined와 null 체크
+    //                             val
+    //                                 .toString()
+    //                                 .toLowerCase()
+    //                                 .includes(keywordValue)
+    //                     );
+
+    //                 return (
+    //                     dateRange &&
+    //                     matchingArea &&
+    //                     matchingSubArea &&
+    //                     matchingKeyword
+    //                 );
+    //             })
+    //             .map((item, index) => ({
+    //                 board_id: index + 1,
+    //                 forum_id: item.forum_id,
+    //                 date: extractDate(item.date),
+    //                 elec_total: item.elec_total ? `${item.elec_total} kWh` : "", // unit 추가
+    //                 city: item.city,
+    //                 region: item.region,
+    //                 min_temp: item.min_temp,
+    //                 avg_temp: item.avg_temp,
+    //                 max_temp: item.max_temp,
+    //                 min_rh: item.min_rh,
+    //                 avg_rh: item.avg_rh,
+    //                 max_rh: item.max_rh,
+    //                 elec_diff: item.elec_diff ? `${item.elec_diff} kWh` : "", // unit 추가
+    //                 days_diff: item.days_diff,
+    //                 sum: item.sum,
+    //                 comment: item.comment || [], // 메모 데이터 포함
+    //             }));
+
+    //         showAlert("조회되었습니다.", "success");
+    //         setRows(filteredRows); // 필터링된 데이터를 상태로 설정하여 테이블에 표시
+    //     } catch (error) {
+    //         console.error("Data fetch error:", error);
+    //         showAlert("데이터 로드 중 오류가 발생했습니다.", "error");
+    //     } finally {
+    //         setLoading(false); // 데이터 로드가 완료되면 로딩 상태를 false로 설정
+    //     }
+    // };
     const handleSearch = async () => {
         setLoading(true); // 조회 버튼 클릭 시 로딩 상태를 true로 설정
         try {
             const token = localStorage.getItem("token");
             const url = `${baseUrl}/members/forum`; // 데이터 가져올 API 엔드포인트
-
+    
             const response = await fetch(url, {
                 method: "GET",
                 headers: {
-                    // 'headers'로 수정
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
             });
-
+    
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error("Fetch Error:", errorData);
@@ -177,54 +293,68 @@ export default function Menu1() {
                     }`
                 );
             }
-
+    
             const data = await response.json(); // 서버에서 가져온 데이터를 `data`로 저장
             const extractDate = (dateString) => {
                 if (!dateString) return null;
                 const date = new Date(dateString);
-                // 날짜 문자열을 yyyy-mm-dd 형식으로 변환
                 return formatDate(date); // yyyy-mm-dd 형식으로 변환
             };
+    
+            // diff1과 diff2의 값 가져오기
+            const diff1Value = parseFloat(inRef1.current?.value || 0);
+            const diff2Value = parseFloat(inRef2.current?.value || Infinity);
+    
             // 필터링 로직 적용
             const filteredRows = data
                 .filter((item) => {
                     const itemDate = extractDate(item.date);
                     const start = extractDate(startDate);
                     const end = extractDate(endDate);
-
+    
                     // 날짜 필터링
                     const dateRange =
                         (!startDate || itemDate >= start) &&
                         (!endDate || itemDate <= end);
-
+    
                     // 지역 필터링
                     const matchingArea =
                         !selectedArea || item.city === selectedArea;
-
+    
                     // 하위 지역 필터링
                     const matchingSubArea =
                         !selectedSubArea || item.region === selectedSubArea;
-
+    
+                    // diff 범위 필터링
+                    const elecDiffValue = parseFloat(item.elec_diff);
+                    const matchingDiffRange =
+                        (!isNaN(diff1Value) && !isNaN(diff2Value)) &&
+                        (isNaN(elecDiffValue) ||
+                            (elecDiffValue >= diff1Value &&
+                             elecDiffValue <= diff2Value));
+    
                     // 키워드 검색 부분에서 undefined 체크 추가
-                    const keywordValue = (
-                        inRef.current?.value || ""
-                    ).toLowerCase(); // null 처리
-                    const matchingKeyword =
-                        keywordValue === "" ||
-                        Object.values(item).some(
-                            (val) =>
-                                val != null && // undefined와 null 체크
-                                val
-                                    .toString()
-                                    .toLowerCase()
-                                    .includes(keywordValue)
-                        );
-
+                    // const keywordValue = (
+                    //     inRef.current?.value || ""
+                    // ).toLowerCase(); // null 처리
+                    // const matchingKeyword =
+                    //     keywordValue === "" ||
+                    //     Object.values(item).some(
+                    //         (val) =>
+                    //             val != null && // undefined와 null 체크
+                    //             val
+                    //                 .toString()
+                    //                 .toLowerCase()
+                    //                 .includes(keywordValue)
+                    //     );
+    
                     return (
                         dateRange &&
                         matchingArea &&
                         matchingSubArea &&
-                        matchingKeyword
+                        matchingDiffRange 
+                        // &&
+                        // matchingKeyword
                     );
                 })
                 .map((item, index) => ({
@@ -245,7 +375,7 @@ export default function Menu1() {
                     sum: item.sum,
                     comment: item.comment || [], // 메모 데이터 포함
                 }));
-
+    
             showAlert("조회되었습니다.", "success");
             setRows(filteredRows); // 필터링된 데이터를 상태로 설정하여 테이블에 표시
         } catch (error) {
@@ -255,6 +385,7 @@ export default function Menu1() {
             setLoading(false); // 데이터 로드가 완료되면 로딩 상태를 false로 설정
         }
     };
+    
 
     // row 추가 BTN
     const handleAdd = async () => {
@@ -554,8 +685,8 @@ export default function Menu1() {
                             value={startDate}
                             max={today}
                             handleChange={(e) => setStartDate(e.target.value)}
-                            customClass="min-w-40 mr-2"
                             labelText="날짜"
+                            customClass="min-w-40 mr-2"
                             labelClass="ml-0 mr-2 lg:mr-4"
                         />
                         <div className="mr-2">~</div>
@@ -572,7 +703,8 @@ export default function Menu1() {
                         <InputBox
                             id="areaSelect"
                             type="dropDown"
-                            initText="선택"
+                            initText="시/도 선택"
+                            value={selectedArea}
                             ops={areas.map((area) => area.name)}
                             handleChange={handleAreaChange}
                             customClass="xl:mr-10 mr-4 min-w-40"
@@ -584,7 +716,8 @@ export default function Menu1() {
                         <InputBox
                             id="subAreaSelect"
                             type="dropDown"
-                            initText="선택"
+                            initText="시/군/구 선택"
+                            value={selectedSubArea}
                             ops={subAreas}
                             handleChange={handleSubAreaChange}
                             customClass="xl:mr-10 mr-4 min-w-40"
@@ -593,13 +726,19 @@ export default function Menu1() {
                             labelClass="ml-0 mr-2 lg:mr-4"
                         />
                         <InputBox
-                            id="search"
-                            ref={inRef}
-                            labelText="검색"
-                            initText="입력하세요"
-                            customClass="xl:mr-10 mr-4 min-w-40"
+                            id="elec_diff1"
+                            ref={inRef1}
+                            labelText="전력 사용량"
+                            customClass="w-[100px] mr-2"
                             labelClass="ml-0 mr-2 lg:mr-4"
                         />
+                        <div className="mr-2">~</div>
+                        <InputBox
+                            id="elec_diff2"
+                            ref={inRef2}
+                            customClass="w-[100px]"
+                        />
+                        <div className="ml-1 mr-2 text-sm">kWh</div>
                     </div>
                     <div>
                         <Btn
