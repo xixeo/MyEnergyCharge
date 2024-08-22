@@ -49,27 +49,3 @@ public class ElectricityService {
 	
 	
 	
-	
-	
-//	private final RestTemplate restTemplate; 
-//
-//	private String url = "https://bigdata.kepco.co.kr/openapi/v1/powerUsage/houseAve.do?year=2024&month=05&metroCd=11&apiKey=YQl8K8o7Tcol37VRK4S9lNSx44X31cK8Q6Do4WHB&returnType=json";
-//
-//	public void fetchData() {
-//		try { 
-//			HttpHeaders headers = new HttpHeaders();
-//			headers.set("Accept", "application/json"); // Set Accept header for JSON
-//
-//			HttpEntity<String> entity = new HttpEntity<>(headers);
-//			ResponseEntity<ElectricityResponse> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, ElectricityResponse.class);
-//
-//			ResponseEntity<ElecResponse> responseEntity = restTemplate.getForEntity(url, ElecResponse.class);	
-//			System.out.println(responseEntity.getBody()); 
-//
-//		}catch(Exception e) {
-//			System.out.println("에러!!!");
-//			e.printStackTrace();
-//		}
-//	}
-
-

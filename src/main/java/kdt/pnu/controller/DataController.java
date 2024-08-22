@@ -19,12 +19,7 @@ public class DataController {
 //	private final WeatherService weatherService;
 	private final ElectricityService eService;
 	
-	@GetMapping("/")
-	public String hello() {
-		return "hello";
-	}
-	
-		
+
     @GetMapping("/electricity")
     public ResponseEntity<?> findByDateCityCounty(@RequestParam String date,
     										   @RequestParam String city,

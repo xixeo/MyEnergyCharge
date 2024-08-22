@@ -51,13 +51,6 @@ public class ForumService {
 			forumRepo.sortForum(forum.getUsername());
 	}
 	
-	// Read
-//	public List<Forum> getForums(String username) {
-//		List<Forum> list = forumRepo.findByUsername(username);
-//		list.sort((f1,f2) -> f1.getDate().compareTo(f2.getDate()));
-//		return list;
-//	}
-	
 	// Search
 	public List<ForumDTO> searchForums(String username, 
 									String region,
@@ -139,13 +132,13 @@ public class ForumService {
 		HashMap<String, Double> results = new HashMap<>(); 		
 		List<Object[]> list = forumRepo.electricity_fee(date, username);
 		Double fee = 
-				(list.get(0)[0]!=null? Double.parseDouble(list.get(0)[0].toString()): -1);
+				(list.get(0)[0]!=null? Double.parseDouble(list.get(0)[0].toString()): 0);
 		Double amount = 
-				(list.get(0)[1]!=null? Double.parseDouble(list.get(0)[1].toString()): -1);
+				(list.get(0)[1]!=null? Double.parseDouble(list.get(0)[1].toString()): 0);
 		Double prev_fee = 
-				(list.get(0)[1]!=null? Double.parseDouble(list.get(0)[2].toString()): -1);
+				(list.get(0)[2]!=null? Double.parseDouble(list.get(0)[2].toString()): 0);
 		Double prev_amount = 
-				(list.get(0)[1]!=null? Double.parseDouble(list.get(0)[3].toString()): -1);		
+				(list.get(0)[3]!=null? Double.parseDouble(list.get(0)[3].toString()): 0);		
 		results.put("fee", fee); results.put("sum", amount);
 		results.put("prev_fee", prev_fee); results.put("prev_sum", prev_amount);
 		

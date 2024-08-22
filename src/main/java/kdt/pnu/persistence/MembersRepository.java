@@ -8,4 +8,5 @@ import kdt.pnu.domain.Members;
 public interface MembersRepository extends JpaRepository<Members, String>{
 	
 	public Members findByEmail(String email); 
+
 }

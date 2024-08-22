@@ -91,9 +91,7 @@ public interface ElectricityRepository extends JpaRepository<Electricity,Integer
 			+ "     format(dw.max_tmpr,1) as max_temp, format(dw.min_tmpr,1) as min_temp, format(dw.avg_tmpr,1) as avg_temp, "
 			+ "     format(dw.max_rh,1) as max_rh, format(dw.min_rh,1) as min_rh, format(dw.avg_rh,1) as avg_rh, "
 			+ "     format(dw.di,1) as di, "
-
 			+ " format(d.elec_nonlinear / m.sum_elec_nonlinear *  he.elec_avg,1)  as elec_avg "
-
 			+ " from daily_windchill dw "
 			+ "join monthly_stats m  "
 			+ "on month(dw.date) = m.month and year(dw.date)= m.year and dw.county =m.county and dw.city = m.city "
@@ -102,7 +100,6 @@ public interface ElectricityRepository extends JpaRepository<Electricity,Integer
 			+ "join house_elec he "
 			+ "on month(he.date) = m.month and year(he.date) = m.year and m.county = he.county and m.city = he.city "
 			+ "and dw.date between date_sub(:date, interval 1 month) and :date "
-			+ " "
 			+ "order by dw.date; ",
 			nativeQuery = true)
 	List<Object[]> findByDateCityCounty(@Param("date") String date,

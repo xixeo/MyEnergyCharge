@@ -40,7 +40,6 @@ public class SecurityConfig {
 		http.addFilter(new JWTAuthenticationFilter(authConfig.getAuthenticationManager()));
 		http.httpBasic(basic->basic.disable()); 
 		http.formLogin(frmLogin -> frmLogin.disable()); 
-//		http.formLogin(form -> {});
 		http.addFilterBefore(new JWTAuthorizationFilter(memRepo), AuthorizationFilter.class);
 		
 		return http.build();

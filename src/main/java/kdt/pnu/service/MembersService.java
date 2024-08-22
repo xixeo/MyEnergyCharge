@@ -14,22 +14,33 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class MembersService {
-	
+
 	private final MembersRepository memberRepo; 
 	private final PasswordEncoder passwordEncoder; 
-	
+
 	public Members getMemberById(String id) {
 		return memberRepo.findById(id).get();
 	}
-	
+
 	public String joinMembers(Members member) {
 		String username = member.getUsername(); 
 		String email = member.getEmail(); 		
-		Optional<Members> memberByUsername = memberRepo.findById(username); 
+		Optional <Members> memberByUsername = memberRepo.findById(username); 
 		Members memberByEmail = memberRepo.findByEmail(email);
-		System.out.println(memberByEmail);		
-		if (memberByUsername.isPresent() || memberByEmail != null) 
-			return "이미 가입된 사용자입니다.";
+		System.out.println(memberByEmail);	
+
+		if (memberByEmail != null || memberByUsername.isPresent()) {
+			if(memberByUsername.isPresent()) 
+				if (memberByUsername.get().isEnabled() == true)
+					return "이미 가입된 사용자 입니다.";		
+				else 
+					return "사용할 수 없는 아이디 입니다.";
+			else
+				if(memberByEmail.isEnabled() == true)
+					return "이미 가입된 사용자 입니다.";
+				else 
+					return "사용할 수 없는 이메일 입니다.";
+		}			
 		else {
 			member.setRole(Role.ROLE_MEMBER);
 			member.setEnabled(true);
@@ -38,7 +49,7 @@ public class MembersService {
 			return username + "님, 가입을 축하합니다!";
 		}				
 	}
-	
+
 	public String unsubMembers(User user) {
 		String username = user.getUsername(); 
 		Members member = memberRepo.findById(username).get();
